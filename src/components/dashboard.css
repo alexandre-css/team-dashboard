@@ -1,0 +1,302 @@
+.dashboard {
+  display: flex;
+  height: 100vh;
+  background: #f8fafc;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.sidebar {
+  width: 250px;
+  background: white;
+  border-right: 1px solid #e2e8f0;
+  padding: 20px 0;
+}
+
+.logo {
+  padding: 0 20px 30px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.logo h2 {
+  margin: 0;
+  color: #1a202c;
+  font-size: 1.5rem;
+}
+
+.nav-menu {
+  padding: 20px 0;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #64748b;
+}
+
+.nav-item:hover {
+  background: #f1f5f9;
+  color: #1a202c;
+}
+
+.nav-item.active {
+  background: #3b82f6;
+  color: white;
+  border-right: 3px solid #1d4ed8;
+}
+
+.nav-icon {
+  margin-right: 12px;
+  font-size: 1.1rem;
+}
+
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 30px;
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.dashboard-header h1 {
+  margin: 0;
+  color: #1a202c;
+  font-size: 1.8rem;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  background: #3b82f6;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  padding: 20px 30px;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.card-header h3 {
+  margin: 0;
+  color: #1a202c;
+  font-size: 1.1rem;
+}
+
+.card-content {
+  padding: 20px;
+}
+
+.add-btn, .drive-btn {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.add-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.aviso-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.aviso-item:last-child {
+  border-bottom: none;
+}
+
+.aviso-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 6px;
+}
+
+.aviso-dot.urgent {
+  background: #ef4444;
+}
+
+.aviso-dot.info {
+  background: #3b82f6;
+}
+
+.aviso-text strong {
+  color: #1a202c;
+  font-size: 0.95rem;
+}
+
+.aviso-text p {
+  margin: 4px 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.aviso-time {
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.month-selector, .period-selector {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 0.9rem;
+}
+
+.evento-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.evento-time {
+  color: #3b82f6;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.evento-title {
+  color: #1a202c;
+  font-size: 0.9rem;
+}
+
+.arquivo-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.arquivo-item:last-child {
+  border-bottom: none;
+}
+
+.arquivo-icon {
+  font-size: 1.5rem;
+}
+
+.arquivo-info {
+  flex: 1;
+}
+
+.arquivo-info strong {
+  color: #1a202c;
+  font-size: 0.95rem;
+}
+
+.arquivo-info p {
+  margin: 4px 0 0;
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.download-btn {
+  background: #f1f5f9;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.metric-item {
+  text-align: center;
+  padding: 16px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.metric-item:last-child {
+  border-bottom: none;
+}
+
+.metric-value {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #1a202c;
+}
+
+.metric-label {
+  color: #64748b;
+  font-size: 0.9rem;
+  margin: 4px 0;
+}
+
+.metric-change {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.metric-change.positive {
+  color: #10b981;
+}
+
+.metric-change.negative {
+  color: #ef4444;
+}
+
+.metric-change.neutral {
+  color: #64748b;
+}
+
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .sidebar {
+    width: 200px;
+  }
+}
