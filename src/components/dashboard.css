@@ -122,6 +122,14 @@
   padding: 20px;
 }
 
+.calendario-card .card-content {
+  padding: 0;
+}
+
+.calendario-card iframe {
+  border-radius: 0 0 12px 12px;
+}
+
 .add-btn, .drive-btn {
   background: #3b82f6;
   color: white;
@@ -154,6 +162,15 @@
   border-bottom: none;
 }
 
+.aviso-item {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .aviso-dot {
   width: 8px;
   height: 8px;
@@ -183,6 +200,75 @@
 .aviso-time {
   font-size: 0.8rem;
   color: #94a3b8;
+}
+
+.aviso-form {
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  border: 1px solid #e2e8f0;
+}
+
+.form-select, .form-input, .form-textarea {
+  width: 100%;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.form-submit {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  width: 100%;
+}
+
+.form-submit:hover {
+  background: #2563eb;
+}
+
+.remove-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+}
+
+.remove-btn:hover {
+  background: #dc2626;
+}
+
+.aviso-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 0;
+  border-bottom: 1px solid #f1f5f9;
+  animation: fadeIn 0.3s ease-in;
+}
+
+.aviso-dot.warning {
+  background: #f59e0b;
 }
 
 .month-selector, .period-selector {
