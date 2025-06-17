@@ -236,6 +236,249 @@
   min-height: 60px;
 }
 
+.rich-editor {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.editor-toolbar {
+  background: #f9fafb;
+  padding: 8px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  gap: 4px;
+}
+
+.format-btn {
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 14px;
+  min-width: 28px;
+}
+
+.format-btn:hover {
+  background: #f3f4f6;
+}
+
+.rich-textarea {
+  min-height: 80px;
+  padding: 12px;
+  outline: none;
+  font-family: inherit;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.rich-textarea:empty::before {
+  content: "Descrição do aviso";
+  color: #9ca3af;
+}
+
+.image-upload {
+  margin-top: 12px;
+}
+
+.image-upload label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+.image-drop-zone {
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  background: #f9fafb;
+  transition: all 0.2s ease;
+}
+
+.image-drop-zone:hover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.drop-message {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.images-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.image-preview {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.image-preview img {
+  max-width: 200px;
+  max-height: 150px;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.image-preview button {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.image-icon {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-right: 8px;
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.image-icon:hover {
+  background: #2563eb;
+}
+
+.image-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-popup {
+  position: relative;
+  max-width: 90%;
+  max-height: 90%;
+}
+
+.image-popup-content {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.image-popup-close {
+  position: absolute;
+  top: -15px;
+  right: -15px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-popup-close:hover {
+  background: #dc2626;
+}
+
+.add-more-message {
+  color: #6b7280;
+  font-size: 0.8rem;
+  padding: 10px;
+  border: 1px dashed #d1d5db;
+  border-radius: 4px;
+  background: #f9fafb;
+}
+
+.image-gallery {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gallery-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  font-size: 20px;
+  z-index: 10;
+}
+
+.gallery-nav.prev {
+  left: -50px;
+}
+
+.gallery-nav.next {
+  right: -50px;
+}
+
+.gallery-nav:hover {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.gallery-counter {
+  position: absolute;
+  bottom: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 14px;
+}
+
+.image-count {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #ef4444;
+  color: white;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .form-submit {
   background: #3b82f6;
   color: white;

@@ -7,8 +7,10 @@ const Dashboard = () => {
   const [novoAviso, setNovoAviso] = useState({
     titulo: '',
     descricao: '',
-    tipo: 'warning'
+    tipo: 'warning',
+    imagens: []
   });
+
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [editandoAviso, setEditandoAviso] = useState(null);
   const [notebooks, setNotebooks] = useState([]);
@@ -75,7 +77,13 @@ const carregarTjscLinks = async () => {
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      setAvisos(data || []);
+      
+      const avisosProcessados = data.map(aviso => ({
+        ...aviso,
+        imagens: typeof aviso.imagens === 'string' ? JSON.parse(aviso.imagens) : (aviso.imagens || [])
+      }));
+      
+      setAvisos(avisosProcessados || []);
     } catch (error) {
       console.error('Erro ao carregar avisos:', error);
     }
@@ -87,20 +95,21 @@ const carregarTjscLinks = async () => {
       return;
     }
     
-    if (novoAviso.titulo.trim() && novoAviso.descricao.trim()) {
+    if (novoAviso.titulo.trim()) {
       try {
         const { error } = await supabase
           .from('avisos')
           .insert([{
             titulo: novoAviso.titulo,
             descricao: novoAviso.descricao,
-            tipo: novoAviso.tipo
+            tipo: novoAviso.tipo,
+            imagens: JSON.stringify(novoAviso.imagens)
           }]);
         
         if (error) throw error;
         
         await carregarAvisos();
-        setNovoAviso({ titulo: '', descricao: '', tipo: 'warning' });
+        setNovoAviso({ titulo: '', descricao: '', tipo: 'warning', imagens: [] });
         setMostrarFormulario(false);
       } catch (error) {
         console.error('Erro ao adicionar aviso:', error);
@@ -127,27 +136,29 @@ const carregarTjscLinks = async () => {
     setNovoAviso({
       titulo: aviso.titulo,
       descricao: aviso.descricao,
-      tipo: aviso.tipo
+      tipo: aviso.tipo,
+      imagens: aviso.imagens || []
     });
     setMostrarFormulario(true);
   };
 
   const salvarEdicao = async () => {
-    if (novoAviso.titulo.trim() && novoAviso.descricao.trim()) {
+    if (novoAviso.titulo.trim()) {
       try {
         const { error } = await supabase
           .from('avisos')
           .update({
             titulo: novoAviso.titulo,
             descricao: novoAviso.descricao,
-            tipo: novoAviso.tipo
+            tipo: novoAviso.tipo,
+            imagens: JSON.stringify(novoAviso.imagens)
           })
           .eq('id', editandoAviso.id);
         
         if (error) throw error;
         
         await carregarAvisos();
-        setNovoAviso({ titulo: '', descricao: '', tipo: 'warning' });
+        setNovoAviso({ titulo: '', descricao: '', tipo: 'warning', imagens: [] });
         setMostrarFormulario(false);
         setEditandoAviso(null);
       } catch (error) {
@@ -156,11 +167,129 @@ const carregarTjscLinks = async () => {
     }
   };
 
-  const cancelarEdicao = () => {
-    setEditandoAviso(null);
-    setNovoAviso({ titulo: '', descricao: '', tipo: 'warning' });
-    setMostrarFormulario(false);
+const formatText = (command) => {
+  document.execCommand(command, false, null);
+};
+
+const handleImagePaste = (e) => {
+  if (novoAviso.imagens.length >= 3) return;
+  
+  const items = e.clipboardData.items;
+  for (let item of items) {
+    if (item.type.indexOf('image') !== -1) {
+      const file = item.getAsFile();
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setNovoAviso({...novoAviso, imagens: [...novoAviso.imagens, event.target.result]});
+      };
+      reader.readAsDataURL(file);
+      break;
+    }
+  }
+};
+
+const handleImageDrop = (e) => {
+  e.preventDefault();
+  if (novoAviso.imagens.length >= 3) return;
+  
+  const files = Array.from(e.dataTransfer.files).filter(file => file.type.indexOf('image') !== -1);
+  const remainingSlots = 3 - novoAviso.imagens.length;
+  const filesToProcess = files.slice(0, remainingSlots);
+  
+  filesToProcess.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setNovoAviso(prev => ({...prev, imagens: [...prev.imagens, event.target.result]}));
+    };
+    reader.readAsDataURL(file);
+  });
+};
+
+const removerImagem = (index) => {
+  const novasImagens = novoAviso.imagens.filter((_, i) => i !== index);
+  setNovoAviso({...novoAviso, imagens: novasImagens});
+};
+
+const abrirGaleria = (imagens) => {
+  const overlay = document.createElement('div');
+  overlay.className = 'image-popup-overlay';
+  overlay.onclick = (e) => {
+    if (e.target === overlay && overlay.parentNode) {
+      overlay.parentNode.removeChild(overlay);
+    }
   };
+  
+  const popup = document.createElement('div');
+  popup.className = 'image-popup';
+  
+  const gallery = document.createElement('div');
+  gallery.className = 'image-gallery';
+  
+  imagens.forEach((img, index) => {
+    const imgElement = document.createElement('img');
+    imgElement.src = img;
+    imgElement.className = 'image-popup-content';
+    imgElement.style.display = index === 0 ? 'block' : 'none';
+    gallery.appendChild(imgElement);
+  });
+  
+  if (imagens.length > 1) {
+    const prevBtn = document.createElement('button');
+    prevBtn.innerHTML = '‹';
+    prevBtn.className = 'gallery-nav prev';
+    
+    const nextBtn = document.createElement('button');
+    nextBtn.innerHTML = '›';
+    nextBtn.className = 'gallery-nav next';
+    
+    const counter = document.createElement('div');
+    counter.className = 'gallery-counter';
+    counter.innerHTML = `1 / ${imagens.length}`;
+    
+    let currentIndex = 0;
+    
+    const updateGallery = () => {
+      gallery.children[currentIndex].style.display = 'none';
+      currentIndex = (currentIndex + 1) % imagens.length;
+      gallery.children[currentIndex].style.display = 'block';
+      counter.innerHTML = `${currentIndex + 1} / ${imagens.length}`;
+    };
+    
+    const updateGalleryPrev = () => {
+      gallery.children[currentIndex].style.display = 'none';
+      currentIndex = currentIndex === 0 ? imagens.length - 1 : currentIndex - 1;
+      gallery.children[currentIndex].style.display = 'block';
+      counter.innerHTML = `${currentIndex + 1} / ${imagens.length}`;
+    };
+    
+    nextBtn.onclick = updateGallery;
+    prevBtn.onclick = updateGalleryPrev;
+    
+    popup.appendChild(prevBtn);
+    popup.appendChild(nextBtn);
+    popup.appendChild(counter);
+  }
+  
+  const closeBtn = document.createElement('button');
+  closeBtn.innerHTML = '×';
+  closeBtn.className = 'image-popup-close';
+  closeBtn.onclick = () => {
+    if (overlay.parentNode) {
+      overlay.parentNode.removeChild(overlay);
+    }
+  };
+  
+  popup.appendChild(gallery);
+  popup.appendChild(closeBtn);
+  overlay.appendChild(popup);
+  document.body.appendChild(overlay);
+};
+
+  function cancelarEdicao() {
+    setEditandoAviso(null);
+    setNovoAviso({ titulo: '', descricao: '', tipo: 'warning', imagens: [] });
+    setMostrarFormulario(false);
+  }
 
 const adicionarNotebook = async () => {
   if (editandoNotebook) {
@@ -171,11 +300,12 @@ const adicionarNotebook = async () => {
   if (novoNotebook.titulo.trim() && novoNotebook.link.trim()) {
     try {
       const { error } = await supabase
-        .from('notebooks')
+        .from('avisos')
         .insert([{
-          titulo: novoNotebook.titulo,
-          link: novoNotebook.link,
-          descricao: novoNotebook.descricao
+          titulo: novoAviso.titulo,
+          descricao: novoAviso.descricao,
+          tipo: novoAviso.tipo,
+          imagens: novoAviso.imagens
         }]);
       
       if (error) throw error;
@@ -203,13 +333,14 @@ const salvarEdicaoNotebook = async () => {
   if (novoNotebook.titulo.trim() && novoNotebook.link.trim()) {
     try {
       const { error } = await supabase
-        .from('notebooks')
+        .from('avisos')
         .update({
-          titulo: novoNotebook.titulo,
-          link: novoNotebook.link,
-          descricao: novoNotebook.descricao
+          titulo: novoAviso.titulo,
+          descricao: novoAviso.descricao,
+          tipo: novoAviso.tipo,
+          imagens: novoAviso.imagens
         })
-        .eq('id', editandoNotebook.id);
+        .eq('id', editandoAviso.id);
       
       if (error) throw error;
       
@@ -394,12 +525,57 @@ const removerTjscLink = async (id) => {
                     onChange={(e) => setNovoAviso({...novoAviso, titulo: e.target.value})}
                     className="form-input"
                   />
-                  <textarea
-                    placeholder="Descrição do aviso"
-                    value={novoAviso.descricao}
-                    onChange={(e) => setNovoAviso({...novoAviso, descricao: e.target.value})}
-                    className="form-textarea"
-                  />
+                  <div className="rich-editor">
+                    <div className="editor-toolbar">
+                      <button type="button" onClick={() => formatText('bold')} className="format-btn">
+                        <b>B</b>
+                      </button>
+                      <button type="button" onClick={() => formatText('italic')} className="format-btn">
+                        <i>I</i>
+                      </button>
+                      <button type="button" onClick={() => formatText('underline')} className="format-btn">
+                        <u>U</u>
+                      </button>
+                    </div>
+                    <div
+                      contentEditable
+                      className="rich-textarea"
+                      onInput={(e) => setNovoAviso({...novoAviso, descricao: e.target.innerHTML})}
+                      dangerouslySetInnerHTML={{__html: novoAviso.descricao}}
+                      suppressContentEditableWarning={true}
+                    />
+                  </div>
+                  <div className="image-upload">
+                    <label>Anexar imagens (máximo 3):</label>
+                    <div 
+                      className="image-drop-zone"
+                      onPaste={handleImagePaste}
+                      onDrop={handleImageDrop}
+                      onDragOver={(e) => e.preventDefault()}
+                    >
+                      {novoAviso.imagens.length > 0 ? (
+                        <div className="images-preview">
+                          {novoAviso.imagens.map((img, index) => (
+                            <div key={index} className="image-preview">
+                              <img src={img} alt={`Preview ${index + 1}`} />
+                              <button type="button" onClick={() => removerImagem(index)}>
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                          {novoAviso.imagens.length < 3 && (
+                            <div className="add-more-message">
+                              Cole mais imagens aqui (máximo {3 - novoAviso.imagens.length})
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="drop-message">
+                          Cole imagens aqui (Ctrl+V) ou arraste arquivos (máximo 3)
+                        </div>
+                      )}
+                    </div>
+                  </div>
                   <div style={{display: 'flex', gap: '8px'}}>
                     <button onClick={adicionarAviso} className="form-submit">
                       {editandoAviso ? 'Salvar Edição' : 'Adicionar Aviso'}
@@ -417,7 +593,21 @@ const removerTjscLink = async (id) => {
                   <div className={`aviso-dot ${aviso.tipo}`}></div>
                   <div className="aviso-text">
                     <strong>{aviso.titulo}</strong>
-                    <p>{aviso.descricao}</p>
+                    <div dangerouslySetInnerHTML={{__html: aviso.descricao}} />
+                    <div className="aviso-images">
+                      {(aviso.imagens && aviso.imagens.length > 0) && (
+                        <button 
+                          onClick={() => abrirGaleria(aviso.imagens)}
+                          className="image-icon"
+                          title={`Ver ${aviso.imagens.length} imagem${aviso.imagens.length > 1 ? 's' : ''} anexada${aviso.imagens.length > 1 ? 's' : ''}`}
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                          </svg>
+                          {aviso.imagens.length > 1 && <span className="image-count">{aviso.imagens.length}</span>}
+                        </button>
+                      )}
+                    </div>
                     <span className="aviso-time">
                       {new Date(aviso.created_at).toLocaleString('pt-BR')}
                     </span>
@@ -438,11 +628,11 @@ const removerTjscLink = async (id) => {
                   </div>
                 </div>
               ))}
+              </div>
             </div>
-          </div>
-        
-          <div className="card calendario-card">
-            <div className="card-header">
+              
+            <div className="card calendario-card">
+              <div className="card-header">
               <h3>
                 <span className="google-calendar-icon"></span>
                 Calendário
