@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './dashboard.css';
 import { supabase } from '../lib/supabase';
+import { MdDashboard } from "react-icons/md";
 
 const Dashboard = () => {
   const [avisos, setAvisos] = useState([]);
@@ -455,37 +456,15 @@ const removerTjscLink = async (id) => {
   return (
 
     <div className="dashboard">
-      <div className="sidebar">
-        <div className="logo">
-          <h2>📊 TeamDash</h2>
-        </div>
-        <nav className="nav-menu">
-          <div className="nav-item active">
-            <span className="nav-icon">🏠</span>
-            Dashboard
-          </div>
-          <div className="nav-item">
-            <span className="nav-icon">📝</span>
-            Avisos
-          </div>
-          <div className="nav-item">
-            <span className="nav-icon">📅</span>
-            Calendário
-          </div>
-          <div className="nav-item">
-            <span className="nav-icon">📁</span>
-            Arquivos
-          </div>
-          <div className="nav-item">
-            <span className="nav-icon">📊</span>
-            Métricas
-          </div>
-        </nav>
+      <div className="header-section">
+        <h2 className="main-title"><MdDashboard style={{marginRight: '8px', color: '#3b82f6'}} />TeamDash</h2>
       </div>
-
       <div className="main-content">
         <header className="dashboard-header">
-          <h1>Dashboard da Equipe</h1>
+          <div className="title-section">
+            <h1>Dashboard</h1>
+            <span className="subtitle">Gabinete Alexandre Morais da Rosa</span>
+          </div>
           <div className="user-info">
             <span>Bem-vindo, Admin</span>
             <div className="user-avatar">A</div>
@@ -673,8 +652,12 @@ const removerTjscLink = async (id) => {
             <div className="card powerbi-card">
               <div className="card-header">
                 <h3>
-                  <span className="powerbi-icon"></span>
-                  Gerencial de Gabinete
+                  <img 
+                    src="https://upload.wikimedia.org/wikipedia/commons/c/cf/New_Power_BI_Logo.svg" 
+                    alt="Power BI" 
+                    style={{width: '20px', height: '20px', marginRight: '8px', verticalAlign: 'middle'}}
+                    />
+                  Power BI
                 </h3>
                 <button className="drive-btn" onClick={() => window.open('https://app.powerbi.com', '_blank')}>
                   Abrir Power BI

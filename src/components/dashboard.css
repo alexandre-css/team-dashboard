@@ -1,3 +1,4 @@
+
 .dashboard {
   display: flex;
   height: 100vh;
@@ -52,6 +53,18 @@
   font-size: 1.1rem;
 }
 
+.main-title {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  font-size: 1.8rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #3b82f6, #60a5fa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 .main-content {
   flex: 1;
   overflow-y: auto;
@@ -70,6 +83,20 @@
   margin: 0;
   color: #1a202c;
   font-size: 1.8rem;
+}
+
+.header h2 {
+  margin: 0;
+  color: #1f2937;
+  display: flex;
+  align-items: center;
+  font-size: 1.8rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
 }
 
 .user-info {
@@ -184,10 +211,11 @@
 }
 
 .aviso-dot {
-  width: 8px;
-  height: 8px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  margin-top: 6px;
+  flex-shrink: 0;
+  margin-top: 4px;
 }
 
 .aviso-dot.urgent {
@@ -195,12 +223,22 @@
 }
 
 .aviso-dot.info {
-  background: #3b82f6;
+  background-color: #3b82f6;
+}
+
+.aviso-dot.success {
+  background-color: #10b981;
 }
 
 .aviso-text strong {
-  color: #1a202c;
-  font-size: 0.95rem;
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 8px;
+  line-height: 1.4;
+  border-bottom: 2px solid #f3f4f6;
+  padding-bottom: 6px;
 }
 
 .aviso-text p {
@@ -209,9 +247,19 @@
   font-size: 0.9rem;
 }
 
+.aviso-text > div {
+  color: #4b5563;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
 .aviso-time {
-  font-size: 0.8rem;
-  color: #94a3b8;
+  display: block;
+  font-size: 0.85rem;
+  color: #9ca3af;
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid #f3f4f6;
 }
 
 .aviso-form {
@@ -580,13 +628,23 @@
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  padding: 16px 0;
-  border-bottom: 1px solid #f1f5f9;
+  padding: 20px;
+  margin-bottom: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
   animation: fadeIn 0.3s ease-in;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+}
+
+.aviso-item:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  border-color: #d1d5db;
 }
 
 .aviso-dot.warning {
-  background: #f59e0b;
+  background-color: #f59e0b;
 }
 
 .month-selector, .period-selector {
@@ -895,4 +953,24 @@
   .sidebar {
     width: 200px;
   }
+}
+
+.title-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title-section h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.subtitle {
+  font-size: 0.9rem;
+  color: #6b7280;
+  font-weight: 500;
+  letter-spacing: 0.5px;
 }
