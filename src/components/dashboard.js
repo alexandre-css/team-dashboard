@@ -11,18 +11,7 @@ const Dashboard = () => {
   });
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [editandoAviso, setEditandoAviso] = useState(null);
-  const [notebooks, setNotebooks] = useState(() => {
-    const savedNotebooks = localStorage.getItem('notebooks');
-    return savedNotebooks ? JSON.parse(savedNotebooks) : [
-      {
-        id: 1,
-        titulo: 'Análise de Documentos',
-        link: 'https://notebooklm.google.com/notebook/exemplo1',
-        descricao: 'Análise de relatórios mensais',
-        tempo: '2 horas atrás'
-      }
-    ];
-  });
+  const [notebooks, setNotebooks] = useState([]);
   
   const [novoNotebook, setNovoNotebook] = useState({
     titulo: '',
@@ -32,15 +21,52 @@ const Dashboard = () => {
   
   const [mostrarFormularioNotebook, setMostrarFormularioNotebook] = useState(false);
   const [editandoNotebook, setEditandoNotebook] = useState(null);
-  
+  const [tjscLinks, setTjscLinks] = useState([]);
+  const [novoTjscLink, setNovoTjscLink] = useState({
+    titulo: '',
+    link: ''
+  });
+  const [mostrarFormularioTjsc, setMostrarFormularioTjsc] = useState(false);
+  const [editandoTjscLink, setEditandoTjscLink] = useState(null);
+
   useEffect(() => {
     carregarAvisos();
+    carregarNotebooks();
+    carregarTjscLinks();
   }, []);
   
   useEffect(() => {
     localStorage.setItem('notebooks', JSON.stringify(notebooks));
   }, [notebooks]);
   
+const carregarNotebooks = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('notebooks')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    setNotebooks(data || []);
+  } catch (error) {
+    console.error('Erro ao carregar notebooks:', error);
+  }
+};
+
+const carregarTjscLinks = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('tjsc_links')
+      .select('*')
+      .order('titulo', { ascending: true });
+    
+    if (error) throw error;
+    setTjscLinks(data || []);
+  } catch (error) {
+    console.error('Erro ao carregar links TJSC:', error);
+  }
+};
+
   const carregarAvisos = async () => {
     try {
       const { data, error } = await supabase
@@ -136,22 +162,30 @@ const Dashboard = () => {
     setMostrarFormulario(false);
   };
 
-const adicionarNotebook = () => {
+const adicionarNotebook = async () => {
   if (editandoNotebook) {
-    salvarEdicaoNotebook();
+    await salvarEdicaoNotebook();
     return;
   }
   
   if (novoNotebook.titulo.trim() && novoNotebook.link.trim()) {
-    const notebook = {
-      id: Date.now(),
-      ...novoNotebook,
-      tempo: new Date().toLocaleString()
-    };
-    const novosNotebooks = [notebook, ...notebooks];
-    setNotebooks(novosNotebooks);
-    setNovoNotebook({ titulo: '', link: '', descricao: '' });
-    setMostrarFormularioNotebook(false);
+    try {
+      const { error } = await supabase
+        .from('notebooks')
+        .insert([{
+          titulo: novoNotebook.titulo,
+          link: novoNotebook.link,
+          descricao: novoNotebook.descricao
+        }]);
+      
+      if (error) throw error;
+      
+      await carregarNotebooks();
+      setNovoNotebook({ titulo: '', link: '', descricao: '' });
+      setMostrarFormularioNotebook(false);
+    } catch (error) {
+      console.error('Erro ao adicionar notebook:', error);
+    }
   }
 };
 
@@ -165,17 +199,27 @@ const editarNotebook = (notebook) => {
   setMostrarFormularioNotebook(true);
 };
 
-const salvarEdicaoNotebook = () => {
+const salvarEdicaoNotebook = async () => {
   if (novoNotebook.titulo.trim() && novoNotebook.link.trim()) {
-    const novosNotebooks = notebooks.map(notebook => 
-      notebook.id === editandoNotebook.id 
-        ? { ...notebook, ...novoNotebook, tempo: new Date().toLocaleString() }
-        : notebook
-    );
-    setNotebooks(novosNotebooks);
-    setNovoNotebook({ titulo: '', link: '', descricao: '' });
-    setMostrarFormularioNotebook(false);
-    setEditandoNotebook(null);
+    try {
+      const { error } = await supabase
+        .from('notebooks')
+        .update({
+          titulo: novoNotebook.titulo,
+          link: novoNotebook.link,
+          descricao: novoNotebook.descricao
+        })
+        .eq('id', editandoNotebook.id);
+      
+      if (error) throw error;
+      
+      await carregarNotebooks();
+      setNovoNotebook({ titulo: '', link: '', descricao: '' });
+      setMostrarFormularioNotebook(false);
+      setEditandoNotebook(null);
+    } catch (error) {
+      console.error('Erro ao editar notebook:', error);
+    }
   }
 };
 
@@ -185,9 +229,96 @@ const cancelarEdicaoNotebook = () => {
   setMostrarFormularioNotebook(false);
 };
 
-const removerNotebook = (id) => {
-  const novosNotebooks = notebooks.filter(notebook => notebook.id !== id);
-  setNotebooks(novosNotebooks);
+const removerNotebook = async (id) => {
+  try {
+    const { error } = await supabase
+      .from('notebooks')
+      .delete()
+      .eq('id', id);
+    
+    if (error) throw error;
+    await carregarNotebooks();
+  } catch (error) {
+    console.error('Erro ao remover notebook:', error);
+  }
+};
+
+const adicionarTjscLink = async () => {
+  if (editandoTjscLink) {
+    await salvarEdicaoTjscLink();
+    return;
+  }
+  
+  if (novoTjscLink.titulo.trim() && novoTjscLink.link.trim()) {
+    try {
+      const { error } = await supabase
+        .from('tjsc_links')
+        .insert([{
+          titulo: novoTjscLink.titulo,
+          link: novoTjscLink.link
+        }]);
+      
+      if (error) throw error;
+      
+      await carregarTjscLinks();
+      setNovoTjscLink({ titulo: '', link: '' });
+      setMostrarFormularioTjsc(false);
+    } catch (error) {
+      console.error('Erro ao adicionar link TJSC:', error);
+    }
+  }
+};
+
+const editarTjscLink = (link) => {
+  setEditandoTjscLink(link);
+  setNovoTjscLink({
+    titulo: link.titulo,
+    link: link.link
+  });
+  setMostrarFormularioTjsc(true);
+};
+
+const salvarEdicaoTjscLink = async () => {
+  if (novoTjscLink.titulo.trim() && novoTjscLink.link.trim()) {
+    try {
+      const { error } = await supabase
+        .from('tjsc_links')
+        .update({
+          titulo: novoTjscLink.titulo,
+          link: novoTjscLink.link
+        })
+        .eq('id', editandoTjscLink.id);
+      
+      if (error) throw error;
+      
+      await carregarTjscLinks();
+      setNovoTjscLink({ titulo: '', link: '' });
+      setMostrarFormularioTjsc(false);
+      setEditandoTjscLink(null);
+    } catch (error) {
+      console.error('Erro ao editar link TJSC:', error);
+    }
+  }
+};
+
+const cancelarEdicaoTjscLink = () => {
+  setEditandoTjscLink(null);
+  setNovoTjscLink({ titulo: '', link: '', descricao: '' });
+  setMostrarFormularioTjsc(false);
+};
+
+const removerTjscLink = async (id) => {
+  try {
+    const { error } = await supabase
+      .from('tjsc_links')
+      .delete()
+      .eq('id', id);
+    
+    if (error) throw error;
+    await carregarTjscLinks();
+  } catch (error) {
+    console.error('Erro ao remover link TJSC:', error);
+  }
 };
 
   return (
@@ -233,7 +364,7 @@ const removerNotebook = (id) => {
         <div className="dashboard-grid">
           <div className="card avisos-card">
             <div className="card-header">
-              <h3>📢 Avisos Recentes</h3>
+              <h3>📢 Avisos </h3>
               <button className="add-btn" onClick={() => {
                 if (mostrarFormulario && editandoAviso) {
                   cancelarEdicao();
@@ -433,7 +564,9 @@ const removerNotebook = (id) => {
               <a href={notebook.link} target="_blank" rel="noopener noreferrer" className="notebook-link">
                 Abrir Notebook
               </a>
-              <span className="notebook-time">{notebook.tempo}</span>
+              <span className="notebook-time">
+                {new Date(notebook.created_at).toLocaleString('pt-BR')}
+              </span>
             </div>
             <div className="notebook-actions">
               <button 
@@ -453,10 +586,86 @@ const removerNotebook = (id) => {
         ))}
       </div>
     </div>
-        </div>
+    
+    <div className="card tjsc-card">
+      <div className="card-header">
+        <h3>
+          <img 
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwjLt4fG-DbafxSalutZqSasYowTPqx8BpExCZhYlV3qudDsO9H28H6l8de5Uw3q1m6RA&usqp=CAU" 
+            alt="TJSC" 
+            style={{width: '20px', height: '20px', marginRight: '8px', verticalAlign: 'middle'}}
+          />
+          TJSC
+        </h3>
+        <button className="add-btn" onClick={() => {
+          if (mostrarFormularioTjsc && editandoTjscLink) {
+            cancelarEdicaoTjscLink();
+          } else {
+            setMostrarFormularioTjsc(!mostrarFormularioTjsc);
+          }
+        }}>
+          {mostrarFormularioTjsc ? '×' : '+'}
+        </button>
+      </div>
+      <div className="card-content">
+        {mostrarFormularioTjsc && (
+          <div className="tjsc-form">
+            <input
+              type="text"
+              placeholder="Título do link"
+              value={novoTjscLink.titulo}
+              onChange={(e) => setNovoTjscLink({...novoTjscLink, titulo: e.target.value})}
+              className="form-input"
+            />
+            <input
+              type="url"
+              placeholder="Link do TJSC"
+              value={novoTjscLink.link}
+              onChange={(e) => setNovoTjscLink({...novoTjscLink, link: e.target.value})}
+              className="form-input"
+            />
+            <div style={{display: 'flex', gap: '8px'}}>
+              <button onClick={adicionarTjscLink} className="form-submit">
+                {editandoTjscLink ? 'Salvar Edição' : 'Adicionar Link'}
+              </button>
+              {editandoTjscLink && (
+                <button onClick={cancelarEdicaoTjscLink} className="form-cancel">
+                  Cancelar
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+        {tjscLinks.map(link => (
+          <div key={link.id} className="tjsc-item">
+            <div className="tjsc-text">
+              <strong>{link.titulo}</strong>
+              <a href={link.link} target="_blank" rel="noopener noreferrer" className="tjsc-link">
+                Abrir Link
+              </a>
+            </div>
+            <div className="tjsc-actions">
+              <button 
+                onClick={() => editarTjscLink(link)}
+                className="edit-btn"
+              >
+                ✏️
+              </button>
+              <button 
+                onClick={() => removerTjscLink(link.id)}
+                className="remove-btn"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
-  );
-};
-
-export default Dashboard;
+            </div>
+          </div>
+        </div>
+      );
+    };
+    
+    export default Dashboard;
