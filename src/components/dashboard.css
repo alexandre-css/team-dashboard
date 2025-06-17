@@ -279,6 +279,16 @@
   font-size: 0.9rem;
 }
 
+.form-select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background: white;
+  margin-bottom: 10px;
+}
+
 .form-textarea {
   resize: vertical;
   min-height: 60px;
@@ -314,16 +324,25 @@
 
 .rich-textarea {
   min-height: 80px;
+  border: none;
+  border-top: 1px solid #e5e7eb;
   padding: 12px;
   outline: none;
   font-family: inherit;
-  font-size: 0.9rem;
-  line-height: 1.4;
+  font-size: 14px;
+  line-height: 1.5;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .rich-textarea:empty::before {
-  content: "Descrição do aviso";
+  content: attr(placeholder);
   color: #9ca3af;
+  font-style: italic;
+}
+
+.rich-textarea:focus:empty::before {
+  content: "";
 }
 
 .image-upload {
@@ -390,23 +409,40 @@
 }
 
 .image-icon {
-  background: #3b82f6;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
   color: white;
   border: none;
-  border-radius: 6px;
-  padding: 6px 10px;
+  border-radius: 8px;
+  padding: 8px 12px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
   margin-right: 8px;
   margin-top: 8px;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
 }
 
 .image-icon:hover {
-  background: #2563eb;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.image-label {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.expand-icon {
+  opacity: 0.8;
+}
+
+.image-icon:hover .expand-icon {
+  opacity: 1;
+  transform: rotate(45deg) scale(1.1);
 }
 
 .image-popup-overlay {
@@ -973,4 +1009,142 @@
   color: #6b7280;
   font-weight: 500;
   letter-spacing: 0.5px;
+}
+
+.icon-select-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.icon-preview {
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-selector {
+  margin-bottom: 15px;
+}
+
+.icon-selector label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.icon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 12px;
+  background: #f9fafb;
+}
+
+.icon-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: white;
+  text-align: center;
+}
+
+.icon-option:hover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.icon-option.selected {
+  border-color: #3b82f6;
+  background: #dbeafe;
+}
+
+.icon-option svg {
+  font-size: 20px;
+  color: #3b82f6;
+  margin-bottom: 4px;
+}
+
+.icon-option span {
+  font-size: 0.75rem;
+  color: #6b7280;
+  line-height: 1.2;
+}
+
+.notification-popup {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  animation: slideInRight 0.3s ease-out;
+}
+
+.notification-content {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 300px;
+  max-width: 400px;
+}
+
+.notification-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.notification-text {
+  flex: 1;
+  font-size: 14px;
+  color: #374151;
+  font-weight: 500;
+}
+
+.notification-close {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.notification-close:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
