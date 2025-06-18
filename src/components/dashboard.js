@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import './dashboard.css';
 import { supabase } from '../lib/supabase';
 import { MdDashboard } from "react-icons/md";
@@ -7,9 +7,6 @@ import { MdGavel, MdAccountBalance, MdDescription, MdLibraryBooks, MdPeople, MdB
 import { AiOutlineBank, AiOutlineHome, AiOutlinePhone, AiOutlineMail, AiOutlineUser, AiOutlineTeam, AiOutlineFileText, AiOutlineFolder, AiOutlineSafety, AiOutlineSchedule, AiOutlineSetting, AiOutlineSearch, AiOutlineBook, AiOutlineGlobal, AiOutlineAudit, AiOutlineProject, AiOutlineDatabase } from 'react-icons/ai';
 
 const Dashboard = () => {
-  const [showNotification, setShowNotification] = useState(false);
-  const [lastNotification, setLastNotification] = useState('');
-  const [lastAvisoCount, setLastAvisoCount] = useState(0);
   const [avisos, setAvisos] = useState([]);
   const [novoAviso, setNovoAviso] = useState({
     titulo: '',
@@ -40,20 +37,58 @@ const Dashboard = () => {
   const [editandoTjscLink, setEditandoTjscLink] = useState(null);
 
   useEffect(() => {
-    const carregarDados = async () => {
-      await carregarAvisos();
-      await carregarNotebooks();
-      await carregarTjscLinks();
-    };
-    
-    carregarDados();
-  
-    const interval = setInterval(() => {
-      carregarDados();
-    }, 30000);
-  
-    return () => clearInterval(interval);
+    carregarAvisos();
+    carregarNotebooks();
+    carregarTjscLinks();
   }, []);
+  
+  useEffect(() => {
+    localStorage.setItem('notebooks', JSON.stringify(notebooks));
+  }, [notebooks]);
+
+const iconesDisponiveis = {
+  FaGavel, FaBalanceScale, FaFileAlt, FaBook, FaUsers, FaBuilding, 
+  FaClipboardList, FaSearch, FaCalendarAlt, FaCog, FaLaptop, FaHome, 
+  FaPhone, FaEnvelope, FaMapMarkerAlt, FaInfoCircle, FaExclamationTriangle, 
+  FaCheckCircle, FaTimesCircle, FaClock, FaEye, FaFolder, FaFolderOpen, 
+  FaDatabase, FaServer, FaCloud, FaLock, FaUnlock, FaKey, FaShieldAlt, 
+  FaUser, FaUserTie, FaIdCard, FaTools, FaWrench, FaCogs, FaHeadset, 
+  FaTicketAlt, FaBug, FaLifeRing, FaQuestionCircle, FaCommentDots, 
+  FaUserFriends, FaUserCheck, FaUserPlus, FaUserCog, FaHandshake, 
+  FaClipboard, FaUserMd, FaUserShield,
+  MdGavel, MdAccountBalance, MdDescription, MdLibraryBooks, MdPeople, 
+  MdBusiness, MdAssignment, MdEvent, MdHome, MdWork, MdSchool, 
+  MdLocalLibrary, MdAccountBalanceWallet, MdAssignmentInd, MdClass, 
+  MdContactMail, MdContactPhone, MdGrade, MdGroup, MdHistory, MdInfo, 
+  MdLaunch, MdList, MdLocationOn, MdMail, MdNotifications, MdPerson, 
+  MdPhone, MdPlace, MdPublic, MdSchedule, MdSecurity, MdSupervisorAccount, 
+  MdVerifiedUser, MdVisibility, MdBuild, MdSupport, MdReportProblem, 
+  MdHelpOutline, MdBugReport, MdHandyman, MdPersonAdd, MdGroupAdd, 
+  MdBadge, MdCardMembership, MdManageAccounts, MdWorkOutline,
+  AiOutlineBank, AiOutlineHome, AiOutlinePhone, AiOutlineMail, 
+  AiOutlineUser, AiOutlineTeam, AiOutlineFileText, AiOutlineFolder, 
+  AiOutlineSafety, AiOutlineSchedule, AiOutlineSetting, AiOutlineSearch, 
+  AiOutlineBook, AiOutlineGlobal, AiOutlineAudit, AiOutlineProject, 
+  AiOutlineDatabase
+};
+
+const categorias = {
+  'Justiça': ['FaGavel', 'FaBalanceScale', 'MdGavel', 'MdAccountBalance'],
+  'Documentos': ['FaFileAlt', 'FaBook', 'FaClipboard', 'MdDescription', 'MdLibraryBooks', 'AiOutlineFileText', 'AiOutlineBook'],
+  'Pessoas': ['FaUsers', 'FaUser', 'FaUserTie', 'FaUserFriends', 'FaUserCheck', 'FaUserPlus', 'FaUserCog', 'FaUserMd', 'FaUserShield', 'MdPeople', 'MdPerson', 'MdPersonAdd', 'MdGroupAdd', 'AiOutlineUser', 'AiOutlineTeam'],
+  'Prédios': ['FaBuilding', 'FaHome', 'MdBusiness', 'MdHome', 'MdWork', 'AiOutlineBank', 'AiOutlineHome'],
+  'Comunicação': ['FaPhone', 'FaEnvelope', 'MdContactMail', 'MdContactPhone', 'MdMail', 'MdPhone', 'AiOutlinePhone', 'AiOutlineMail'],
+  'Sistema': ['FaDatabase', 'FaServer', 'FaCloud', 'FaCog', 'FaCogs', 'FaTools', 'FaWrench', 'MdBuild', 'AiOutlineDatabase', 'AiOutlineProject'],
+  'Segurança': ['FaLock', 'FaUnlock', 'FaKey', 'FaShieldAlt', 'MdSecurity', 'MdVerifiedUser', 'AiOutlineSafety'],
+  'Interface': ['FaSearch', 'FaEye', 'FaInfoCircle', 'FaCheckCircle', 'FaTimesCircle', 'MdVisibility', 'MdInfo', 'AiOutlineSearch'],
+  'Tempo': ['FaCalendarAlt', 'FaClock', 'MdEvent', 'MdSchedule', 'AiOutlineSchedule'],
+  'Outros': ['FaMapMarkerAlt', 'FaExclamationTriangle', 'FaFolder', 'FaFolderOpen', 'FaLaptop', 'FaIdCard', 'FaHeadset', 'FaTicketAlt', 'FaBug', 'FaLifeRing', 'FaQuestionCircle', 'FaCommentDots', 'FaHandshake', 'MdAssignment', 'MdClass', 'MdGrade', 'MdGroup', 'MdHistory', 'MdLaunch', 'MdList', 'MdLocationOn', 'MdNotifications', 'MdPlace', 'MdPublic', 'MdSupport', 'MdReportProblem', 'MdHelpOutline', 'MdBugReport', 'MdHandyman', 'MdBadge', 'MdCardMembership', 'MdManageAccounts', 'MdWorkOutline', 'AiOutlineFolder', 'AiOutlineSetting', 'AiOutlineGlobal', 'AiOutlineAudit']
+};
+
+const getIconComponent = (iconName) => {
+  const IconComponent = iconesDisponiveis[iconName];
+  return IconComponent ? <IconComponent /> : <FaGavel />;
+};
   
 const carregarNotebooks = async () => {
   try {
@@ -83,29 +118,53 @@ const carregarTjscLinks = async () => {
   }
 };
 
-  const carregarAvisos = useCallback(async () => {
-    const { data, error } = await supabase
-      .from('avisos')
-      .select('*')
-      .order('created_at', { ascending: false });
-    
-    if (error) {
-      console.error('Erro ao carregar avisos:', error);
-    } else {
-      if (lastAvisoCount > 0 && data.length > lastAvisoCount) {
-        const novoAviso = data[0];
-        setLastNotification(`Novo aviso: ${novoAviso.titulo}`);
-        setShowNotification(true);
-        setTimeout(() => setShowNotification(false), 5000);
-      }
-      setLastAvisoCount(data.length);
+  const carregarAvisos = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('avisos')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      
       const avisosProcessados = data.map(aviso => ({
         ...aviso,
-        imagens: typeof aviso.imagens === 'string' ? JSON.parse(aviso.imagens || '[]') : (Array.isArray(aviso.imagens) ? aviso.imagens : [])
+        imagens: typeof aviso.imagens === 'string' ? JSON.parse(aviso.imagens) : (aviso.imagens || [])
       }));
+      
       setAvisos(avisosProcessados || []);
+    } catch (error) {
+      console.error('Erro ao carregar avisos:', error);
     }
-  }, [lastAvisoCount]);
+  };
+  
+  const adicionarAviso = async () => {
+    if (editandoAviso) {
+      await salvarEdicao();
+      return;
+    }
+    
+    if (novoAviso.titulo.trim()) {
+      try {
+        const { error } = await supabase
+          .from('avisos')
+          .insert([{
+            titulo: novoAviso.titulo,
+            descricao: novoAviso.descricao,
+            tipo: novoAviso.tipo,
+            imagens: JSON.stringify(novoAviso.imagens)
+          }]);
+        
+        if (error) throw error;
+        
+        await carregarAvisos();
+        setNovoAviso({ titulo: '', descricao: '', tipo: 'warning', imagens: [] });
+        setMostrarFormulario(false);
+      } catch (error) {
+        console.error('Erro ao adicionar aviso:', error);
+      }
+    }
+  };
   
   const removerAviso = async (id) => {
     try {
@@ -127,16 +186,44 @@ const carregarTjscLinks = async () => {
       titulo: aviso.titulo,
       descricao: aviso.descricao,
       tipo: aviso.tipo,
-      imagens: Array.isArray(aviso.imagens) ? aviso.imagens : []
+      imagens: aviso.imagens || []
     });
     setMostrarFormulario(true);
     
     setTimeout(() => {
-      const editor = document.querySelector('.rich-textarea');
-      if (editor) {
-        editor.innerHTML = aviso.descricao;
+      const formulario = document.querySelector('.aviso-form');
+      if (formulario) {
+        formulario.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
       }
     }, 100);
+  };
+
+  const salvarEdicao = async () => {
+    if (novoAviso.titulo.trim()) {
+      try {
+        const { error } = await supabase
+          .from('avisos')
+          .update({
+            titulo: novoAviso.titulo,
+            descricao: novoAviso.descricao,
+            tipo: novoAviso.tipo,
+            imagens: JSON.stringify(novoAviso.imagens)
+          })
+          .eq('id', editandoAviso.id);
+        
+        if (error) throw error;
+        
+        await carregarAvisos();
+        setNovoAviso({ titulo: '', descricao: '', tipo: 'warning', imagens: [] });
+        setMostrarFormulario(false);
+        setEditandoAviso(null);
+      } catch (error) {
+        console.error('Erro ao editar aviso:', error);
+      }
+    }
   };
 
 const formatText = (command) => {
@@ -144,8 +231,7 @@ const formatText = (command) => {
 };
 
 const handleImagePaste = (e) => {
-  const imagensArray = Array.isArray(novoAviso.imagens) ? novoAviso.imagens : [];
-  if (imagensArray.length >= 3) return;
+  if (novoAviso.imagens.length >= 3) return;
   
   const items = e.clipboardData.items;
   for (let item of items) {
@@ -153,7 +239,7 @@ const handleImagePaste = (e) => {
       const file = item.getAsFile();
       const reader = new FileReader();
       reader.onload = (event) => {
-        setNovoAviso({...novoAviso, imagens: [...imagensArray, event.target.result]});
+        setNovoAviso({...novoAviso, imagens: [...novoAviso.imagens, event.target.result]});
       };
       reader.readAsDataURL(file);
       break;
@@ -163,31 +249,27 @@ const handleImagePaste = (e) => {
 
 const handleImageDrop = (e) => {
   e.preventDefault();
-  const imagensArray = Array.isArray(novoAviso.imagens) ? novoAviso.imagens : [];
-  if (imagensArray.length >= 3) return;
+  if (novoAviso.imagens.length >= 3) return;
   
   const files = Array.from(e.dataTransfer.files).filter(file => file.type.indexOf('image') !== -1);
-  const remainingSlots = 3 - imagensArray.length;
+  const remainingSlots = 3 - novoAviso.imagens.length;
   const filesToProcess = files.slice(0, remainingSlots);
   
   filesToProcess.forEach(file => {
     const reader = new FileReader();
     reader.onload = (event) => {
-      setNovoAviso(prev => ({...prev, imagens: [...(Array.isArray(prev.imagens) ? prev.imagens : []), event.target.result]}));
+      setNovoAviso(prev => ({...prev, imagens: [...prev.imagens, event.target.result]}));
     };
     reader.readAsDataURL(file);
   });
 };
 
 const removerImagem = (index) => {
-  const imagensArray = Array.isArray(novoAviso.imagens) ? novoAviso.imagens : [];
-  const novasImagens = imagensArray.filter((_, i) => i !== index);
+  const novasImagens = novoAviso.imagens.filter((_, i) => i !== index);
   setNovoAviso({...novoAviso, imagens: novasImagens});
 };
 
 const abrirGaleria = (imagens) => {
-  if (!Array.isArray(imagens) || imagens.length === 0) return;
-  
   const overlay = document.createElement('div');
   overlay.className = 'image-popup-overlay';
   overlay.onclick = (e) => {
@@ -262,16 +344,11 @@ const abrirGaleria = (imagens) => {
   document.body.appendChild(overlay);
 };
 
-  const cancelarEdicao = () => {
+  function cancelarEdicao() {
     setEditandoAviso(null);
+    setNovoAviso({ titulo: '', descricao: '', tipo: 'warning', imagens: [] });
     setMostrarFormulario(false);
-    setNovoAviso({
-      titulo: '',
-      descricao: '',
-      tipo: 'warning',
-      imagens: []
-    });
-  };
+  }
 
 const adicionarNotebook = async () => {
   if (editandoNotebook) {
@@ -308,6 +385,16 @@ const editarNotebook = (notebook) => {
     descricao: notebook.descricao
   });
   setMostrarFormularioNotebook(true);
+  
+  setTimeout(() => {
+    const formulario = document.querySelector('.notebook-form');
+    if (formulario) {
+      formulario.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+    }
+  }, 100);
 };
 
 const salvarEdicaoNotebook = async () => {
@@ -389,6 +476,16 @@ const editarTjscLink = (link) => {
     icone: link.icone || 'FaGavel'
   });
   setMostrarFormularioTjsc(true);
+  
+  setTimeout(() => {
+    const formulario = document.querySelector('.tjsc-form');
+    if (formulario) {
+      formulario.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+    }
+  }, 100);
 };
 
 const salvarEdicaoTjscLink = async () => {
@@ -435,188 +532,9 @@ const removerTjscLink = async (id) => {
   }
 };
 
-const getIconComponent = (iconName) => {
-  const iconMap = {
-    FaGavel: <FaGavel style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaBalanceScale: <FaBalanceScale style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaFileAlt: <FaFileAlt style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaBook: <FaBook style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaUsers: <FaUsers style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaBuilding: <FaBuilding style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaClipboardList: <FaClipboardList style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaSearch: <FaSearch style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaCalendarAlt: <FaCalendarAlt style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaCog: <FaCog style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaLaptop: <FaLaptop style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaHome: <FaHome style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaPhone: <FaPhone style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaEnvelope: <FaEnvelope style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaMapMarkerAlt: <FaMapMarkerAlt style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaInfoCircle: <FaInfoCircle style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaCheckCircle: <FaCheckCircle style={{marginRight: '8px', color: '#10b981', fontSize: '18px'}} />,
-    FaExclamationTriangle: <FaExclamationTriangle style={{marginRight: '8px', color: '#f59e0b', fontSize: '18px'}} />,
-    FaTimesCircle: <FaTimesCircle style={{marginRight: '8px', color: '#ef4444', fontSize: '18px'}} />,
-    FaClock: <FaClock style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaEye: <FaEye style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaFolder: <FaFolder style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaFolderOpen: <FaFolderOpen style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaDatabase: <FaDatabase style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaServer: <FaServer style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaCloud: <FaCloud style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaLock: <FaLock style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaUnlock: <FaUnlock style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaKey: <FaKey style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaShieldAlt: <FaShieldAlt style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaUser: <FaUser style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaUserTie: <FaUserTie style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaIdCard: <FaIdCard style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdGavel: <MdGavel style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdAccountBalance: <MdAccountBalance style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdDescription: <MdDescription style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdLibraryBooks: <MdLibraryBooks style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdPeople: <MdPeople style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdBusiness: <MdBusiness style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdAssignment: <MdAssignment style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdEvent: <MdEvent style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdHome: <MdHome style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdWork: <MdWork style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdSchool: <MdSchool style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdLocalLibrary: <MdLocalLibrary style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdAccountBalanceWallet: <MdAccountBalanceWallet style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdAssignmentInd: <MdAssignmentInd style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdClass: <MdClass style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdContactMail: <MdContactMail style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdContactPhone: <MdContactPhone style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdGrade: <MdGrade style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdGroup: <MdGroup style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdHistory: <MdHistory style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdInfo: <MdInfo style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdLaunch: <MdLaunch style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdList: <MdList style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdLocationOn: <MdLocationOn style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdMail: <MdMail style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdNotifications: <MdNotifications style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdPerson: <MdPerson style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdPhone: <MdPhone style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdPlace: <MdPlace style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdPublic: <MdPublic style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdSchedule: <MdSchedule style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdSecurity: <MdSecurity style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdSupervisorAccount: <MdSupervisorAccount style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdVerifiedUser: <MdVerifiedUser style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdVisibility: <MdVisibility style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    AiOutlineBank: <AiOutlineBank style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    AiOutlineHome: <AiOutlineHome style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    AiOutlinePhone: <AiOutlinePhone style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    AiOutlineMail: <AiOutlineMail style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    AiOutlineUser: <AiOutlineUser style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    AiOutlineTeam: <AiOutlineTeam style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    AiOutlineFileText: <AiOutlineFileText style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    AiOutlineFolder: <AiOutlineFolder style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    AiOutlineDatabase: <AiOutlineDatabase style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    AiOutlineSafety: <AiOutlineSafety style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    AiOutlineSchedule: <AiOutlineSchedule style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    AiOutlineSetting: <AiOutlineSetting style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    AiOutlineSearch: <AiOutlineSearch style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    AiOutlineBook: <AiOutlineBook style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    AiOutlineGlobal: <AiOutlineGlobal style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    AiOutlineAudit: <AiOutlineAudit style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    AiOutlineProject: <AiOutlineProject style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaTools: <FaTools style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaWrench: <FaWrench style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaCogs: <FaCogs style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaHeadset: <FaHeadset style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaTicketAlt: <FaTicketAlt style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaBug: <FaBug style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaLifeRing: <FaLifeRing style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaQuestionCircle: <FaQuestionCircle style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaCommentDots: <FaCommentDots style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdBuild: <MdBuild style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdSupport: <MdSupport style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdReportProblem: <MdReportProblem style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdHelpOutline: <MdHelpOutline style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdBugReport: <MdBugReport style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdHandyman: <MdHandyman style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaUserFriends: <FaUserFriends style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaUserCheck: <FaUserCheck style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaUserPlus: <FaUserPlus style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaUserCog: <FaUserCog style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaHandshake: <FaHandshake style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaClipboard: <FaClipboard style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaUserMd: <FaUserMd style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    FaUserShield: <FaUserShield style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdPersonAdd: <MdPersonAdd style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdGroupAdd: <MdGroupAdd style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdBadge: <MdBadge style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdCardMembership: <MdCardMembership style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdManageAccounts: <MdManageAccounts style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-    MdWorkOutline: <MdWorkOutline style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />,
-  };
-  return iconMap[iconName] || <FaGavel style={{marginRight: '8px', color: '#3b82f6', fontSize: '18px'}} />;
-};
-
-const adicionarAviso = async () => {
-  if (!novoAviso.titulo.trim()) return;
-  
-  const avisoData = {
-    tipo: novoAviso.tipo,
-    titulo: novoAviso.titulo,
-    descricao: novoAviso.descricao,
-    imagens: novoAviso.imagens
-  };
-
-  if (editandoAviso) {
-    const { error } = await supabase
-      .from('avisos')
-      .update(avisoData)
-      .eq('id', editandoAviso.id);
-    
-    if (error) {
-      console.error('Erro ao atualizar aviso:', error);
-    } else {
-      setEditandoAviso(null);
-      setMostrarFormulario(false);
-      carregarAvisos();
-    }
-  } else {
-    const { error } = await supabase
-      .from('avisos')
-      .insert([avisoData]);
-    
-    if (error) {
-      console.error('Erro ao adicionar aviso:', error);
-    } else {
-      setMostrarFormulario(false);
-      carregarAvisos();
-    }
-  }
-  
-  setNovoAviso({
-    titulo: '',
-    descricao: '',
-    tipo: 'warning',
-    imagens: []
-  });
-};
-
   return (
 
     <div className="dashboard">
-      {showNotification && (
-        <div className="notification-popup">
-          <div className="notification-content">
-            <div className="notification-icon">🔔</div>
-            <div className="notification-text">{lastNotification}</div>
-            <button 
-              className="notification-close"
-              onClick={() => setShowNotification(false)}
-            >
-              ×
-            </button>
-          </div>
-        </div>
-      )}
-  
       <div className="header-section">
         <h2 className="main-title"><MdDashboard style={{marginRight: '8px', color: '#3b82f6'}} />TeamDash</h2>
       </div>
@@ -631,7 +549,7 @@ const adicionarAviso = async () => {
             <div className="user-avatar">A</div>
           </div>
         </header>
-  
+
         <div className="dashboard-grid">
           <div className="card avisos-card">
             <div className="card-header">
@@ -680,14 +598,11 @@ const adicionarAviso = async () => {
                     <div
                       contentEditable
                       className="rich-textarea"
-                      onInput={(e) => {
-                        setNovoAviso({...novoAviso, descricao: e.target.innerHTML});
-                      }}
-                      placeholder="Descrição do aviso..."
+                      onInput={(e) => setNovoAviso({...novoAviso, descricao: e.target.innerHTML})}
+                      dangerouslySetInnerHTML={{__html: novoAviso.descricao}}
                       suppressContentEditableWarning={true}
-                      style={{minHeight: '80px'}}
                     />
-                    </div>
+                  </div>
                   <div className="image-upload">
                     <label>Anexar imagens (máximo 3):</label>
                     <div 
@@ -696,7 +611,7 @@ const adicionarAviso = async () => {
                       onDrop={handleImageDrop}
                       onDragOver={(e) => e.preventDefault()}
                     >
-                      {(novoAviso.imagens && Array.isArray(novoAviso.imagens) && novoAviso.imagens.length > 0) ? (
+                      {novoAviso.imagens.length > 0 ? (
                         <div className="images-preview">
                           {novoAviso.imagens.map((img, index) => (
                             <div key={index} className="image-preview">
@@ -747,12 +662,7 @@ const adicionarAviso = async () => {
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
                           </svg>
-                          <span className="image-label">
-                            {aviso.imagens.length > 1 ? `${aviso.imagens.length} imagens` : '1 imagem'}
-                          </span>
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="expand-icon">
-                            <path d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z"/>
-                          </svg>
+                          <span className="image-count-text">{aviso.imagens.length}</span>
                         </button>
                       )}
                     </div>
@@ -776,11 +686,11 @@ const adicionarAviso = async () => {
                   </div>
                 </div>
               ))}
+              </div>
             </div>
-          </div>
               
-          <div className="card calendario-card">
-            <div className="card-header">
+            <div className="card calendario-card">
+              <div className="card-header">
               <h3>
                 <span className="google-calendar-icon"></span>
                 Calendário
@@ -825,7 +735,7 @@ const adicionarAviso = async () => {
                     src="https://upload.wikimedia.org/wikipedia/commons/c/cf/New_Power_BI_Logo.svg" 
                     alt="Power BI" 
                     style={{width: '20px', height: '20px', marginRight: '8px', verticalAlign: 'middle'}}
-                  />
+                    />
                   Power BI
                 </h3>
                 <button className="drive-btn" onClick={() => window.open('https://app.powerbi.com', '_blank')}>
@@ -839,468 +749,197 @@ const adicionarAviso = async () => {
                   frameBorder="0"
                   allowFullScreen={true}
                 />
-              </div>
+        </div>
+      </div>
+    </div>
+
+    <div className="card notebook-card">
+      <div className="card-header">
+        <h3>
+          <img 
+            src="https://notebooklm.google.com/_/static/branding/v5/light_mode/icon.svg" 
+            alt="NotebookLM" 
+            style={{width: '20px', height: '20px', marginRight: '8px', verticalAlign: 'middle'}}
+            />
+          NotebookLM
+        </h3>
+        <button className="add-btn" onClick={() => {
+          if (mostrarFormularioNotebook && editandoNotebook) {
+            cancelarEdicaoNotebook();
+          } else {
+            setMostrarFormularioNotebook(!mostrarFormularioNotebook);
+          }
+        }}>
+          {mostrarFormularioNotebook ? '×' : '+'}
+        </button>
+      </div>
+      <div className="card-content">
+        {mostrarFormularioNotebook && (
+          <div className="notebook-form">
+            <input
+              type="text"
+              placeholder="Título do notebook"
+              value={novoNotebook.titulo}
+              onChange={(e) => setNovoNotebook({...novoNotebook, titulo: e.target.value})}
+              className="form-input"
+            />
+            <input
+              type="url"
+              placeholder="Link do NotebookLM"
+              value={novoNotebook.link}
+              onChange={(e) => setNovoNotebook({...novoNotebook, link: e.target.value})}
+              className="form-input"
+            />
+            <textarea
+              placeholder="Descrição do notebook"
+              value={novoNotebook.descricao}
+              onChange={(e) => setNovoNotebook({...novoNotebook, descricao: e.target.value})}
+              className="form-textarea"
+            />
+            <div style={{display: 'flex', gap: '8px'}}>
+              <button onClick={adicionarNotebook} className="form-submit">
+                {editandoNotebook ? 'Salvar Edição' : 'Adicionar Notebook'}
+              </button>
+              {editandoNotebook && (
+                <button onClick={cancelarEdicaoNotebook} className="form-cancel">
+                  Cancelar
+                </button>
+              )}
             </div>
           </div>
-  
-          <div className="card notebook-card">
-            <div className="card-header">
-              <h3>
-                <img 
-                  src="https://notebooklm.google.com/_/static/branding/v5/light_mode/icon.svg" 
-                  alt="NotebookLM" 
-                  style={{width: '20px', height: '20px', marginRight: '8px', verticalAlign: 'middle'}}
-                />
-                NotebookLM
-              </h3>
-              <button className="add-btn" onClick={() => {
-                if (mostrarFormularioNotebook && editandoNotebook) {
-                  cancelarEdicaoNotebook();
-                } else {
-                  setMostrarFormularioNotebook(!mostrarFormularioNotebook);
-                }
-              }}>
-                {mostrarFormularioNotebook ? '×' : '+'}
+        )}
+        {notebooks.map(notebook => (
+          <div key={notebook.id} className="notebook-item">
+            <div className="notebook-text">
+              <strong>{notebook.titulo}</strong>
+              <p>{notebook.descricao}</p>
+              <a href={notebook.link} target="_blank" rel="noopener noreferrer" className="notebook-link">
+                Abrir Notebook
+              </a>
+              <span className="notebook-time">
+                {new Date(notebook.created_at).toLocaleString('pt-BR')}
+              </span>
+            </div>
+            <div className="notebook-actions">
+              <button 
+                onClick={() => editarNotebook(notebook)}
+                className="edit-btn"
+              >
+                ✏️
+              </button>
+              <button 
+                onClick={() => removerNotebook(notebook.id)}
+                className="remove-btn"
+              >
+                ×
               </button>
             </div>
-            <div className="card-content">
-              {mostrarFormularioNotebook && (
-                <div className="notebook-form">
-                  <input
-                    type="text"
-                    placeholder="Título do notebook"
-                    value={novoNotebook.titulo}
-                    onChange={(e) => setNovoNotebook({...novoNotebook, titulo: e.target.value})}
-                    className="form-input"
-                  />
-                  <input
-                    type="url"
-                    placeholder="Link do NotebookLM"
-                    value={novoNotebook.link}
-                    onChange={(e) => setNovoNotebook({...novoNotebook, link: e.target.value})}
-                    className="form-input"
-                  />
-                  <textarea
-                    placeholder="Descrição do notebook"
-                    value={novoNotebook.descricao}
-                    onChange={(e) => setNovoNotebook({...novoNotebook, descricao: e.target.value})}
-                    className="form-textarea"
-                  />
-                  <div style={{display: 'flex', gap: '8px'}}>
-                    <button onClick={adicionarNotebook} className="form-submit">
-                      {editandoNotebook ? 'Salvar Edição' : 'Adicionar Notebook'}
-                    </button>
-                    {editandoNotebook && (
-                      <button onClick={cancelarEdicaoNotebook} className="form-cancel">
-                        Cancelar
-                      </button>
-                    )}
-                  </div>
-                </div>
-              )}
-              {notebooks.map(notebook => (
-                <div key={notebook.id} className="notebook-item">
-                  <div className="notebook-text">
-                    <strong>{notebook.titulo}</strong>
-                    <p>{notebook.descricao}</p>
-                    <a href={notebook.link} target="_blank" rel="noopener noreferrer" className="notebook-link">
-                      Abrir Notebook
-                    </a>
-                    <span className="notebook-time">
-                      {new Date(notebook.created_at).toLocaleString('pt-BR')}
-                    </span>
-                  </div>
-                  <div className="notebook-actions">
-                    <button 
-                      onClick={() => editarNotebook(notebook)}
-                      className="edit-btn"
-                    >
-                      ✏️
-                    </button>
-                    <button 
-                      onClick={() => removerNotebook(notebook.id)}
-                      className="remove-btn"
-                    >
-                      ×
-                    </button>
+          </div>
+        ))}
+      </div>
+    </div>
+    
+    <div className="card tjsc-card">
+      <div className="card-header">
+        <h3>
+          <img 
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwjLt4fG-DbafxSalutZqSasYowTPqx8BpExCZhYlV3qudDsO9H28H6l8de5Uw3q1m6RA&usqp=CAU" 
+            alt="TJSC" 
+            style={{width: '20px', height: '20px', marginRight: '8px', verticalAlign: 'middle'}}
+          />
+          TJSC
+        </h3>
+        <div className="card-controls">
+          <button 
+            className="add-btn" 
+            onClick={() => {
+              if (mostrarFormularioTjsc && editandoTjscLink) {
+                cancelarEdicaoTjscLink();
+              } else {
+                setMostrarFormularioTjsc(!mostrarFormularioTjsc);
+              }
+            }}
+          >
+            {mostrarFormularioTjsc ? '×' : '+'}
+          </button>
+        </div>
+      </div>
+      <div className="card-content">
+        {mostrarFormularioTjsc && (
+          <div className="tjsc-form">
+            <input
+              type="text"
+              placeholder="Título do link"
+              value={novoTjscLink.titulo}
+              onChange={(e) => setNovoTjscLink({...novoTjscLink, titulo: e.target.value})}
+              className="form-input"
+            />
+            <input
+              type="url"
+              placeholder="Link do TJSC"
+              value={novoTjscLink.link}
+              onChange={(e) => setNovoTjscLink({...novoTjscLink, link: e.target.value})}
+              className="form-input"
+            />
+            <div className="icon-selector">
+              <label>Selecionar Ícone:</label>
+              {Object.entries(categorias).map(([categoria, icones]) => (
+                <div key={categoria} className="icon-category">
+                  <h4>{categoria}</h4>
+                  <div className="icon-grid">
+                    {icones.map(iconName => (
+                      <div 
+                        key={iconName} 
+                        className={`icon-option ${novoTjscLink.icone === iconName ? 'selected' : ''}`}
+                        onClick={() => setNovoTjscLink({...novoTjscLink, icone: iconName})}
+                      >
+                        {getIconComponent(iconName)}
+                        <span>{iconName.replace(/^(Fa|Md|AiOutline)/, '')}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               ))}
             </div>
+            <div style={{display: 'flex', gap: '8px'}}>
+              <button onClick={adicionarTjscLink} className="form-submit">
+                {editandoTjscLink ? 'Salvar Edição' : 'Adicionar Link'}
+              </button>
+              {editandoTjscLink && (
+                <button onClick={cancelarEdicaoTjscLink} className="form-cancel">
+                  Cancelar
+                </button>
+              )}
+            </div>
           </div>
-          
-          <div className="card tjsc-card">
-            <div className="card-header">
-              <h3>
-                <img 
-                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwjLt4fG-DbafxSalutZqSasYowTPqx8BpExCZhYlV3qudDsO9H28H6l8de5Uw3q1m6RA&usqp=CAU" 
-                  alt="TJSC" 
-                  style={{width: '20px', height: '20px', marginRight: '8px', verticalAlign: 'middle'}}
-                />
-                TJSC
-              </h3>
-              <button className="add-btn" onClick={() => {
-                if (mostrarFormularioTjsc && editandoTjscLink) {
-                  cancelarEdicaoTjscLink();
-                } else {
-                  setMostrarFormularioTjsc(!mostrarFormularioTjsc);
-                }
-              }}>
-                {mostrarFormularioTjsc ? '×' : '+'}
+        )}
+        {tjscLinks.map(link => (
+          <div key={link.id} className="tjsc-item">
+            <a 
+              href={link.link} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="tjsc-link-title"
+            >
+              <span className="tjsc-icon">{getIconComponent(link.icone)}</span>
+              <span className="tjsc-text">{link.titulo}</span>
+            </a>
+            <div className="tjsc-actions">
+              <button onClick={() => editarTjscLink(link)} className="edit-btn">
+                ✏️
+              </button>
+              <button onClick={() => removerTjscLink(link.id)} className="remove-btn">
+                ×
               </button>
             </div>
-            <div className="card-content">
-              {mostrarFormularioTjsc && (
-                <div className="tjsc-form">
-                  <input
-                    type="text"
-                    placeholder="Título do link"
-                    value={novoTjscLink.titulo}
-                    onChange={(e) => setNovoTjscLink({...novoTjscLink, titulo: e.target.value})}
-                    className="form-input"
-                  />
-                  <input
-                    type="url"
-                    placeholder="Link do TJSC"
-                    value={novoTjscLink.link}
-                    onChange={(e) => setNovoTjscLink({...novoTjscLink, link: e.target.value})}
-                    className="form-input"
-                  />
-                  <div className="icon-selector">
-                    <label>Escolha um ícone:</label>
-                    <div className="icon-grid">
-                      <div className="icon-category">
-                        <div className="category-header">Jurídico</div>
-                        {[
-                          { key: 'FaGavel', component: <FaGavel />, label: 'Martelo' },
-                          { key: 'FaBalanceScale', component: <FaBalanceScale />, label: 'Balança' },
-                          { key: 'MdGavel', component: <MdGavel />, label: 'Martelo MD' },
-                          { key: 'MdAccountBalance', component: <MdAccountBalance />, label: 'Tribunal' },
-                          { key: 'MdVerifiedUser', component: <MdVerifiedUser />, label: 'Usuário Verificado' },
-                          { key: 'MdSecurity', component: <MdSecurity />, label: 'Segurança' },
-                          { key: 'FaShieldAlt', component: <FaShieldAlt />, label: 'Escudo' },
-                          { key: 'FaLock', component: <FaLock />, label: 'Cadeado' },
-                          { key: 'FaUnlock', component: <FaUnlock />, label: 'Desbloqueado' },
-                          { key: 'FaKey', component: <FaKey />, label: 'Chave' },
-                          { key: 'FaIdCard', component: <FaIdCard />, label: 'ID' },
-                          { key: 'FaUserTie', component: <FaUserTie />, label: 'Advogado' }
-                        ].map(icon => (
-                          <div
-                            key={icon.key}
-                            className={`icon-option ${novoTjscLink.icone === icon.key ? 'selected' : ''}`}
-                            onClick={() => setNovoTjscLink({...novoTjscLink, icone: icon.key})}
-                            title={icon.label}
-                          >
-                            {icon.component}
-                            <span>{icon.label}</span>
-                          </div>
-                        ))}
-                      </div>
-                  
-                      <div className="icon-category">
-                        <div className="category-header">Pessoas e RH</div>
-                        {[
-                          { key: 'FaUsers', component: <FaUsers />, label: 'Pessoas' },
-                          { key: 'FaUser', component: <FaUser />, label: 'Pessoa' },
-                          { key: 'FaUserFriends', component: <FaUserFriends />, label: 'Recursos Humanos' },
-                          { key: 'FaUserCheck', component: <FaUserCheck />, label: 'Aprovação RH' },
-                          { key: 'FaUserPlus', component: <FaUserPlus />, label: 'Contratar' },
-                          { key: 'FaUserCog', component: <FaUserCog />, label: 'Gestão de Pessoas' },
-                          { key: 'FaHandshake', component: <FaHandshake />, label: 'Relacionamento' },
-                          { key: 'FaUserShield', component: <FaUserShield />, label: 'Proteção do Servidor' },
-                          { key: 'MdPeople', component: <MdPeople />, label: 'Pessoas MD' },
-                          { key: 'MdGroup', component: <MdGroup />, label: 'Grupo' },
-                          { key: 'MdPersonAdd', component: <MdPersonAdd />, label: 'Adicionar Pessoa' },
-                          { key: 'MdGroupAdd', component: <MdGroupAdd />, label: 'Adicionar ao Grupo' },
-                          { key: 'MdManageAccounts', component: <MdManageAccounts />, label: 'Gerenciar Contas' },
-                          { key: 'MdBadge', component: <MdBadge />, label: 'Crachá' },
-                          { key: 'AiOutlineUser', component: <AiOutlineUser />, label: 'Usuário Outline' },
-                          { key: 'AiOutlineTeam', component: <AiOutlineTeam />, label: 'Equipe' }
-                        ].map(icon => (
-                          <div
-                            key={icon.key}
-                            className={`icon-option ${novoTjscLink.icone === icon.key ? 'selected' : ''}`}
-                            onClick={() => setNovoTjscLink({...novoTjscLink, icone: icon.key})}
-                            title={icon.label}
-                          >
-                            {icon.component}
-                            <span>{icon.label}</span>
-                          </div>
-                        ))}
-                      </div>
-                  
-                      <div className="icon-category">
-                        <div className="category-header">Organizações e Trabalho</div>
-                        {[
-                          { key: 'FaBuilding', component: <FaBuilding />, label: 'Prédio' },
-                          { key: 'MdBusiness', component: <MdBusiness />, label: 'Negócios' },
-                          { key: 'MdWork', component: <MdWork />, label: 'Trabalho' },
-                          { key: 'MdWorkOutline', component: <MdWorkOutline />, label: 'Trabalho RH' },
-                          { key: 'AiOutlineBank', component: <AiOutlineBank />, label: 'Banco' }
-                        ].map(icon => (
-                          <div
-                            key={icon.key}
-                            className={`icon-option ${novoTjscLink.icone === icon.key ? 'selected' : ''}`}
-                            onClick={() => setNovoTjscLink({...novoTjscLink, icone: icon.key})}
-                            title={icon.label}
-                          >
-                            {icon.component}
-                            <span>{icon.label}</span>
-                          </div>
-                        ))}
-                      </div>
-                  
-                      <div className="icon-category">
-                        <div className="category-header">Comunicação</div>
-                        {[
-                          { key: 'FaPhone', component: <FaPhone />, label: 'Telefone' },
-                          { key: 'FaEnvelope', component: <FaEnvelope />, label: 'Email' },
-                          { key: 'MdContactMail', component: <MdContactMail />, label: 'Contato Email' },
-                          { key: 'MdContactPhone', component: <MdContactPhone />, label: 'Contato Telefone' },
-                          { key: 'MdMail', component: <MdMail />, label: 'Correio' },
-                          { key: 'MdPhone', component: <MdPhone />, label: 'Telefone MD' },
-                          { key: 'AiOutlineMail', component: <AiOutlineMail />, label: 'Email Outline' },
-                          { key: 'AiOutlinePhone', component: <AiOutlinePhone />, label: 'Telefone Outline' },
-                          { key: 'FaCommentDots', component: <FaCommentDots />, label: 'Mensagens' }
-                        ].map(icon => (
-                          <div
-                            key={icon.key}
-                            className={`icon-option ${novoTjscLink.icone === icon.key ? 'selected' : ''}`}
-                            onClick={() => setNovoTjscLink({...novoTjscLink, icone: icon.key})}
-                            title={icon.label}
-                          >
-                            {icon.component}
-                            <span>{icon.label}</span>
-                          </div>
-                        ))}
-                      </div>
-                  
-                      <div className="icon-category">
-                        <div className="category-header">Localização</div>
-                        {[
-                          { key: 'FaMapMarkerAlt', component: <FaMapMarkerAlt />, label: 'Localização' },
-                          { key: 'FaHome', component: <FaHome />, label: 'Casa' },
-                          { key: 'MdHome', component: <MdHome />, label: 'Casa MD' },
-                          { key: 'MdLocationOn', component: <MdLocationOn />, label: 'Localização MD' },
-                          { key: 'MdPlace', component: <MdPlace />, label: 'Lugar' },
-                          { key: 'AiOutlineHome', component: <AiOutlineHome />, label: 'Casa Outline' }
-                        ].map(icon => (
-                          <div
-                            key={icon.key}
-                            className={`icon-option ${novoTjscLink.icone === icon.key ? 'selected' : ''}`}
-                            onClick={() => setNovoTjscLink({...novoTjscLink, icone: icon.key})}
-                            title={icon.label}
-                          >
-                            {icon.component}
-                            <span>{icon.label}</span>
-                          </div>
-                        ))}
-                      </div>
-                  
-                      <div className="icon-category">
-                        <div className="category-header">Documentos e Arquivos</div>
-                        {[
-                          { key: 'FaFileAlt', component: <FaFileAlt />, label: 'Documento' },
-                          { key: 'FaBook', component: <FaBook />, label: 'Livro' },
-                          { key: 'FaFolder', component: <FaFolder />, label: 'Pasta' },
-                          { key: 'FaFolderOpen', component: <FaFolderOpen />, label: 'Pasta Aberta' },
-                          { key: 'FaClipboard', component: <FaClipboard />, label: 'Prancheta' },
-                          { key: 'FaClipboardList', component: <FaClipboardList />, label: 'Lista' },
-                          { key: 'MdDescription', component: <MdDescription />, label: 'Descrição' },
-                          { key: 'MdLibraryBooks', component: <MdLibraryBooks />, label: 'Biblioteca' },
-                          { key: 'MdAssignment', component: <MdAssignment />, label: 'Atribuição' },
-                          { key: 'MdAssignmentInd', component: <MdAssignmentInd />, label: 'Atribuição Individual' },
-                          { key: 'MdLocalLibrary', component: <MdLocalLibrary />, label: 'Biblioteca Local' },
-                          { key: 'MdList', component: <MdList />, label: 'Lista MD' },
-                          { key: 'AiOutlineFileText', component: <AiOutlineFileText />, label: 'Arquivo Texto' },
-                          { key: 'AiOutlineFolder', component: <AiOutlineFolder />, label: 'Pasta Outline' },
-                          { key: 'AiOutlineBook', component: <AiOutlineBook />, label: 'Livro Outline' }
-                        ].map(icon => (
-                          <div
-                            key={icon.key}
-                            className={`icon-option ${novoTjscLink.icone === icon.key ? 'selected' : ''}`}
-                            onClick={() => setNovoTjscLink({...novoTjscLink, icone: icon.key})}
-                            title={icon.label}
-                          >
-                            {icon.component}
-                            <span>{icon.label}</span>
-                          </div>
-                        ))}
-                      </div>
-                  
-                      <div className="icon-category">
-                        <div className="category-header">Tecnologia</div>
-                        {[
-                          { key: 'FaDatabase', component: <FaDatabase />, label: 'Banco de Dados' },
-                          { key: 'FaServer', component: <FaServer />, label: 'Servidor' },
-                          { key: 'FaCloud', component: <FaCloud />, label: 'Nuvem' },
-                          { key: 'FaLaptop', component: <FaLaptop />, label: 'Laptop' },
-                          { key: 'AiOutlineDatabase', component: <AiOutlineDatabase />, label: 'BD Outline' }
-                        ].map(icon => (
-                          <div
-                            key={icon.key}
-                            className={`icon-option ${novoTjscLink.icone === icon.key ? 'selected' : ''}`}
-                            onClick={() => setNovoTjscLink({...novoTjscLink, icone: icon.key})}
-                            title={icon.label}
-                          >
-                            {icon.component}
-                            <span>{icon.label}</span>
-                          </div>
-                        ))}
-                      </div>
-                  
-                      <div className="icon-category">
-                        <div className="category-header">Ferramentas e Suporte</div>
-                        {[
-                          { key: 'FaSearch', component: <FaSearch />, label: 'Busca' },
-                          { key: 'FaCog', component: <FaCog />, label: 'Configuração' },
-                          { key: 'FaTools', component: <FaTools />, label: 'Ferramentas' },
-                          { key: 'FaWrench', component: <FaWrench />, label: 'Chave Inglesa' },
-                          { key: 'FaCogs', component: <FaCogs />, label: 'Engrenagens' },
-                          { key: 'FaHeadset', component: <FaHeadset />, label: 'Suporte' },
-                          { key: 'FaTicketAlt', component: <FaTicketAlt />, label: 'Chamado' },
-                          { key: 'FaBug', component: <FaBug />, label: 'Bug/Problema' },
-                          { key: 'FaLifeRing', component: <FaLifeRing />, label: 'Ajuda' },
-                          { key: 'FaQuestionCircle', component: <FaQuestionCircle />, label: 'Dúvida' },
-                          { key: 'MdBuild', component: <MdBuild />, label: 'Construir/Reparar' },
-                          { key: 'MdSupport', component: <MdSupport />, label: 'Suporte MD' },
-                          { key: 'MdReportProblem', component: <MdReportProblem />, label: 'Reportar Problema' },
-                          { key: 'MdHelpOutline', component: <MdHelpOutline />, label: 'Ajuda MD' },
-                          { key: 'MdBugReport', component: <MdBugReport />, label: 'Relatório de Bug' },
-                          { key: 'MdHandyman', component: <MdHandyman />, label: 'Técnico/Manutenção' },
-                          { key: 'AiOutlineSearch', component: <AiOutlineSearch />, label: 'Busca Outline' },
-                          { key: 'AiOutlineSetting', component: <AiOutlineSetting />, label: 'Config Outline' }
-                        ].map(icon => (
-                          <div
-                            key={icon.key}
-                            className={`icon-option ${novoTjscLink.icone === icon.key ? 'selected' : ''}`}
-                            onClick={() => setNovoTjscLink({...novoTjscLink, icone: icon.key})}
-                            title={icon.label}
-                          >
-                            {icon.component}
-                            <span>{icon.label}</span>
-                          </div>
-                        ))}
-                      </div>
-                  
-                      <div className="icon-category">
-                        <div className="category-header">Tempo e Eventos</div>
-                        {[
-                          { key: 'FaCalendarAlt', component: <FaCalendarAlt />, label: 'Calendário' },
-                          { key: 'FaClock', component: <FaClock />, label: 'Relógio' },
-                          { key: 'MdEvent', component: <MdEvent />, label: 'Evento' },
-                          { key: 'MdSchedule', component: <MdSchedule />, label: 'Cronograma' },
-                          { key: 'MdHistory', component: <MdHistory />, label: 'Histórico' },
-                          { key: 'AiOutlineSchedule', component: <AiOutlineSchedule />, label: 'Cronograma Outline' }
-                        ].map(icon => (
-                          <div
-                            key={icon.key}
-                            className={`icon-option ${novoTjscLink.icone === icon.key ? 'selected' : ''}`}
-                            onClick={() => setNovoTjscLink({...novoTjscLink, icone: icon.key})}
-                            title={icon.label}
-                          >
-                            {icon.component}
-                            <span>{icon.label}</span>
-                          </div>
-                        ))}
-                      </div>
-                  
-                      <div className="icon-category">
-                        <div className="category-header">Status e Indicadores</div>
-                        {[
-                          { key: 'FaInfoCircle', component: <FaInfoCircle />, label: 'Informação' },
-                          { key: 'FaCheckCircle', component: <FaCheckCircle />, label: 'Sucesso' },
-                          { key: 'FaExclamationTriangle', component: <FaExclamationTriangle />, label: 'Aviso' },
-                          { key: 'FaTimesCircle', component: <FaTimesCircle />, label: 'Erro' },
-                          { key: 'FaEye', component: <FaEye />, label: 'Visualizar' },
-                          { key: 'MdInfo', component: <MdInfo />, label: 'Info MD' },
-                          { key: 'MdNotifications', component: <MdNotifications />, label: 'Notificações' },
-                          { key: 'MdVisibility', component: <MdVisibility />, label: 'Visibilidade' },
-                          { key: 'MdLaunch', component: <MdLaunch />, label: 'Lançar' },
-                          { key: 'MdPublic', component: <MdPublic />, label: 'Público' }
-                        ].map(icon => (
-                          <div
-                            key={icon.key}
-                            className={`icon-option ${novoTjscLink.icone === icon.key ? 'selected' : ''}`}
-                            onClick={() => setNovoTjscLink({...novoTjscLink, icone: icon.key})}
-                            title={icon.label}
-                          >
-                            {icon.component}
-                            <span>{icon.label}</span>
-                          </div>
-                        ))}
-                      </div>
-                  
-                      <div className="icon-category">
-                        <div className="category-header">Educação e Avaliação</div>
-                        {[
-                          { key: 'MdSchool', component: <MdSchool />, label: 'Escola' },
-                          { key: 'MdClass', component: <MdClass />, label: 'Classe' },
-                          { key: 'MdGrade', component: <MdGrade />, label: 'Grau' },
-                          { key: 'MdCardMembership', component: <MdCardMembership />, label: 'Cartão de Membro' },
-                          { key: 'AiOutlineProject', component: <AiOutlineProject />, label: 'Projeto' },
-                          { key: 'AiOutlineGlobal', component: <AiOutlineGlobal />, label: 'Global' },
-                          { key: 'AiOutlineAudit', component: <AiOutlineAudit />, label: 'Auditoria' },
-                          { key: 'AiOutlineSafety', component: <AiOutlineSafety />, label: 'Segurança Outline' }
-                        ].map(icon => (
-                          <div
-                            key={icon.key}
-                            className={`icon-option ${novoTjscLink.icone === icon.key ? 'selected' : ''}`}
-                            onClick={() => setNovoTjscLink({...novoTjscLink, icone: icon.key})}
-                            title={icon.label}
-                          >
-                            {icon.component}
-                            <span>{icon.label}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                  <div style={{display: 'flex', gap: '8px'}}>
-                    <button onClick={adicionarTjscLink} className="form-submit">
-                      {editandoTjscLink ? 'Salvar Edição' : 'Adicionar Link'}
-                    </button>
-                    {editandoTjscLink && (
-                      <button onClick={cancelarEdicaoTjscLink} className="form-cancel">
-                        Cancelar
-                      </button>
-                    )}
-                  </div>
-                </div>
-              )}
-              {tjscLinks.map(link => (
-                <div key={link.id} className="tjsc-item">
-                  <div className="tjsc-text">
-                    <strong>
-                      {getIconComponent(link.icone)} {link.titulo}
-                    </strong>
-                    <a href={link.link} target="_blank" rel="noopener noreferrer" className="tjsc-link">
-                      Abrir Link
-                    </a>
-                  </div>
-                  <div className="tjsc-actions">
-                    <button 
-                      onClick={() => editarTjscLink(link)}
-                      className="edit-btn"
-                    >
-                      ✏️
-                    </button>
-                    <button 
-                      onClick={() => removerTjscLink(link.id)}
-                      className="remove-btn"
-                    >
-                      ×
-                  </button>
-                </div>
-              </div>
-            ))}
           </div>
+        ))}
+      </div>
+    </div>
         </div>
       </div>
     </div>
-  </div>
-);
-
-}; 
+  );
+};
 
 export default Dashboard;
