@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './dashboard.css';
 import { supabase } from '../lib/supabase';
-import { MdDashboard, } from "react-icons/md";
+import { MdDashboard, MdFullscreen, MdClose } from 'react-icons/md';
 import { FaGavel, FaBalanceScale, FaFileAlt, FaBook, FaUsers, FaBuilding, FaClipboardList, FaSearch, FaCalendarAlt, FaCog, FaLaptop, FaHome, FaPhone, FaEnvelope, FaMapMarkerAlt, FaInfoCircle, FaExclamationTriangle, FaCheckCircle, FaTimesCircle, FaClock, FaEye, FaFolder, FaFolderOpen, FaDatabase, FaServer, FaCloud, FaLock, FaUnlock, FaKey, FaShieldAlt, FaUser, FaUserTie, FaIdCard, FaTools, FaWrench, FaCogs, FaHeadset, FaTicketAlt, FaBug, FaLifeRing, FaQuestionCircle, FaCommentDots, FaUserFriends, FaUserCheck, FaUserPlus, FaUserCog, FaHandshake, FaClipboard, FaUserMd, FaUserShield } from 'react-icons/fa';
 import { MdGavel, MdAccountBalance, MdDescription, MdLibraryBooks, MdPeople, MdBusiness, MdAssignment, MdEvent, MdHome, MdWork, MdSchool, MdLocalLibrary, MdAccountBalanceWallet, MdAssignmentInd, MdClass, MdContactMail, MdContactPhone, MdGrade, MdGroup, MdHistory, MdInfo, MdLaunch, MdList, MdLocationOn, MdMail, MdNotifications, MdPerson, MdPhone, MdPlace, MdPublic, MdSchedule, MdSecurity, MdSupervisorAccount, MdVerifiedUser, MdVisibility, MdBuild, MdSupport, MdReportProblem, MdHelpOutline, MdBugReport, MdHandyman, MdPersonAdd, MdGroupAdd, MdBadge, MdCardMembership, MdManageAccounts, MdWorkOutline } from 'react-icons/md';
 import { AiOutlineBank, AiOutlineHome, AiOutlinePhone, AiOutlineMail, AiOutlineUser, AiOutlineTeam, AiOutlineFileText, AiOutlineFolder, AiOutlineSafety, AiOutlineSchedule, AiOutlineSetting, AiOutlineSearch, AiOutlineBook, AiOutlineGlobal, AiOutlineAudit, AiOutlineProject, AiOutlineDatabase } from 'react-icons/ai';
@@ -42,8 +42,7 @@ const Dashboard = () => {
   const [editandoTjscLink, setEditandoTjscLink] = useState(null);
   const [eventos, setEventos] = useState([]);
   const [carregandoCalendario, setCarregandoCalendario] = useState(false);
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [calendarEvents, setCalendarEvents] = useState([]);
+  const [showPowerBIModal, setShowPowerBIModal] = useState(false);
 
   useEffect(() => {
     carregarAvisos();
@@ -128,63 +127,11 @@ const carregarEventosCalendario = async () => {
       return;
     }
     
-    const processedEvents = (data.items || []).map(evento => ({
-      ...evento,
-      date: new Date(evento.start.dateTime || evento.start.date + 'T00:00:00')
-    }));
-    
     setEventos(data.items || []);
-    setCalendarEvents(processedEvents);
   } catch (error) {
     console.error('Erro ao carregar eventos:', error);
   }
   setCarregandoCalendario(false);
-};
-
-const renderCalendar = () => {
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth();
-  const today = new Date();
-  
-  const firstDay = new Date(year, month, 1);
-  const lastDay = new Date(year, month + 1, 0);
-  const startDate = new Date(firstDay);
-  startDate.setDate(startDate.getDate() - firstDay.getDay());
-  
-  const days = [];
-  const current = new Date(startDate);
-  
-  for (let i = 0; i < 42; i++) {
-    const dayEvents = calendarEvents.filter(event => 
-      event.date.toDateString() === current.toDateString()
-    );
-    
-    days.push({
-      date: new Date(current),
-      isCurrentMonth: current.getMonth() === month,
-      isToday: current.toDateString() === today.toDateString(),
-      hasEvents: dayEvents.length > 0,
-      events: dayEvents
-    });
-    
-    current.setDate(current.getDate() + 1);
-  }
-  
-  return days;
-};
-
-const formatMonthYear = (date) => {
-  return date.toLocaleDateString('pt-BR', { 
-    month: 'long', 
-    year: 'numeric' 
-  });
-};
-
-const getUpcomingEvents = () => {
-  const now = new Date();
-  return calendarEvents
-    .filter(event => event.date >= now)
-    .slice(0, 5);
 };
 
 const carregarNotebooks = async () => {
@@ -640,7 +587,7 @@ const removerTjscLink = async (id) => {
         <div className="subtitle">Gabinete Alexandre Morais da Rosa</div>
         <div className="user-info">
           <div className="user-avatar">A</div>
-          <span>Alexandre</span>
+          <span>Alexandre Claudino Simas Santos</span>
         </div>
       </div>
       
@@ -660,129 +607,131 @@ const removerTjscLink = async (id) => {
               </button>
             </div>
             <div className="card-content">
-              {mostrarFormulario && (
-                <div className="aviso-form">
-                  <select 
-                    value={novoAviso.tipo}
-                    onChange={(e) => setNovoAviso({...novoAviso, tipo: e.target.value})}
-                    className="form-select"
-                  >
-                    <option value="info">Info</option>
-                    <option value="urgent">Urgente</option>
-                    <option value="warning">Aviso</option>
-                  </select>
-                  <input
-                    type="text"
-                    placeholder="Título do aviso"
-                    value={novoAviso.titulo}
-                    onChange={(e) => setNovoAviso({...novoAviso, titulo: e.target.value})}
-                    className="form-input"
-                  />
-                  <div className="rich-editor">
-                    <div className="editor-toolbar">
-                      <button type="button" onClick={() => formatText('bold')} className="format-btn">
-                        <b>B</b>
-                      </button>
-                      <button type="button" onClick={() => formatText('italic')} className="format-btn">
-                        <i>I</i>
-                      </button>
-                      <button type="button" onClick={() => formatText('underline')} className="format-btn">
-                        <u>U</u>
-                      </button>
-                    </div>
-                    <div
-                      contentEditable
-                      className="rich-textarea"
-                      onInput={(e) => setNovoAviso({...novoAviso, descricao: e.target.innerHTML})}
-                      dangerouslySetInnerHTML={{__html: novoAviso.descricao}}
-                      suppressContentEditableWarning={true}
-                    />
-                  </div>
-                  <div className="image-upload">
-                    <label>Anexar imagens (máximo 3):</label>
-                    <div 
-                      className="image-drop-zone"
-                      onPaste={handleImagePaste}
-                      onDrop={handleImageDrop}
-                      onDragOver={(e) => e.preventDefault()}
+              <div className="avisos-lista">
+                {mostrarFormulario && (
+                  <div className="aviso-form">
+                    <select 
+                      value={novoAviso.tipo}
+                      onChange={(e) => setNovoAviso({...novoAviso, tipo: e.target.value})}
+                      className="form-select"
                     >
-                      {novoAviso.imagens.length > 0 ? (
-                        <div className="images-preview">
-                          {novoAviso.imagens.map((img, index) => (
-                            <div key={index} className="image-preview">
-                              <img src={img} alt={`Preview ${index + 1}`} />
-                              <button type="button" onClick={() => removerImagem(index)}>
-                                ×
-                              </button>
-                            </div>
-                          ))}
-                          {novoAviso.imagens.length < 3 && (
-                            <div className="add-more-message">
-                              Cole mais imagens aqui (máximo {3 - novoAviso.imagens.length})
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="drop-message">
-                          Cole imagens aqui (Ctrl+V) ou arraste arquivos (máximo 3)
-                        </div>
-                      )}
+                      <option value="info">Info</option>
+                      <option value="urgent">Urgente</option>
+                      <option value="warning">Aviso</option>
+                    </select>
+                    <input
+                      type="text"
+                      placeholder="Título do aviso"
+                      value={novoAviso.titulo}
+                      onChange={(e) => setNovoAviso({...novoAviso, titulo: e.target.value})}
+                      className="form-input"
+                    />
+                    <div className="rich-editor">
+                      <div className="editor-toolbar">
+                        <button type="button" onClick={() => formatText('bold')} className="format-btn">
+                          <b>B</b>
+                        </button>
+                        <button type="button" onClick={() => formatText('italic')} className="format-btn">
+                          <i>I</i>
+                        </button>
+                        <button type="button" onClick={() => formatText('underline')} className="format-btn">
+                          <u>U</u>
+                        </button>
+                      </div>
+                      <div
+                        contentEditable
+                        className="rich-textarea"
+                        onInput={(e) => setNovoAviso({...novoAviso, descricao: e.target.innerHTML})}
+                        dangerouslySetInnerHTML={{__html: novoAviso.descricao}}
+                        suppressContentEditableWarning={true}
+                      />
                     </div>
-                  </div>
-                  <div style={{display: 'flex', gap: '8px'}}>
-                    <button onClick={adicionarAviso} className="form-submit">
-                      {editandoAviso ? 'Salvar Edição' : 'Adicionar Aviso'}
-                    </button>
-                    {editandoAviso && (
-                      <button onClick={cancelarEdicao} className="form-cancel">
-                        Cancelar
+                    <div className="image-upload">
+                      <label>Anexar imagens (máximo 3):</label>
+                      <div 
+                        className="image-drop-zone"
+                        onPaste={handleImagePaste}
+                        onDrop={handleImageDrop}
+                        onDragOver={(e) => e.preventDefault()}
+                      >
+                        {novoAviso.imagens.length > 0 ? (
+                          <div className="images-preview">
+                            {novoAviso.imagens.map((img, index) => (
+                              <div key={index} className="image-preview">
+                                <img src={img} alt={`Preview ${index + 1}`} />
+                                <button type="button" onClick={() => removerImagem(index)}>
+                                  ×
+                                </button>
+                              </div>
+                            ))}
+                            {novoAviso.imagens.length < 3 && (
+                              <div className="add-more-message">
+                                Cole mais imagens aqui (máximo {3 - novoAviso.imagens.length})
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="drop-message">
+                            Cole imagens aqui (Ctrl+V) ou arraste arquivos (máximo 3)
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div style={{display: 'flex', gap: '8px'}}>
+                      <button onClick={adicionarAviso} className="form-submit">
+                        {editandoAviso ? 'Salvar Edição' : 'Adicionar Aviso'}
                       </button>
-                    )}
-                  </div>
-                </div>
-              )}
-              {avisos.map(aviso => (
-                <div key={aviso.id} className="aviso-item">
-                  <div className={`aviso-dot ${aviso.tipo}`}></div>
-                  <div className="aviso-text">
-                    <strong>{aviso.titulo}</strong>
-                    <div dangerouslySetInnerHTML={{__html: aviso.descricao}} />
-                    <div className="aviso-images">
-                      {(aviso.imagens && aviso.imagens.length > 0) && (
-                        <button 
-                          onClick={() => abrirGaleria(aviso.imagens)}
-                          className="image-icon"
-                          title={`Ver ${aviso.imagens.length} imagem${aviso.imagens.length > 1 ? 's' : ''} anexada${aviso.imagens.length > 1 ? 's' : ''}`}
-                        >
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
-                          </svg>
-                          <span className="image-count-text">{aviso.imagens.length}</span>
+                      {editandoAviso && (
+                        <button onClick={cancelarEdicao} className="form-cancel">
+                          Cancelar
                         </button>
                       )}
                     </div>
-                    <span className="aviso-time">
-                      {new Date(aviso.created_at).toLocaleString('pt-BR')}
-                    </span>
                   </div>
-                  <div className="aviso-actions">
-                    <button 
-                      onClick={() => editarAviso(aviso)}
-                      className="edit-btn"
-                    >
-                      ✏️
-                    </button>
-                    <button 
-                      onClick={() => removerAviso(aviso.id)}
-                      className="remove-btn"
-                    >
-                      ×
-                    </button>
+                )}
+                {avisos.map(aviso => (
+                  <div key={aviso.id} className="aviso-item">
+                    <div className={`aviso-dot ${aviso.tipo}`}></div>
+                    <div className="aviso-text">
+                      <strong>{aviso.titulo}</strong>
+                      <div dangerouslySetInnerHTML={{__html: aviso.descricao}} />
+                      <div className="aviso-images">
+                        {(aviso.imagens && aviso.imagens.length > 0) && (
+                          <button 
+                            onClick={() => abrirGaleria(aviso.imagens)}
+                            className="image-icon"
+                            title={`Ver ${aviso.imagens.length} imagem${aviso.imagens.length > 1 ? 's' : ''} anexada${aviso.imagens.length > 1 ? 's' : ''}`}
+                          >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                            </svg>
+                            <span className="image-count-text">{aviso.imagens.length}</span>
+                          </button>
+                        )}
+                      </div>
+                      <span className="aviso-time">
+                        {new Date(aviso.created_at).toLocaleString('pt-BR')}
+                      </span>
+                    </div>
+                    <div className="aviso-actions">
+                      <button 
+                        onClick={() => editarAviso(aviso)}
+                        className="edit-btn"
+                      >
+                        ✏️
+                      </button>
+                      <button 
+                        onClick={() => removerAviso(aviso.id)}
+                        className="remove-btn"
+                      >
+                        ×
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
               </div>
             </div>
+          </div>
               
             <div className="card calendario-card">
               <div className="card-header">
@@ -884,218 +833,250 @@ const removerTjscLink = async (id) => {
               <div className="card-header">
                 <h3>
                   <img 
-                    src="https://upload.wikimedia.org/wikipedia/commons/c/cf/New_Power_BI_Logo.svg" 
+                    src="https://powerbi.microsoft.com/pictures/application-logos/svg/powerbi.svg" 
                     alt="Power BI" 
                     style={{width: '20px', height: '20px', marginRight: '8px', verticalAlign: 'middle'}}
-                    />
+                  />
                   Power BI
                 </h3>
-                <button className="drive-btn" onClick={() => window.open('https://app.powerbi.com', '_blank')}>
-                  Abrir Power BI
+                <button 
+                  className="expand-btn"
+                  onClick={() => setShowPowerBIModal(true)}
+                  title="Abrir em tela cheia"
+                >
+                  <MdFullscreen size={20} />
                 </button>
               </div>
-              <div className="card-content">
-                <iframe 
-                  title="Gerencial de Gabinete"
-                  src="https://app.powerbi.com/reportEmbed?reportId=6a74e9aa-0de1-415a-8cc6-5c243b756f73&appId=6556e9bb-d287-4773-9065-6dc5aaae8deb&autoAuth=true&ctid=400b79f8-9f13-47c7-923f-4b1695bf3b29"
+              <div className="card-content" style={{padding: 0}}>
+                <iframe
+                  title="Gerencial de Gabinete - Preview"
+                  width="100%"
+                  height="100%"
+                  src="https://app.powerbi.com/reportEmbed?reportId=6a74e9aa-0de1-415a-8cc6-5c243b756f73&appId=6556e9bb-d287-4773-9065-6dc5aaae8deb&autoAuth=true&ctid=400b79f8-9f13-47c7-923f-4b1695bf3b29&$filter=Desembargador eq 'ALEXANDRE MORAIS DA ROSA'"
                   frameBorder="0"
-                  allowFullScreen={true}
+                  style={{borderRadius: '0 0 12px 12px'}}
                 />
-        </div>
-      </div>
-    </div>
+              </div>
+            </div>
+          </div>
 
-    <div className="card notebook-card">
-      <div className="card-header">
-        <h3>
-          <img 
-            src="https://notebooklm.google.com/_/static/branding/v5/light_mode/icon.svg" 
-            alt="NotebookLM" 
-            style={{width: '20px', height: '20px', marginRight: '8px', verticalAlign: 'middle'}}
-            />
-          NotebookLM
-        </h3>
-        <button className="add-btn" onClick={() => {
-          if (mostrarFormularioNotebook && editandoNotebook) {
-            cancelarEdicaoNotebook();
-          } else {
-            setMostrarFormularioNotebook(!mostrarFormularioNotebook);
-          }
-        }}>
-          {mostrarFormularioNotebook ? '×' : '+'}
-        </button>
-      </div>
-      <div className="card-content">
-        {mostrarFormularioNotebook && (
-          <div className="notebook-form">
-            <input
-              type="text"
-              placeholder="Título do notebook"
-              value={novoNotebook.titulo}
-              onChange={(e) => setNovoNotebook({...novoNotebook, titulo: e.target.value})}
-              className="form-input"
-            />
-            <input
-              type="url"
-              placeholder="Link do NotebookLM"
-              value={novoNotebook.link}
-              onChange={(e) => setNovoNotebook({...novoNotebook, link: e.target.value})}
-              className="form-input"
-            />
-            <textarea
-              placeholder="Descrição do notebook"
-              value={novoNotebook.descricao}
-              onChange={(e) => setNovoNotebook({...novoNotebook, descricao: e.target.value})}
-              className="form-textarea"
-            />
-            <div style={{display: 'flex', gap: '8px'}}>
-              <button onClick={adicionarNotebook} className="form-submit">
-                {editandoNotebook ? 'Salvar Edição' : 'Adicionar Notebook'}
-              </button>
-              {editandoNotebook && (
-                <button onClick={cancelarEdicaoNotebook} className="form-cancel">
-                  Cancelar
-                </button>
-              )}
-            </div>
-          </div>
-        )}
-        {notebooks.map(notebook => (
-          <div key={notebook.id} className="notebook-item">
-            <div className="notebook-text">
-              <strong>{notebook.titulo}</strong>
-              <p>{notebook.descricao}</p>
-              <a href={notebook.link} target="_blank" rel="noopener noreferrer" className="notebook-link">
-                Abrir Notebook
-              </a>
-              <span className="notebook-time">
-                {new Date(notebook.created_at).toLocaleString('pt-BR')}
-              </span>
-            </div>
-            <div className="notebook-actions">
-              <button 
-                onClick={() => editarNotebook(notebook)}
-                className="edit-btn"
-              >
-                ✏️
-              </button>
-              <button 
-                onClick={() => removerNotebook(notebook.id)}
-                className="remove-btn"
-              >
-                ×
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-    
-    <div className="card tjsc-card">
-      <div className="card-header">
-        <h3>
-          <img 
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwjLt4fG-DbafxSalutZqSasYowTPqx8BpExCZhYlV3qudDsO9H28H6l8de5Uw3q1m6RA&usqp=CAU" 
-            alt="TJSC" 
-            style={{width: '20px', height: '20px', marginRight: '8px', verticalAlign: 'middle'}}
-          />
-          TJSC
-        </h3>
-        <div className="card-controls">
-          <button 
-            className="add-btn" 
-            onClick={() => {
-              if (mostrarFormularioTjsc && editandoTjscLink) {
-                cancelarEdicaoTjscLink();
-              } else {
-                setMostrarFormularioTjsc(!mostrarFormularioTjsc);
-              }
-            }}
-          >
-            {mostrarFormularioTjsc ? '×' : '+'}
+      <div className="card notebook-card">
+        <div className="card-header">
+          <h3>
+            <img 
+              src="https://notebooklm.google.com/_/static/branding/v5/light_mode/icon.svg" 
+              alt="NotebookLM" 
+              style={{width: '20px', height: '20px', marginRight: '8px', verticalAlign: 'middle'}}
+              />
+            NotebookLM
+          </h3>
+          <button className="add-btn" onClick={() => {
+            if (mostrarFormularioNotebook && editandoNotebook) {
+              cancelarEdicaoNotebook();
+            } else {
+              setMostrarFormularioNotebook(!mostrarFormularioNotebook);
+            }
+          }}>
+            {mostrarFormularioNotebook ? '×' : '+'}
           </button>
         </div>
-      </div>
-      <div className="card-content">
-        {mostrarFormularioTjsc && (
-          <div className="tjsc-form">
-            <input
-              type="text"
-              placeholder="Título do link"
-              value={novoTjscLink.titulo}
-              onChange={(e) => setNovoTjscLink({...novoTjscLink, titulo: e.target.value})}
-              className="form-input"
-            />
-            <input
-              type="url"
-              placeholder="Link do TJSC"
-              value={novoTjscLink.link}
-              onChange={(e) => setNovoTjscLink({...novoTjscLink, link: e.target.value})}
-              className="form-input"
-            />
-            <div className="icon-selector">
-              <label>Selecionar Ícone:</label>
-              {Object.entries(categorias).map(([categoria, icones]) => (
-                <div key={categoria} className="icon-category">
-                  <h4>{categoria}</h4>
-                  <div className="icon-grid">
-                    {icones.map(iconName => (
-                      <div 
-                        key={iconName} 
-                        className={`icon-option ${novoTjscLink.icone === iconName ? 'selected' : ''}`}
-                        onClick={() => setNovoTjscLink({...novoTjscLink, icone: iconName})}
-                      >
-                        {getIconComponent(iconName)}
-                        <span>{iconName.replace(/^(Fa|Md|AiOutline)/, '')}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div style={{display: 'flex', gap: '8px'}}>
-              <button onClick={adicionarTjscLink} className="form-submit">
-                {editandoTjscLink ? 'Salvar Edição' : 'Adicionar Link'}
-              </button>
-              {editandoTjscLink && (
-                <button onClick={cancelarEdicaoTjscLink} className="form-cancel">
-                  Cancelar
+        <div className="card-content">
+          {mostrarFormularioNotebook && (
+            <div className="notebook-form">
+              <input
+                type="text"
+                placeholder="Título do notebook"
+                value={novoNotebook.titulo}
+                onChange={(e) => setNovoNotebook({...novoNotebook, titulo: e.target.value})}
+                className="form-input"
+              />
+              <input
+                type="url"
+                placeholder="Link do NotebookLM"
+                value={novoNotebook.link}
+                onChange={(e) => setNovoNotebook({...novoNotebook, link: e.target.value})}
+                className="form-input"
+              />
+              <textarea
+                placeholder="Descrição do notebook"
+                value={novoNotebook.descricao}
+                onChange={(e) => setNovoNotebook({...novoNotebook, descricao: e.target.value})}
+                className="form-textarea"
+              />
+              <div style={{display: 'flex', gap: '8px'}}>
+                <button onClick={adicionarNotebook} className="form-submit">
+                  {editandoNotebook ? 'Salvar Edição' : 'Adicionar Notebook'}
                 </button>
-              )}
+                {editandoNotebook && (
+                  <button onClick={cancelarEdicaoNotebook} className="form-cancel">
+                    Cancelar
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+          {notebooks.map(notebook => (
+            <div key={notebook.id} className="notebook-item">
+              <div className="notebook-text">
+                <strong>{notebook.titulo}</strong>
+                <p>{notebook.descricao}</p>
+                <a href={notebook.link} target="_blank" rel="noopener noreferrer" className="notebook-link">
+                  Abrir Notebook
+                </a>
+                <span className="notebook-time">
+                  {new Date(notebook.created_at).toLocaleString('pt-BR')}
+                </span>
+              </div>
+              <div className="notebook-actions">
+                <button 
+                  onClick={() => editarNotebook(notebook)}
+                  className="edit-btn"
+                >
+                  ✏️
+                </button>
+                <button 
+                  onClick={() => removerNotebook(notebook.id)}
+                  className="remove-btn"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      <div className="card tjsc-card">
+        <div className="card-header">
+          <h3>
+            <img 
+              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwjLt4fG-DbafxSalutZqSasYowTPqx8BpExCZhYlV3qudDsO9H28H6l8de5Uw3q1m6RA&usqp=CAU" 
+              alt="TJSC" 
+              style={{width: '20px', height: '20px', marginRight: '8px', verticalAlign: 'middle'}}
+            />
+            TJSC
+          </h3>
+          <div className="card-controls">
+            <button 
+              className="add-btn" 
+              onClick={() => {
+                if (mostrarFormularioTjsc && editandoTjscLink) {
+                  cancelarEdicaoTjscLink();
+                } else {
+                  setMostrarFormularioTjsc(!mostrarFormularioTjsc);
+                }
+              }}
+            >
+              {mostrarFormularioTjsc ? '×' : '+'}
+            </button>
+          </div>
+        </div>
+        <div className="card-content">
+          {mostrarFormularioTjsc && (
+            <div className="tjsc-form">
+              <input
+                type="text"
+                placeholder="Título do link"
+                value={novoTjscLink.titulo}
+                onChange={(e) => setNovoTjscLink({...novoTjscLink, titulo: e.target.value})}
+                className="form-input"
+              />
+              <input
+                type="url"
+                placeholder="Link do TJSC"
+                value={novoTjscLink.link}
+                onChange={(e) => setNovoTjscLink({...novoTjscLink, link: e.target.value})}
+                className="form-input"
+              />
+              <div className="icon-selector">
+                <label>Selecionar Ícone:</label>
+                {Object.entries(categorias).map(([categoria, icones]) => (
+                  <div key={categoria} className="icon-category">
+                    <h4>{categoria}</h4>
+                    <div className="icon-grid">
+                      {icones.map(iconName => (
+                        <div 
+                          key={iconName} 
+                          className={`icon-option ${novoTjscLink.icone === iconName ? 'selected' : ''}`}
+                          onClick={() => setNovoTjscLink({...novoTjscLink, icone: iconName})}
+                        >
+                          {getIconComponent(iconName)}
+                          <span>{iconName.replace(/^(Fa|Md|AiOutline)/, '')}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div style={{display: 'flex', gap: '8px'}}>
+                <button onClick={adicionarTjscLink} className="form-submit">
+                  {editandoTjscLink ? 'Salvar Edição' : 'Adicionar Link'}
+                </button>
+                {editandoTjscLink && (
+                  <button onClick={cancelarEdicaoTjscLink} className="form-cancel">
+                    Cancelar
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+          {tjscLinks.map(link => (
+            <div 
+              key={link.id} 
+              className="tjsc-item"
+              onDoubleClick={() => editarTjscLink(link)}
+              title="Clique duplo para editar"
+            >
+              <a 
+                href={link.link} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="tjsc-link-title"
+              >
+                <span className="tjsc-icon">{getIconComponent(link.icone)}</span>
+                <span className="tjsc-text">{link.titulo}</span>
+              </a>
+              <div className="tjsc-hover-actions">
+                <button onClick={() => editarTjscLink(link)} className="edit-btn">
+                  ✏️
+                </button>
+                <button onClick={() => removerTjscLink(link.id)} className="remove-btn">
+                  ×
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+          </div>
+        </div>
+        
+        {showPowerBIModal && (
+          <div className="modal-overlay" onClick={() => setShowPowerBIModal(false)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h2>Power BI Dashboard</h2>
+                <button 
+                  className="modal-close"
+                  onClick={() => setShowPowerBIModal(false)}
+                >
+                  <MdClose size={24} />
+                </button>
+              </div>
+              <div className="modal-body">
+                <iframe
+                  title="Gerencial de Gabinete"
+                  width="100%"
+                  height="100%"
+                  src="https://app.powerbi.com/reportEmbed?reportId=6a74e9aa-0de1-415a-8cc6-5c243b756f73&appId=6556e9bb-d287-4773-9065-6dc5aaae8deb&autoAuth=true&ctid=400b79f8-9f13-47c7-923f-4b1695bf3b29&$filter=Desembargador eq 'ALEXANDRE MORAIS DA ROSA' and Periodo eq 'Mês atual'"
+                  frameBorder="0"
+                  allowFullScreen={true}
+                ></iframe>
+              </div>
             </div>
           </div>
         )}
-        {tjscLinks.map(link => (
-          <div 
-            key={link.id} 
-            className="tjsc-item"
-            onDoubleClick={() => editarTjscLink(link)}
-            title="Clique duplo para editar"
-          >
-            <a 
-              href={link.link} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="tjsc-link-title"
-            >
-              <span className="tjsc-icon">{getIconComponent(link.icone)}</span>
-              <span className="tjsc-text">{link.titulo}</span>
-            </a>
-            <div className="tjsc-hover-actions">
-              <button onClick={() => editarTjscLink(link)} className="edit-btn">
-                ✏️
-              </button>
-              <button onClick={() => removerTjscLink(link.id)} className="remove-btn">
-                ×
-              </button>
-            </div>
-          </div>
-        ))}
       </div>
-    </div>
-        </div>
-      </div>
-    </div>
   );
 };
 
