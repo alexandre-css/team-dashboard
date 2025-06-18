@@ -1,27 +1,20 @@
 
 .dashboard {
   display: flex;
+  flex-direction: column;
   height: 100vh;
   background: #f8fafc;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.sidebar {
-  width: 250px;
+.header-section {
   background: white;
-  border-right: 1px solid #e2e8f0;
-  padding: 20px 0;
-}
-
-.logo {
-  padding: 0 20px 30px;
+  padding: 16px 30px;
   border-bottom: 1px solid #e2e8f0;
-}
-
-.logo h2 {
-  margin: 0;
-  color: #1a202c;
-  font-size: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .main-title {
@@ -30,24 +23,27 @@
   align-items: center;
   font-size: 1.8rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #3b82f6, #60a5fa);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #3b82f6;
+  gap: 12px;
+}
+
+.main-title::before {
+  display: none;
 }
 
 .main-content {
   flex: 1;
-  overflow-y: auto;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .dashboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 30px;
-  background: white;
-  border-bottom: 1px solid #e2e8f0;
+  display: none;
+}
+
+.title-section {
+  display: none;
 }
 
 .dashboard-header h1 {
@@ -90,10 +86,42 @@
 
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 200px;
   gap: 20px;
-  margin-top: 20px;
-  padding: 0 30px 30px;
+  padding: 20px;
+  height: calc(100vh - 80px);
+  overflow: hidden;
+}
+
+.avisos-card {
+  grid-column: 1 / 2;
+  grid-row: 1 / 3;
+}
+
+.calendario-card {
+  grid-column: 2 / 3;
+  grid-row: 1 / 2;
+}
+
+.arquivos-card {
+  grid-column: 3 / 4;
+  grid-row: 1 / 2;
+}
+
+.notebook-card {
+  grid-column: 2 / 3;
+  grid-row: 2 / 3;
+}
+
+.powerbi-card {
+  grid-column: 3 / 4;
+  grid-row: 2 / 3;
+}
+
+.tjsc-card {
+  grid-column: 1 / 4;
+  grid-row: 3 / 4;
 }
 
 .card {
@@ -130,14 +158,6 @@
 .avisos-card .card-content {
   max-height: 400px;
   overflow-y: auto;
-}
-
-.calendario-card .card-content {
-  padding: 0;
-}
-
-.calendario-card iframe {
-  border-radius: 0 0 12px 12px;
 }
 
 .add-btn, .drive-btn {
@@ -852,12 +872,13 @@
 .tjsc-item {
   display: flex;
   flex-direction: column;
-  background: var(--bg-primary);
-  border: 1px solid var(--border-secondary);
+  background: white;
+  border: 1px solid #e5e7eb;
   border-radius: 8px;
   overflow: hidden;
   transition: all 0.2s ease;
   position: relative;
+  cursor: pointer;
 }
 
 .tjsc-item:hover {
@@ -866,16 +887,65 @@
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
 }
 
-.tjsc-link-title {
+.tjsc-item:hover .tjsc-hover-actions {
+  opacity: 1;
+  visibility: visible;
+}
+
+.tjsc-hover-actions {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 6px;
+  padding: 2px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tjsc-hover-actions .edit-btn,
+.tjsc-hover-actions .remove-btn {
+  background: none;
+  border: none;
+  padding: 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+  width: 20px;
+  height: 20px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+}
+
+.tjsc-hover-actions .edit-btn:hover {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
+.tjsc-hover-actions .remove-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.tjsc-link-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   padding: 12px;
   text-decoration: none;
   color: #1f2937;
   flex: 1;
   transition: all 0.2s ease;
-  border-radius: 8px 8px 0 0;
+  text-align: center;
+  min-height: 80px;
 }
 
 .tjsc-link-title:hover {
@@ -903,6 +973,7 @@
   font-size: 13px;
   line-height: 1.3;
   word-break: break-word;
+  text-align: center;
 }
 
 .tjsc-actions {
@@ -1055,13 +1126,84 @@
   color: #64748b;
 }
 
+@media (max-width: 1200px) {
+  .dashboard-grid {
+    grid-template-columns: 1.5fr 1fr;
+    grid-template-rows: auto auto auto auto;
+    gap: 16px;
+  }
+  
+  .avisos-card {
+    grid-column: 1 / 2;
+    grid-row: 1 / 3;
+    min-height: 400px;
+  }
+  
+  .calendario-card {
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
+    height: 280px;
+  }
+  
+  .arquivos-card {
+    grid-column: 2 / 3;
+    grid-row: 2 / 3;
+    height: 280px;
+  }
+  
+  .notebook-card {
+    grid-column: 1 / 2;
+    grid-row: 3 / 4;
+    height: 250px;
+  }
+  
+  .powerbi-card {
+    grid-column: 2 / 3;
+    grid-row: 3 / 4;
+    height: 250px;
+  }
+  
+  .tjsc-card {
+    grid-column: 1 / 3;
+    grid-row: 4 / 5;
+    height: 150px;
+  }
+}
+
 @media (max-width: 768px) {
   .dashboard-grid {
     grid-template-columns: 1fr;
+    grid-template-rows: repeat(6, auto);
+    gap: 16px;
+    padding: 0 16px 20px;
   }
   
-  .sidebar {
-    width: 200px;
+  .avisos-card {
+    height: 350px;
+  }
+  
+  .calendario-card,
+  .arquivos-card {
+    height: 280px;
+  }
+  
+  .notebook-card,
+  .powerbi-card {
+    height: 250px;
+  }
+  
+  .tjsc-card {
+    height: 180px;
+  }
+  
+  .avisos-card,
+  .calendario-card,
+  .arquivos-card,
+  .notebook-card,
+  .powerbi-card,
+  .tjsc-card {
+    grid-column: 1;
+    grid-row: auto;
   }
 }
 
@@ -1079,8 +1221,226 @@
 }
 
 .subtitle {
+  color: #64748b;
   font-size: 0.9rem;
-  color: #6b7280;
+  font-weight: 400;
+  margin-top: 2px;
+}
+
+.calendario-card iframe {
+  border-radius: 0 0 12px 12px;
+}
+
+.evento-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.evento-item:last-child {
+  border-bottom: none;
+}
+
+.evento-time {
+  color: #3b82f6;
+  font-weight: 600;
+  font-size: 0.85rem;
+  min-width: 80px;
+}
+
+.evento-details {
+  flex: 1;
+}
+
+.evento-title {
+  color: #1a202c;
   font-weight: 500;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+.evento-description {
+  color: #6b7280;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.evento-item:hover {
+  background: rgba(59, 130, 246, 0.05);
+  border-radius: 6px;
+}
+
+.evento-time {
+  font-family: 'Courier New', monospace;
+  background: rgba(59, 130, 246, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.calendario-card .card-content {
+  padding: 0;
+  height: calc(100% - 70px);
+  overflow: hidden;
+}
+
+.eventos-lista {
+  height: 100%;
+  overflow-y: auto;
+  padding: 12px;
+  background: #fafafa;
+}
+
+.evento-item {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  padding: 12px;
+  margin-bottom: 6px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+  border-left: 3px solid #e5e7eb;
+}
+
+.evento-item:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
+}
+
+.evento-item:last-child {
+  margin-bottom: 0;
+}
+
+.evento-date-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 50px;
+  text-align: center;
+  padding: 4px;
+}
+
+.evento-weekday {
+  font-size: 0.7rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  font-weight: 600;
   letter-spacing: 0.5px;
+  margin-bottom: 1px;
+}
+
+.evento-day {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1;
+}
+
+.evento-month {
+  font-size: 0.7rem;
+  color: #6b7280;
+  margin-top: 1px;
+  font-weight: 500;
+}
+
+.evento-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.evento-time-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-bottom: 3px;
+}
+
+.evento-time-badge::before {
+  content: "⏰";
+  font-size: 0.7rem;
+}
+
+.evento-title {
+  color: #1f2937;
+  font-weight: 600;
+  font-size: 0.85rem;
+  line-height: 1.2;
+  margin: 0;
+  word-break: break-word;
+}
+
+.evento-location {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 3px;
+}
+
+.evento-location::before {
+  content: "📍";
+  font-size: 0.65rem;
+}
+
+.evento-status {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  flex-shrink: 0;
+  align-self: center;
+  margin-left: 8px;
+}
+
+.evento-status.urgent {
+  background: #ef4444;
+}
+
+.loading-calendar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #6b7280;
+  font-style: italic;
+  gap: 12px;
+}
+
+.loading-calendar::before {
+  content: "📅";
+  font-size: 2rem;
+  animation: pulse 2s infinite;
+}
+
+.no-events {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  color: #9ca3af;
+  font-style: italic;
+  gap: 12px;
+}
+
+.no-events::before {
+  content: "📋";
+  font-size: 2rem;
+  opacity: 0.5;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }

@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import './dashboard.css';
 import { supabase } from '../lib/supabase';
-import { MdDashboard } from "react-icons/md";
+import { MdDashboard, } from "react-icons/md";
 import { FaGavel, FaBalanceScale, FaFileAlt, FaBook, FaUsers, FaBuilding, FaClipboardList, FaSearch, FaCalendarAlt, FaCog, FaLaptop, FaHome, FaPhone, FaEnvelope, FaMapMarkerAlt, FaInfoCircle, FaExclamationTriangle, FaCheckCircle, FaTimesCircle, FaClock, FaEye, FaFolder, FaFolderOpen, FaDatabase, FaServer, FaCloud, FaLock, FaUnlock, FaKey, FaShieldAlt, FaUser, FaUserTie, FaIdCard, FaTools, FaWrench, FaCogs, FaHeadset, FaTicketAlt, FaBug, FaLifeRing, FaQuestionCircle, FaCommentDots, FaUserFriends, FaUserCheck, FaUserPlus, FaUserCog, FaHandshake, FaClipboard, FaUserMd, FaUserShield } from 'react-icons/fa';
 import { MdGavel, MdAccountBalance, MdDescription, MdLibraryBooks, MdPeople, MdBusiness, MdAssignment, MdEvent, MdHome, MdWork, MdSchool, MdLocalLibrary, MdAccountBalanceWallet, MdAssignmentInd, MdClass, MdContactMail, MdContactPhone, MdGrade, MdGroup, MdHistory, MdInfo, MdLaunch, MdList, MdLocationOn, MdMail, MdNotifications, MdPerson, MdPhone, MdPlace, MdPublic, MdSchedule, MdSecurity, MdSupervisorAccount, MdVerifiedUser, MdVisibility, MdBuild, MdSupport, MdReportProblem, MdHelpOutline, MdBugReport, MdHandyman, MdPersonAdd, MdGroupAdd, MdBadge, MdCardMembership, MdManageAccounts, MdWorkOutline } from 'react-icons/md';
 import { AiOutlineBank, AiOutlineHome, AiOutlinePhone, AiOutlineMail, AiOutlineUser, AiOutlineTeam, AiOutlineFileText, AiOutlineFolder, AiOutlineSafety, AiOutlineSchedule, AiOutlineSetting, AiOutlineSearch, AiOutlineBook, AiOutlineGlobal, AiOutlineAudit, AiOutlineProject, AiOutlineDatabase } from 'react-icons/ai';
+
+const GOOGLE_API_KEY = process.env.REACT_APP_GOOGLE_API_KEY;
+const CALENDAR_ID = 'c30807268699bd3ee379858bd2a143ad7d1b8aceacdcf20a9e138085cb70cad0@group.calendar.google.com';
 
 const Dashboard = () => {
   const [avisos, setAvisos] = useState([]);
@@ -14,6 +17,7 @@ const Dashboard = () => {
     tipo: 'warning',
     imagens: []
   });
+
 
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [editandoAviso, setEditandoAviso] = useState(null);
@@ -33,13 +37,19 @@ const Dashboard = () => {
     link: '',
     icone: 'FaGavel'
   });
+
   const [mostrarFormularioTjsc, setMostrarFormularioTjsc] = useState(false);
   const [editandoTjscLink, setEditandoTjscLink] = useState(null);
+  const [eventos, setEventos] = useState([]);
+  const [carregandoCalendario, setCarregandoCalendario] = useState(false);
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [calendarEvents, setCalendarEvents] = useState([]);
 
   useEffect(() => {
     carregarAvisos();
     carregarNotebooks();
     carregarTjscLinks();
+    carregarEventosCalendario();
   }, []);
   
   useEffect(() => {
@@ -90,6 +100,93 @@ const getIconComponent = (iconName) => {
   return IconComponent ? <IconComponent /> : <FaGavel />;
 };
   
+const carregarEventosCalendario = async () => {
+  if (!GOOGLE_API_KEY) {
+    console.error('API Key não encontrada');
+    return;
+  }
+  
+  setCarregandoCalendario(true);
+  try {
+    const now = new Date();
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 2, 0);
+    const timeMin = now.toISOString();
+    const timeMax = endOfMonth.toISOString();
+    
+    const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CALENDAR_ID)}/events?key=${GOOGLE_API_KEY}&timeMin=${timeMin}&timeMax=${timeMax}&maxResults=50&singleEvents=true&orderBy=startTime`;
+    
+    const response = await fetch(url);
+    const data = await response.json();
+    
+    if (response.status === 403) {
+      console.error('Erro 403: Adicione localhost:3001 nas restrições da API Key');
+      return;
+    }
+    
+    if (data.error) {
+      console.error('Erro da API:', data.error);
+      return;
+    }
+    
+    const processedEvents = (data.items || []).map(evento => ({
+      ...evento,
+      date: new Date(evento.start.dateTime || evento.start.date + 'T00:00:00')
+    }));
+    
+    setEventos(data.items || []);
+    setCalendarEvents(processedEvents);
+  } catch (error) {
+    console.error('Erro ao carregar eventos:', error);
+  }
+  setCarregandoCalendario(false);
+};
+
+const renderCalendar = () => {
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  const today = new Date();
+  
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const startDate = new Date(firstDay);
+  startDate.setDate(startDate.getDate() - firstDay.getDay());
+  
+  const days = [];
+  const current = new Date(startDate);
+  
+  for (let i = 0; i < 42; i++) {
+    const dayEvents = calendarEvents.filter(event => 
+      event.date.toDateString() === current.toDateString()
+    );
+    
+    days.push({
+      date: new Date(current),
+      isCurrentMonth: current.getMonth() === month,
+      isToday: current.toDateString() === today.toDateString(),
+      hasEvents: dayEvents.length > 0,
+      events: dayEvents
+    });
+    
+    current.setDate(current.getDate() + 1);
+  }
+  
+  return days;
+};
+
+const formatMonthYear = (date) => {
+  return date.toLocaleDateString('pt-BR', { 
+    month: 'long', 
+    year: 'numeric' 
+  });
+};
+
+const getUpcomingEvents = () => {
+  const now = new Date();
+  return calendarEvents
+    .filter(event => event.date >= now)
+    .slice(0, 5);
+};
+
 const carregarNotebooks = async () => {
   try {
     const { data, error } = await supabase
@@ -536,20 +633,18 @@ const removerTjscLink = async (id) => {
 
     <div className="dashboard">
       <div className="header-section">
-        <h2 className="main-title"><MdDashboard style={{marginRight: '8px', color: '#3b82f6'}} />TeamDash</h2>
+        <h1 className="main-title">
+          <MdDashboard size={24} />
+          TeamDash
+        </h1>
+        <div className="subtitle">Gabinete Alexandre Morais da Rosa</div>
+        <div className="user-info">
+          <div className="user-avatar">A</div>
+          <span>Alexandre</span>
+        </div>
       </div>
+      
       <div className="main-content">
-        <header className="dashboard-header">
-          <div className="title-section">
-            <h1>Dashboard</h1>
-            <span className="subtitle">Gabinete Alexandre Morais da Rosa</span>
-          </div>
-          <div className="user-info">
-            <span>Bem-vindo, Admin</span>
-            <div className="user-avatar">A</div>
-          </div>
-        </header>
-
         <div className="dashboard-grid">
           <div className="card avisos-card">
             <div className="card-header">
@@ -691,21 +786,78 @@ const removerTjscLink = async (id) => {
               
             <div className="card calendario-card">
               <div className="card-header">
-              <h3>
-                <span className="google-calendar-icon"></span>
-                Calendário
-              </h3>
+                <h3>
+                  <img 
+                    src="https://calendar.google.com/googlecalendar/images/favicons_2020q4/calendar_31.ico" 
+                    alt="Google Calendar" 
+                    style={{width: '20px', height: '20px', marginRight: '8px', verticalAlign: 'middle'}}
+                  />
+                  Próximos Eventos
+                </h3>
+              </div>
+              <div className="card-content" style={{padding: 0}}>
+                {carregandoCalendario ? (
+                  <div className="loading-calendar">
+                    <span>Carregando eventos...</span>
+                  </div>
+                ) : (
+                  <div className="eventos-lista">
+                    {eventos.length > 0 ? (
+                      eventos.map(evento => {
+                        const eventDate = new Date(evento.start.dateTime || evento.start.date + 'T00:00:00');
+                        const isUrgent = evento.summary.toLowerCase().includes('limite');
+                        const hasTime = evento.start.dateTime;
+                        const hasLocation = evento.location;
+                        
+                        return (
+                          <div key={evento.id} className="evento-item">
+                            <div className="evento-date-section">
+                              <div className="evento-weekday">
+                                {eventDate.toLocaleDateString('pt-BR', { weekday: 'short' })}
+                              </div>
+                              <div className="evento-day">
+                                {eventDate.getDate().toString().padStart(2, '0')}
+                              </div>
+                              <div className="evento-month">
+                                {eventDate.toLocaleDateString('pt-BR', { month: 'short' })}
+                              </div>
+                            </div>
+                            
+                            <div className="evento-info">
+                              {hasTime && (
+                                <div className="evento-time-badge">
+                                  {new Date(evento.start.dateTime).toLocaleTimeString('pt-BR', { 
+                                    hour: '2-digit', 
+                                    minute: '2-digit' 
+                                  })} - {new Date(evento.end.dateTime).toLocaleTimeString('pt-BR', { 
+                                    hour: '2-digit', 
+                                    minute: '2-digit' 
+                                  })}
+                                </div>
+                              )}
+                              
+                              <h4 className="evento-title">{evento.summary}</h4>
+                              
+                              {hasLocation && (
+                                <div className="evento-location">
+                                  {evento.location}
+                                </div>
+                              )}
+                            </div>
+                            
+                            <div className={`evento-status ${isUrgent ? 'urgent' : ''}`}></div>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <div className="no-events">
+                        <span>Nenhum evento encontrado</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
-            <div className="card-content">
-              <iframe 
-                src="https://calendar.google.com/calendar/embed?src=c30807268699bd3ee379858bd2a143ad7d1b8aceacdcf20a9e138085cb70cad0%40group.calendar.google.com&ctz=America%2FSao_Paulo&mode=AGENDA"
-                style={{border: 0, width: '100%', height: '350px'}}
-                frameBorder="0"
-                scrolling="no"
-                title="Google Calendar"
-              />
-            </div>
-          </div>
         
           <div className="card arquivos-card">
             <div className="card-header">
@@ -914,7 +1066,12 @@ const removerTjscLink = async (id) => {
           </div>
         )}
         {tjscLinks.map(link => (
-          <div key={link.id} className="tjsc-item">
+          <div 
+            key={link.id} 
+            className="tjsc-item"
+            onDoubleClick={() => editarTjscLink(link)}
+            title="Clique duplo para editar"
+          >
             <a 
               href={link.link} 
               target="_blank" 
@@ -924,7 +1081,7 @@ const removerTjscLink = async (id) => {
               <span className="tjsc-icon">{getIconComponent(link.icone)}</span>
               <span className="tjsc-text">{link.titulo}</span>
             </a>
-            <div className="tjsc-actions">
+            <div className="tjsc-hover-actions">
               <button onClick={() => editarTjscLink(link)} className="edit-btn">
                 ✏️
               </button>
