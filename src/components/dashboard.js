@@ -24,6 +24,7 @@ const Dashboard = () => {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [editandoAviso, setEditandoAviso] = useState(null);
   const [notebooks, setNotebooks] = useState([]);
+  const [mostrarFormularioNotebook, setMostrarFormularioNotebook] = useState(false);
   
   const [novoNotebook, setNovoNotebook] = useState({
     titulo: '',
@@ -31,7 +32,6 @@ const Dashboard = () => {
     descricao: ''
   });
   
-  const [mostrarFormularioNotebook, setMostrarFormularioNotebook] = useState(false);
   const [editandoNotebook, setEditandoNotebook] = useState(null);
   const [tjscLinks, setTjscLinks] = useState([]);
   const [novoTjscLink, setNovoTjscLink] = useState({
@@ -888,9 +888,47 @@ const cancelarExclusao = () => {
           </button>
         </div>
         <div className="card-content">
+          {mostrarFormularioNotebook && (
+            <div className="notebook-form">
+              <input
+                type="text"
+                placeholder="Título do notebook"
+                value={novoNotebook.titulo}
+                onChange={(e) => setNovoNotebook({...novoNotebook, titulo: e.target.value})}
+                className="form-input"
+              />
+              <input
+                type="url"
+                placeholder="Link do notebook"
+                value={novoNotebook.link}
+                onChange={(e) => setNovoNotebook({...novoNotebook, link: e.target.value})}
+                className="form-input"
+              />
+              <input
+                type="text"
+                placeholder="Descrição (opcional)"
+                value={novoNotebook.descricao}
+                onChange={(e) => setNovoNotebook({...novoNotebook, descricao: e.target.value})}
+                className="form-input"
+              />
+              <div style={{display: 'flex', gap: '8px'}}>
+                <button onClick={adicionarNotebook} className="form-submit">
+                  {editandoNotebook ? 'Salvar Edição' : 'Adicionar Notebook'}
+                </button>
+                {editandoNotebook && (
+                  <button onClick={cancelarEdicaoNotebook} className="form-cancel">
+                    Cancelar
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
           {notebooks.map(notebook => (
-            <div 
-              className="notebook-item" 
+            <a 
+              href={notebook.link} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="notebook-item-link"
               key={notebook.id}
               onMouseEnter={(e) => {
                 const actions = e.currentTarget.querySelector('.notebook-hover-actions');
@@ -901,35 +939,38 @@ const cancelarExclusao = () => {
                 if (actions) actions.style.opacity = '0';
               }}
             >
-              <div className="notebook-icon-circle">
-                <NotebookLM size={12} style={{color: 'white'}} />
-              </div>
-              <div className="notebook-content">
-                <a 
-                  href={notebook.link} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="notebook-titulo-link"
-                >
+              <div className="notebook-item">
+                <div className="notebook-icon-circle">
+                  <NotebookLM size={12} style={{color: 'white'}} />
+                </div>
+                <div className="notebook-content">
                   <h4 className="notebook-titulo">{notebook.titulo}</h4>
-                </a>
-                <p className="notebook-descricao">{notebook.descricao}</p>
+                  <p className="notebook-descricao">{notebook.descricao}</p>
+                </div>
+                <div className="notebook-hover-actions">
+                  <button 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      editarNotebook(notebook);
+                    }}
+                    className="edit-btn"
+                    title="Editar notebook"
+                  >
+                  </button>
+                  <button 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      confirmarExclusao(notebook.id, 'notebook');
+                    }}
+                    className="remove-btn"
+                    title="Excluir notebook"
+                  >
+                  </button>
+                </div>
               </div>
-              <div className="notebook-hover-actions">
-                <button 
-                  onClick={() => editarNotebook(notebook)}
-                  className="edit-btn"
-                  title="Editar notebook"
-                >
-                </button>
-                <button 
-                  onClick={() => confirmarExclusao(notebook.id, 'notebook')}
-                  className="remove-btn"
-                  title="Excluir notebook"
-                >
-                </button>
-              </div>
-            </div>
+            </a>
           ))}
         </div>
       </div>
