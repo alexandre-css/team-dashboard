@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import './dashboard.css';
 import { supabase } from '../lib/supabase';
-import { MdDashboard, MdFullscreen, MdClose } from 'react-icons/md';
+import { MdDashboard, MdFullscreen } from 'react-icons/md';
+import { SiImessage } from "react-icons/si";
 import { FaGavel, FaBalanceScale, FaFileAlt, FaBook, FaUsers, FaBuilding, FaClipboardList, FaSearch, FaCalendarAlt, FaCog, FaLaptop, FaHome, FaPhone, FaEnvelope, FaMapMarkerAlt, FaInfoCircle, FaExclamationTriangle, FaCheckCircle, FaTimesCircle, FaClock, FaEye, FaFolder, FaFolderOpen, FaDatabase, FaServer, FaCloud, FaLock, FaUnlock, FaKey, FaShieldAlt, FaUser, FaUserTie, FaIdCard, FaTools, FaWrench, FaCogs, FaHeadset, FaTicketAlt, FaBug, FaLifeRing, FaQuestionCircle, FaCommentDots, FaUserFriends, FaUserCheck, FaUserPlus, FaUserCog, FaHandshake, FaClipboard, FaUserMd, FaUserShield } from 'react-icons/fa';
 import { MdGavel, MdAccountBalance, MdDescription, MdLibraryBooks, MdPeople, MdBusiness, MdAssignment, MdEvent, MdHome, MdWork, MdSchool, MdLocalLibrary, MdAccountBalanceWallet, MdAssignmentInd, MdClass, MdContactMail, MdContactPhone, MdGrade, MdGroup, MdHistory, MdInfo, MdLaunch, MdList, MdLocationOn, MdMail, MdNotifications, MdPerson, MdPhone, MdPlace, MdPublic, MdSchedule, MdSecurity, MdSupervisorAccount, MdVerifiedUser, MdVisibility, MdBuild, MdSupport, MdReportProblem, MdHelpOutline, MdBugReport, MdHandyman, MdPersonAdd, MdGroupAdd, MdBadge, MdCardMembership, MdManageAccounts, MdWorkOutline } from 'react-icons/md';
 import { AiOutlineBank, AiOutlineHome, AiOutlinePhone, AiOutlineMail, AiOutlineUser, AiOutlineTeam, AiOutlineFileText, AiOutlineFolder, AiOutlineSafety, AiOutlineSchedule, AiOutlineSetting, AiOutlineSearch, AiOutlineBook, AiOutlineGlobal, AiOutlineAudit, AiOutlineProject, AiOutlineDatabase } from 'react-icons/ai';
+import { NotebookLM } from '@lobehub/icons';
 
 const GOOGLE_API_KEY = process.env.REACT_APP_GOOGLE_API_KEY;
 const CALENDAR_ID = 'c30807268699bd3ee379858bd2a143ad7d1b8aceacdcf20a9e138085cb70cad0@group.calendar.google.com';
@@ -43,6 +45,15 @@ const Dashboard = () => {
   const [eventos, setEventos] = useState([]);
   const [carregandoCalendario, setCarregandoCalendario] = useState(false);
   const [showPowerBIModal, setShowPowerBIModal] = useState(false);
+  
+  const [mostrarConfirmacao, setMostrarConfirmacao] = useState(false);
+  const [itemParaExcluir, setItemParaExcluir] = useState(null);
+  const [tipoItemExcluir, setTipoItemExcluir] = useState('');
+
+  const [mostrarGaleria, setMostrarGaleria] = useState(false);
+  const [imagensGaleria, setImagensGaleria] = useState([]);
+  const [imagemAtual, setImagemAtual] = useState(0);
+  const [relatorioAtivo, setRelatorioAtivo] = useState('gerencial');
 
   useEffect(() => {
     carregarAvisos();
@@ -314,85 +325,34 @@ const removerImagem = (index) => {
 };
 
 const abrirGaleria = (imagens) => {
-  const overlay = document.createElement('div');
-  overlay.className = 'image-popup-overlay';
-  overlay.onclick = (e) => {
-    if (e.target === overlay && overlay.parentNode) {
-      overlay.parentNode.removeChild(overlay);
-    }
-  };
-  
-  const popup = document.createElement('div');
-  popup.className = 'image-popup';
-  
-  const gallery = document.createElement('div');
-  gallery.className = 'image-gallery';
-  
-  imagens.forEach((img, index) => {
-    const imgElement = document.createElement('img');
-    imgElement.src = img;
-    imgElement.className = 'image-popup-content';
-    imgElement.style.display = index === 0 ? 'block' : 'none';
-    gallery.appendChild(imgElement);
-  });
-  
-  if (imagens.length > 1) {
-    const prevBtn = document.createElement('button');
-    prevBtn.innerHTML = '‹';
-    prevBtn.className = 'gallery-nav prev';
-    
-    const nextBtn = document.createElement('button');
-    nextBtn.innerHTML = '›';
-    nextBtn.className = 'gallery-nav next';
-    
-    const counter = document.createElement('div');
-    counter.className = 'gallery-counter';
-    counter.innerHTML = `1 / ${imagens.length}`;
-    
-    let currentIndex = 0;
-    
-    const updateGallery = () => {
-      gallery.children[currentIndex].style.display = 'none';
-      currentIndex = (currentIndex + 1) % imagens.length;
-      gallery.children[currentIndex].style.display = 'block';
-      counter.innerHTML = `${currentIndex + 1} / ${imagens.length}`;
-    };
-    
-    const updateGalleryPrev = () => {
-      gallery.children[currentIndex].style.display = 'none';
-      currentIndex = currentIndex === 0 ? imagens.length - 1 : currentIndex - 1;
-      gallery.children[currentIndex].style.display = 'block';
-      counter.innerHTML = `${currentIndex + 1} / ${imagens.length}`;
-    };
-    
-    nextBtn.onclick = updateGallery;
-    prevBtn.onclick = updateGalleryPrev;
-    
-    popup.appendChild(prevBtn);
-    popup.appendChild(nextBtn);
-    popup.appendChild(counter);
-  }
-  
-  const closeBtn = document.createElement('button');
-  closeBtn.innerHTML = '×';
-  closeBtn.className = 'image-popup-close';
-  closeBtn.onclick = () => {
-    if (overlay.parentNode) {
-      overlay.parentNode.removeChild(overlay);
-    }
-  };
-  
-  popup.appendChild(gallery);
-  popup.appendChild(closeBtn);
-  overlay.appendChild(popup);
-  document.body.appendChild(overlay);
+  setImagensGaleria(imagens);
+  setImagemAtual(0);
+  setMostrarGaleria(true);
 };
 
-  function cancelarEdicao() {
-    setEditandoAviso(null);
-    setNovoAviso({ titulo: '', descricao: '', tipo: 'warning', imagens: [] });
-    setMostrarFormulario(false);
+const fecharGaleria = () => {
+  setMostrarGaleria(false);
+  setImagensGaleria([]);
+  setImagemAtual(0);
+};
+
+const proximaImagem = () => {
+  if (imagemAtual < imagensGaleria.length - 1) {
+    setImagemAtual(imagemAtual + 1);
   }
+};
+
+const imagemAnterior = () => {
+  if (imagemAtual > 0) {
+    setImagemAtual(imagemAtual - 1);
+  }
+};
+
+const cancelarEdicao = () => {
+  setEditandoAviso(null);
+  setNovoAviso({ titulo: '', descricao: '', tipo: 'warning', imagens: [] });
+  setMostrarFormulario(false);
+};
 
 const adicionarNotebook = async () => {
   if (editandoNotebook) {
@@ -576,18 +536,48 @@ const removerTjscLink = async (id) => {
   }
 };
 
+const confirmarExclusao = (id, tipo) => {
+  setItemParaExcluir(id);
+  setTipoItemExcluir(tipo);
+  setMostrarConfirmacao(true);
+};
+
+const executarExclusao = () => {
+  if (tipoItemExcluir === 'aviso') {
+    removerAviso(itemParaExcluir);
+  } else if (tipoItemExcluir === 'notebook') {
+    removerNotebook(itemParaExcluir);
+  } else if (tipoItemExcluir === 'tjsc') {
+    removerTjscLink(itemParaExcluir);
+  }
+  setMostrarConfirmacao(false);
+  setItemParaExcluir(null);
+  setTipoItemExcluir('');
+};
+
+const cancelarExclusao = () => {
+  setMostrarConfirmacao(false);
+  setItemParaExcluir(null);
+  setTipoItemExcluir('');
+};
+
   return (
 
     <div className="dashboard">
       <div className="header-section">
-        <h1 className="main-title">
-          <MdDashboard size={24} />
-          TeamDash
-        </h1>
-        <div className="subtitle">Gabinete Alexandre Morais da Rosa</div>
+        <div className="header-left">
+          <h1 className="main-title">
+            <MdDashboard size={24} />
+            TeamDash
+          </h1>
+          <div className="subtitle-container">
+            <span className="gabinete-label">Gabinete</span>
+            <span className="desembargador-name">Alexandre Morais da Rosa</span>
+          </div>
+        </div>
         <div className="user-info">
           <div className="user-avatar">A</div>
-          <span>Alexandre Claudino Simas Santos</span>
+          <span className="user-name">Alexandre</span>
         </div>
       </div>
       
@@ -595,7 +585,10 @@ const removerTjscLink = async (id) => {
         <div className="dashboard-grid">
           <div className="card avisos-card">
             <div className="card-header">
-              <h3>📢 Avisos </h3>
+              <h3>
+                <SiImessage size={25} style={{marginRight: '8px'}} />
+                Avisos
+              </h3>
               <button className="add-btn" onClick={() => {
                 if (mostrarFormulario && editandoAviso) {
                   cancelarEdicao();
@@ -690,7 +683,7 @@ const removerTjscLink = async (id) => {
                   </div>
                 )}
                 {avisos.map(aviso => (
-                  <div key={aviso.id} className="aviso-item">
+                  <div className={`aviso-item ${aviso.tipo}`} key={aviso.id}>
                     <div className={`aviso-dot ${aviso.tipo}`}></div>
                     <div className="aviso-text">
                       <strong>{aviso.titulo}</strong>
@@ -717,14 +710,14 @@ const removerTjscLink = async (id) => {
                       <button 
                         onClick={() => editarAviso(aviso)}
                         className="edit-btn"
+                        title="Editar aviso"
                       >
-                        ✏️
                       </button>
                       <button 
-                        onClick={() => removerAviso(aviso.id)}
+                        onClick={() => confirmarExclusao(aviso.id, 'aviso')}
                         className="remove-btn"
+                        title="Excluir aviso"
                       >
-                        ×
                       </button>
                     </div>
                   </div>
@@ -839,6 +832,20 @@ const removerTjscLink = async (id) => {
                   />
                   Power BI
                 </h3>
+                <div className="powerbi-tabs">
+                  <button 
+                    className={`tab-btn ${relatorioAtivo === 'gerencial' ? 'active' : ''}`}
+                    onClick={() => setRelatorioAtivo('gerencial')}
+                  >
+                    Gerencial
+                  </button>
+                  <button 
+                    className={`tab-btn ${relatorioAtivo === 'metas' ? 'active' : ''}`}
+                    onClick={() => setRelatorioAtivo('metas')}
+                  >
+                    Metas 2025
+                  </button>
+                </div>
                 <button 
                   className="expand-btn"
                   onClick={() => setShowPowerBIModal(true)}
@@ -848,14 +855,25 @@ const removerTjscLink = async (id) => {
                 </button>
               </div>
               <div className="card-content" style={{padding: 0}}>
-                <iframe
-                  title="Gerencial de Gabinete - Preview"
-                  width="100%"
-                  height="100%"
-                  src="https://app.powerbi.com/reportEmbed?reportId=6a74e9aa-0de1-415a-8cc6-5c243b756f73&appId=6556e9bb-d287-4773-9065-6dc5aaae8deb&autoAuth=true&ctid=400b79f8-9f13-47c7-923f-4b1695bf3b29&$filter=Desembargador eq 'ALEXANDRE MORAIS DA ROSA'"
-                  frameBorder="0"
-                  style={{borderRadius: '0 0 12px 12px'}}
-                />
+                {relatorioAtivo === 'gerencial' ? (
+                  <iframe
+                    title="Gerencial de Gabinete - Preview"
+                    width="100%"
+                    height="100%"
+                    src="https://app.powerbi.com/reportEmbed?reportId=6a74e9aa-0de1-415a-8cc6-5c243b756f73&appId=6556e9bb-d287-4773-9065-6dc5aaae8deb&autoAuth=true&ctid=400b79f8-9f13-47c7-923f-4b1695bf3b29&$filter=Desembargador eq 'ALEXANDRE MORAIS DA ROSA'"
+                    frameBorder="0"
+                    style={{borderRadius: '0 0 12px 12px'}}
+                  />
+                ) : (
+                  <iframe
+                    title="Metas Nacionais 2025 - Preview"
+                    width="100%"
+                    height="100%"
+                    src="https://app.powerbi.com/reportEmbed?reportId=70c60c77-b6fc-4266-ac19-4dc1631f7a4d&autoAuth=true&ctid=400b79f8-9f13-47c7-923f-4b1695bf3b29"
+                    frameBorder="0"
+                    style={{borderRadius: '0 0 12px 12px'}}
+                  />
+                )}
               </div>
             </div>
           </div>
@@ -863,82 +881,52 @@ const removerTjscLink = async (id) => {
       <div className="card notebook-card">
         <div className="card-header">
           <h3>
-            <img 
-              src="https://notebooklm.google.com/_/static/branding/v5/light_mode/icon.svg" 
-              alt="NotebookLM" 
-              style={{width: '20px', height: '20px', marginRight: '8px', verticalAlign: 'middle'}}
-              />
-            NotebookLM
+            <NotebookLM.Combine size={20} style={{marginRight: '8px'}} />
           </h3>
-          <button className="add-btn" onClick={() => {
-            if (mostrarFormularioNotebook && editandoNotebook) {
-              cancelarEdicaoNotebook();
-            } else {
-              setMostrarFormularioNotebook(!mostrarFormularioNotebook);
-            }
-          }}>
-            {mostrarFormularioNotebook ? '×' : '+'}
+          <button onClick={() => setMostrarFormularioNotebook(true)} className="add-btn">
+            +
           </button>
         </div>
         <div className="card-content">
-          {mostrarFormularioNotebook && (
-            <div className="notebook-form">
-              <input
-                type="text"
-                placeholder="Título do notebook"
-                value={novoNotebook.titulo}
-                onChange={(e) => setNovoNotebook({...novoNotebook, titulo: e.target.value})}
-                className="form-input"
-              />
-              <input
-                type="url"
-                placeholder="Link do NotebookLM"
-                value={novoNotebook.link}
-                onChange={(e) => setNovoNotebook({...novoNotebook, link: e.target.value})}
-                className="form-input"
-              />
-              <textarea
-                placeholder="Descrição do notebook"
-                value={novoNotebook.descricao}
-                onChange={(e) => setNovoNotebook({...novoNotebook, descricao: e.target.value})}
-                className="form-textarea"
-              />
-              <div style={{display: 'flex', gap: '8px'}}>
-                <button onClick={adicionarNotebook} className="form-submit">
-                  {editandoNotebook ? 'Salvar Edição' : 'Adicionar Notebook'}
-                </button>
-                {editandoNotebook && (
-                  <button onClick={cancelarEdicaoNotebook} className="form-cancel">
-                    Cancelar
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
           {notebooks.map(notebook => (
-            <div key={notebook.id} className="notebook-item">
-              <div className="notebook-text">
-                <strong>{notebook.titulo}</strong>
-                <p>{notebook.descricao}</p>
-                <a href={notebook.link} target="_blank" rel="noopener noreferrer" className="notebook-link">
-                  Abrir Notebook
-                </a>
-                <span className="notebook-time">
-                  {new Date(notebook.created_at).toLocaleString('pt-BR')}
-                </span>
+            <div 
+              className="notebook-item" 
+              key={notebook.id}
+              onMouseEnter={(e) => {
+                const actions = e.currentTarget.querySelector('.notebook-hover-actions');
+                if (actions) actions.style.opacity = '1';
+              }}
+              onMouseLeave={(e) => {
+                const actions = e.currentTarget.querySelector('.notebook-hover-actions');
+                if (actions) actions.style.opacity = '0';
+              }}
+            >
+              <div className="notebook-icon-circle">
+                <NotebookLM size={12} style={{color: 'white'}} />
               </div>
-              <div className="notebook-actions">
+              <div className="notebook-content">
+                <a 
+                  href={notebook.link} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="notebook-titulo-link"
+                >
+                  <h4 className="notebook-titulo">{notebook.titulo}</h4>
+                </a>
+                <p className="notebook-descricao">{notebook.descricao}</p>
+              </div>
+              <div className="notebook-hover-actions">
                 <button 
                   onClick={() => editarNotebook(notebook)}
                   className="edit-btn"
+                  title="Editar notebook"
                 >
-                  ✏️
                 </button>
                 <button 
-                  onClick={() => removerNotebook(notebook.id)}
+                  onClick={() => confirmarExclusao(notebook.id, 'notebook')}
                   className="remove-btn"
+                  title="Excluir notebook"
                 >
-                  ×
                 </button>
               </div>
             </div>
@@ -1037,11 +1025,13 @@ const removerTjscLink = async (id) => {
                 <span className="tjsc-text">{link.titulo}</span>
               </a>
               <div className="tjsc-hover-actions">
-                <button onClick={() => editarTjscLink(link)} className="edit-btn">
-                  ✏️
+                <button 
+                  onClick={() => editarTjscLink(link)}
+                  className="edit-btn"
+                  title="Editar link"
+                >
                 </button>
-                <button onClick={() => removerTjscLink(link.id)} className="remove-btn">
-                  ×
+                <button onClick={() => confirmarExclusao(link.id, 'tjsc')} className="remove-btn" title="Excluir link">
                 </button>
               </div>
             </div>
@@ -1052,32 +1042,103 @@ const removerTjscLink = async (id) => {
         </div>
         
         {showPowerBIModal && (
-          <div className="modal-overlay" onClick={() => setShowPowerBIModal(false)}>
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-overlay">
+            <div className="modal-content">
               <div className="modal-header">
-                <h2>Power BI Dashboard</h2>
+                <h2>
+                  <img 
+                    src="https://powerbi.microsoft.com/pictures/application-logos/svg/powerbi.svg" 
+                    alt="Power BI" 
+                    style={{width: '24px', height: '24px', marginRight: '8px', verticalAlign: 'middle'}}
+                  />
+                  Power BI - {relatorioAtivo === 'gerencial' ? 'Gerencial de Gabinete' : 'Metas Nacionais 2025'}
+                </h2>
                 <button 
                   className="modal-close"
                   onClick={() => setShowPowerBIModal(false)}
+                  title="Fechar"
                 >
-                  <MdClose size={24} />
                 </button>
               </div>
-              <div className="modal-body">
-                <iframe
-                  title="Gerencial de Gabinete"
-                  width="100%"
-                  height="100%"
-                  src="https://app.powerbi.com/reportEmbed?reportId=6a74e9aa-0de1-415a-8cc6-5c243b756f73&appId=6556e9bb-d287-4773-9065-6dc5aaae8deb&autoAuth=true&ctid=400b79f8-9f13-47c7-923f-4b1695bf3b29&$filter=Desembargador eq 'ALEXANDRE MORAIS DA ROSA' and Periodo eq 'Mês atual'"
-                  frameBorder="0"
-                  allowFullScreen={true}
-                ></iframe>
+              <div className="modal-body" style={{padding: 0}}>
+                {relatorioAtivo === 'gerencial' ? (
+                  <iframe
+                    title="Gerencial de Gabinete"
+                    width="100%"
+                    height="100%"
+                    src="https://app.powerbi.com/reportEmbed?reportId=6a74e9aa-0de1-415a-8cc6-5c243b756f73&appId=6556e9bb-d287-4773-9065-6dc5aaae8deb&autoAuth=true&ctid=400b79f8-9f13-47c7-923f-4b1695bf3b29&$filter=Desembargador eq 'ALEXANDRE MORAIS DA ROSA'"
+                    frameBorder="0"
+                    allowFullScreen={true}
+                  />
+                ) : (
+                  <iframe
+                    title="Metas Nacionais 2025"
+                    width="100%"
+                    height="100%"
+                    src="https://app.powerbi.com/reportEmbed?reportId=70c60c77-b6fc-4266-ac19-4dc1631f7a4d&autoAuth=true&ctid=400b79f8-9f13-47c7-923f-4b1695bf3b29"
+                    frameBorder="0"
+                    allowFullScreen={true}
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {mostrarGaleria && (
+          <div className="modal-overlay" onClick={fecharGaleria}>
+            <div className="galeria-modal" onClick={(e) => e.stopPropagation()}>
+              <button className="modal-close" onClick={fecharGaleria}></button>
+              <div className="galeria-content">
+                <img 
+                  src={imagensGaleria[imagemAtual]} 
+                  alt={`Imagem ${imagemAtual + 1}`}
+                  className="galeria-imagem"
+                />
+                {imagensGaleria.length > 1 && (
+                  <>
+                    <button 
+                      className="galeria-nav prev" 
+                      onClick={imagemAnterior}
+                      disabled={imagemAtual === 0}
+                    >
+                      ‹
+                    </button>
+                    <button 
+                      className="galeria-nav next" 
+                      onClick={proximaImagem}
+                      disabled={imagemAtual === imagensGaleria.length - 1}
+                    >
+                      ›
+                    </button>
+                    <div className="galeria-counter">
+                      {imagemAtual + 1} / {imagensGaleria.length}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {mostrarConfirmacao && (
+          <div className="modal-overlay">
+            <div className="confirmation-modal">
+              <h3>Confirmar Exclusão</h3>
+              <p>Tem certeza que deseja excluir este item?</p>
+              <div className="confirmation-buttons">
+                <button onClick={executarExclusao} className="confirm-delete-btn">
+                  Excluir
+                </button>
+                <button onClick={cancelarExclusao} className="cancel-btn">
+                  Cancelar
+                </button>
               </div>
             </div>
           </div>
         )}
       </div>
-  );
+      );
 };
 
 export default Dashboard;
