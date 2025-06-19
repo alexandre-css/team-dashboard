@@ -3,13 +3,14 @@ import './dashboard.css';
 import { supabase } from '../lib/supabase';
 import { MdDashboard, MdFullscreen } from 'react-icons/md';
 import { SiImessage } from "react-icons/si";
-import { FaGavel, FaBalanceScale, FaFileAlt, FaBook, FaUsers, FaBuilding, FaClipboardList, FaSearch, FaCalendarAlt, FaCog, FaLaptop, FaHome, FaPhone, FaEnvelope, FaMapMarkerAlt, FaInfoCircle, FaExclamationTriangle, FaCheckCircle, FaTimesCircle, FaClock, FaEye, FaFolder, FaFolderOpen, FaDatabase, FaServer, FaCloud, FaLock, FaUnlock, FaKey, FaShieldAlt, FaUser, FaUserTie, FaIdCard, FaTools, FaWrench, FaCogs, FaHeadset, FaTicketAlt, FaBug, FaLifeRing, FaQuestionCircle, FaCommentDots, FaUserFriends, FaUserCheck, FaUserPlus, FaUserCog, FaHandshake, FaClipboard, FaUserMd, FaUserShield } from 'react-icons/fa';
+import { FaGavel, FaBalanceScale, FaFileAlt, FaBook, FaUsers, FaBuilding, FaClipboardList, FaSearch, FaCalendarAlt, FaCog, FaLaptop, FaHome, FaPhone, FaEnvelope, FaMapMarkerAlt, FaInfoCircle, FaExclamationTriangle, FaCheckCircle, FaTimesCircle, FaClock, FaEye, FaFolder, FaFolderOpen, FaDatabase, FaServer, FaCloud, FaLock, FaUnlock, FaKey, FaShieldAlt, FaUser, FaUserTie, FaIdCard, FaTools, FaWrench, FaCogs, FaHeadset, FaTicketAlt, FaBug, FaLifeRing, FaQuestionCircle, FaCommentDots, FaUserFriends, FaUserCheck, FaUserPlus, FaUserCog, FaHandshake, FaClipboard, FaUserMd, FaUserShield, FaDownload, FaExternalLinkAlt } from 'react-icons/fa';
 import { MdGavel, MdAccountBalance, MdDescription, MdLibraryBooks, MdPeople, MdBusiness, MdAssignment, MdEvent, MdHome, MdWork, MdSchool, MdLocalLibrary, MdAccountBalanceWallet, MdAssignmentInd, MdClass, MdContactMail, MdContactPhone, MdGrade, MdGroup, MdHistory, MdInfo, MdLaunch, MdList, MdLocationOn, MdMail, MdNotifications, MdPerson, MdPhone, MdPlace, MdPublic, MdSchedule, MdSecurity, MdSupervisorAccount, MdVerifiedUser, MdVisibility, MdBuild, MdSupport, MdReportProblem, MdHelpOutline, MdBugReport, MdHandyman, MdPersonAdd, MdGroupAdd, MdBadge, MdCardMembership, MdManageAccounts, MdWorkOutline } from 'react-icons/md';
 import { AiOutlineBank, AiOutlineHome, AiOutlinePhone, AiOutlineMail, AiOutlineUser, AiOutlineTeam, AiOutlineFileText, AiOutlineFolder, AiOutlineSafety, AiOutlineSchedule, AiOutlineSetting, AiOutlineSearch, AiOutlineBook, AiOutlineGlobal, AiOutlineAudit, AiOutlineProject, AiOutlineDatabase } from 'react-icons/ai';
 import { NotebookLM } from '@lobehub/icons';
 
 const GOOGLE_API_KEY = process.env.REACT_APP_GOOGLE_API_KEY;
 const CALENDAR_ID = 'c30807268699bd3ee379858bd2a143ad7d1b8aceacdcf20a9e138085cb70cad0@group.calendar.google.com';
+const DRIVE_FOLDER_ID = '1kJ0XDQC8IP6WTvOFAQT4-iXRp308wLhc';
 
 const Dashboard = () => {
   const [avisos, setAvisos] = useState([]);
@@ -19,7 +20,6 @@ const Dashboard = () => {
     tipo: 'warning',
     imagens: []
   });
-
 
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [editandoAviso, setEditandoAviso] = useState(null);
@@ -55,11 +55,19 @@ const Dashboard = () => {
   const [imagemAtual, setImagemAtual] = useState(0);
   const [relatorioAtivo, setRelatorioAtivo] = useState('gerencial');
 
+  const [arquivosDrive, setArquivosDrive] = useState([]);
+  const [carregandoDrive, setCarregandoDrive] = useState(false);
+  const [mostrarModalDrive, setMostrarModalDrive] = useState(false);
+  const [pastasExpandidas, setPastasExpandidas] = useState({});
+  const [mostrarMenuUsuario, setMostrarMenuUsuario] = useState(false);
+  const [modoNoturno, setModoNoturno] = useState(false);
+
   useEffect(() => {
     carregarAvisos();
     carregarNotebooks();
     carregarTjscLinks();
     carregarEventosCalendario();
+    carregarArquivosDrive();
   }, []);
   
   useEffect(() => {
@@ -105,11 +113,87 @@ const categorias = {
   'Outros': ['FaMapMarkerAlt', 'FaExclamationTriangle', 'FaFolder', 'FaFolderOpen', 'FaLaptop', 'FaIdCard', 'FaHeadset', 'FaTicketAlt', 'FaBug', 'FaLifeRing', 'FaQuestionCircle', 'FaCommentDots', 'FaHandshake', 'MdAssignment', 'MdClass', 'MdGrade', 'MdGroup', 'MdHistory', 'MdLaunch', 'MdList', 'MdLocationOn', 'MdNotifications', 'MdPlace', 'MdPublic', 'MdSupport', 'MdReportProblem', 'MdHelpOutline', 'MdBugReport', 'MdHandyman', 'MdBadge', 'MdCardMembership', 'MdManageAccounts', 'MdWorkOutline', 'AiOutlineFolder', 'AiOutlineSetting', 'AiOutlineGlobal', 'AiOutlineAudit']
 };
 
+const toggleModoNoturno = () => {
+  setModoNoturno(!modoNoturno);
+  document.body.classList.toggle('modo-noturno', !modoNoturno);
+};
+
+const carregarArquivosDrive = async () => {
+  if (!GOOGLE_API_KEY) {
+    console.error('API Key não encontrada');
+    return;
+  }
+  
+  setCarregandoDrive(true);
+  try {
+    const url = `https://www.googleapis.com/drive/v3/files?key=${GOOGLE_API_KEY}&q='${DRIVE_FOLDER_ID}'+in+parents&fields=files(id,name,mimeType,modifiedTime,size,webViewLink,webContentLink,thumbnailLink)&orderBy=name`;
+    
+    const response = await fetch(url);
+    const data = await response.json();
+    
+    if (response.status === 403) {
+      console.error('Erro 403: Verifique as permissões da API Key para Google Drive');
+      return;
+    }
+    
+    if (data.error) {
+      console.error('Erro da API Drive:', data.error);
+      return;
+    }
+    
+    const arquivos = data.files || [];
+    const pastasPrincipais = arquivos.filter(arquivo => 
+      arquivo.mimeType.includes('folder') && 
+      (arquivo.name.toLowerCase().includes('livros') || arquivo.name.toLowerCase().includes('tutoriais'))
+    );
+    
+    for (const pasta of pastasPrincipais) {
+      const conteudoUrl = `https://www.googleapis.com/drive/v3/files?key=${GOOGLE_API_KEY}&q='${pasta.id}'+in+parents&fields=files(id,name,mimeType,modifiedTime,size,webViewLink,webContentLink,thumbnailLink)&orderBy=name`;
+      
+      try {
+        const conteudoResponse = await fetch(conteudoUrl);
+        const conteudoData = await conteudoResponse.json();
+        
+        if (conteudoData.files) {
+          pasta.arquivos = conteudoData.files;
+        }
+      } catch (error) {
+        console.error(`Erro ao carregar conteúdo da pasta ${pasta.name}:`, error);
+        pasta.arquivos = [];
+      }
+    }
+    
+    const todasAsPastas = arquivos.filter(arquivo => arquivo.mimeType.includes('folder'));
+    
+    setArquivosDrive({ cardPrincipal: pastasPrincipais, todasPastas: todasAsPastas });
+  } catch (error) {
+    console.error('Erro ao carregar arquivos do Drive:', error);
+  }
+  setCarregandoDrive(false);
+};
+
+const getFileIcon = (mimeType) => {
+  if (mimeType.includes('folder')) return <FaFolder />;
+  if (mimeType.includes('document')) return <FaFileAlt />;
+  if (mimeType.includes('spreadsheet')) return <FaFileAlt />;
+  if (mimeType.includes('presentation')) return <FaFileAlt />;
+  if (mimeType.includes('pdf')) return <FaFileAlt />;
+  if (mimeType.includes('image')) return <FaFileAlt />;
+  return <FaFileAlt />;
+};
+
 const getIconComponent = (iconName) => {
   const IconComponent = iconesDisponiveis[iconName];
   return IconComponent ? <IconComponent /> : <FaGavel />;
 };
-  
+
+const togglePasta = (pastaId) => {
+  setPastasExpandidas(prev => ({
+    ...prev,
+    [pastaId]: !prev[pastaId]
+  }));
+};
+
 const carregarEventosCalendario = async () => {
   if (!GOOGLE_API_KEY) {
     console.error('API Key não encontrada');
@@ -173,113 +257,99 @@ const carregarTjscLinks = async () => {
   }
 };
 
-  const carregarAvisos = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('avisos')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      
-      const avisosProcessados = data.map(aviso => ({
-        ...aviso,
-        imagens: typeof aviso.imagens === 'string' ? JSON.parse(aviso.imagens) : (aviso.imagens || [])
-      }));
-      
-      setAvisos(avisosProcessados || []);
-    } catch (error) {
-      console.error('Erro ao carregar avisos:', error);
-    }
-  };
-  
-  const adicionarAviso = async () => {
-    if (editandoAviso) {
-      await salvarEdicao();
-      return;
-    }
+const carregarAvisos = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('avisos')
+      .select('*')
+      .order('created_at', { ascending: false });
     
-    if (novoAviso.titulo.trim()) {
-      try {
-        const { error } = await supabase
-          .from('avisos')
-          .insert([{
-            titulo: novoAviso.titulo,
-            descricao: novoAviso.descricao,
-            tipo: novoAviso.tipo,
-            imagens: JSON.stringify(novoAviso.imagens)
-          }]);
-        
-        if (error) throw error;
-        
-        await carregarAvisos();
-        setNovoAviso({ titulo: '', descricao: '', tipo: 'warning', imagens: [] });
-        setMostrarFormulario(false);
-      } catch (error) {
-        console.error('Erro ao adicionar aviso:', error);
-      }
-    }
-  };
+    if (error) throw error;
+    
+    const avisosProcessados = data.map(aviso => ({
+      ...aviso,
+      imagens: typeof aviso.imagens === 'string' ? JSON.parse(aviso.imagens) : (aviso.imagens || [])
+    }));
+    
+    setAvisos(avisosProcessados || []);
+  } catch (error) {
+    console.error('Erro ao carregar avisos:', error);
+  }
+};
+
+const adicionarAviso = async () => {
+  if (editandoAviso) {
+    await salvarEdicao();
+    return;
+  }
   
-  const removerAviso = async (id) => {
+  if (novoAviso.titulo.trim()) {
     try {
       const { error } = await supabase
         .from('avisos')
-        .delete()
-        .eq('id', id);
+        .insert([{
+          titulo: novoAviso.titulo,
+          descricao: novoAviso.descricao,
+          tipo: novoAviso.tipo,
+          imagens: JSON.stringify(novoAviso.imagens)
+        }]);
       
       if (error) throw error;
+      
       await carregarAvisos();
+      setNovoAviso({ titulo: '', descricao: '', tipo: 'warning', imagens: [] });
+      setMostrarFormulario(false);
     } catch (error) {
-      console.error('Erro ao remover aviso:', error);
+      console.error('Erro ao adicionar aviso:', error);
     }
-  };
+  }
+};
 
-  const editarAviso = (aviso) => {
-    setEditandoAviso(aviso);
-    setNovoAviso({
-      titulo: aviso.titulo,
-      descricao: aviso.descricao,
-      tipo: aviso.tipo,
-      imagens: aviso.imagens || []
-    });
-    setMostrarFormulario(true);
-    
-    setTimeout(() => {
-      const formulario = document.querySelector('.aviso-form');
-      if (formulario) {
-        formulario.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'start' 
-        });
-      }
-    }, 100);
-  };
-
-  const salvarEdicao = async () => {
-    if (novoAviso.titulo.trim()) {
-      try {
-        const { error } = await supabase
-          .from('avisos')
-          .update({
-            titulo: novoAviso.titulo,
-            descricao: novoAviso.descricao,
-            tipo: novoAviso.tipo,
-            imagens: JSON.stringify(novoAviso.imagens)
-          })
-          .eq('id', editandoAviso.id);
-        
-        if (error) throw error;
-        
-        await carregarAvisos();
-        setNovoAviso({ titulo: '', descricao: '', tipo: 'warning', imagens: [] });
-        setMostrarFormulario(false);
-        setEditandoAviso(null);
-      } catch (error) {
-        console.error('Erro ao editar aviso:', error);
-      }
+const editarAviso = (aviso) => {
+  setEditandoAviso(aviso);
+  setNovoAviso({
+    titulo: aviso.titulo,
+    descricao: aviso.descricao,
+    tipo: aviso.tipo,
+    imagens: aviso.imagens || []
+  });
+  setMostrarFormulario(true);
+  
+  setTimeout(() => {
+    const formulario = document.querySelector('.aviso-form');
+    if (formulario) {
+      formulario.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
     }
-  };
+  }, 100);
+};
+
+const salvarEdicao = async () => {
+  if (novoAviso.titulo.trim()) {
+    try {
+      const { error } = await supabase
+        .from('avisos')
+        .update({
+          titulo: novoAviso.titulo,
+          descricao: novoAviso.descricao,
+          tipo: novoAviso.tipo,
+          imagens: JSON.stringify(novoAviso.imagens)
+        })
+        .eq('id', editandoAviso.id);
+      
+      if (error) throw error;
+      
+      await carregarAvisos();
+      setNovoAviso({ titulo: '', descricao: '', tipo: 'warning', imagens: [] });
+      setMostrarFormulario(false);
+      setEditandoAviso(null);
+    } catch (error) {
+      console.error('Erro ao editar aviso:', error);
+    }
+  }
+};
 
 const formatText = (command) => {
   document.execCommand(command, false, null);
@@ -352,6 +422,20 @@ const cancelarEdicao = () => {
   setEditandoAviso(null);
   setNovoAviso({ titulo: '', descricao: '', tipo: 'warning', imagens: [] });
   setMostrarFormulario(false);
+};
+
+const removerAviso = async (id) => {
+  try {
+    const { error } = await supabase
+      .from('avisos')
+      .delete()
+      .eq('id', id);
+    
+    if (error) throw error;
+    await carregarAvisos();
+  } catch (error) {
+    console.error('Erro ao remover aviso:', error);
+  }
 };
 
 const adicionarNotebook = async () => {
@@ -480,16 +564,6 @@ const editarTjscLink = (link) => {
     icone: link.icone || 'FaGavel'
   });
   setMostrarFormularioTjsc(true);
-  
-  setTimeout(() => {
-    const formulario = document.querySelector('.tjsc-form');
-    if (formulario) {
-      formulario.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'start' 
-      });
-    }
-  }, 100);
 };
 
 const salvarEdicaoTjscLink = async () => {
@@ -575,9 +649,105 @@ const cancelarExclusao = () => {
             <span className="desembargador-name">Alexandre Morais da Rosa</span>
           </div>
         </div>
-        <div className="user-info">
+
+        <div className="user-info" onMouseEnter={() => setMostrarMenuUsuario(true)} onMouseLeave={() => setMostrarMenuUsuario(false)}>
           <div className="user-avatar">A</div>
           <span className="user-name">Alexandre</span>
+          
+          {mostrarMenuUsuario && (
+            <div className="user-menu">
+              <div className="user-menu-header">
+                <div className="user-avatar-large">A</div>
+                <div className="user-details">
+                  <h4>Alexandre</h4>
+                </div>
+              </div>
+              <div className="user-menu-items">
+                <div className="user-menu-item">
+                  <div className="menu-item-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  <span>My Profile</span>
+                </div>
+                <div className="user-menu-item">
+                  <div className="menu-item-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                      <circle cx="9" cy="7" r="4"/>
+                      <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                  </div>
+                  <span>User's Task</span>
+                </div>
+                <div className="user-menu-item">
+                  <div className="menu-item-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                      <polyline points="14,2 14,8 20,8"/>
+                      <line x1="16" y1="13" x2="8" y2="13"/>
+                      <line x1="16" y1="17" x2="8" y2="17"/>
+                      <polyline points="10,9 9,9 8,9"/>
+                    </svg>
+                  </div>
+                  <span>Case Study</span>
+                </div>
+                <div className="user-menu-item">
+                  <div className="menu-item-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                      <circle cx="12" cy="16" r="1"/>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                  </div>
+                  <span>Security</span>
+                </div>
+                <div className="user-menu-item">
+                  <div className="menu-item-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polygon points="13,2 3,14 12,14 11,22 21,10 12,10 13,2"/>
+                    </svg>
+                  </div>
+                  <span>Your Ability</span>
+                </div>
+                <div className="user-menu-item" onClick={toggleModoNoturno}>
+                  <div className="menu-item-icon">
+                    {modoNoturno ? (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="12" cy="12" r="5"/>
+                        <line x1="12" y1="1" x2="12" y2="3"/>
+                        <line x1="12" y1="21" x2="12" y2="23"/>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                        <line x1="1" y1="12" x2="3" y2="12"/>
+                        <line x1="21" y1="12" x2="23" y2="12"/>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                      </svg>
+                    ) : (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                      </svg>
+                    )}
+                  </div>
+                  <span>{modoNoturno ? 'Modo Claro' : 'Modo Noturno'}</span>
+                </div>
+                <div className="user-menu-item logout">
+                  <div className="menu-item-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                      <polyline points="16,17 21,12 16,7"/>
+                      <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                  </div>
+                  <span>Logout</span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
       
@@ -589,16 +759,34 @@ const cancelarExclusao = () => {
                 <SiImessage size={25} style={{marginRight: '8px'}} />
                 Avisos
               </h3>
-              <button className="add-btn" onClick={() => {
-                if (mostrarFormulario && editandoAviso) {
-                  cancelarEdicao();
-                } else {
-                  setMostrarFormulario(!mostrarFormulario);
-                }
-              }}>
+              <button 
+                onClick={() => {
+                  if (mostrarFormulario) {
+                    setMostrarFormulario(false);
+                    setNovoAviso({ titulo: '', descricao: '', tipo: 'warning', imagens: [] });
+                    if (editandoAviso) {
+                      setEditandoAviso(null);
+                    }
+                  } else {
+                    setMostrarFormulario(true);
+                    setTimeout(() => {
+                      const formulario = document.querySelector('.aviso-form');
+                      if (formulario) {
+                        formulario.scrollIntoView({ 
+                          behavior: 'smooth', 
+                          block: 'start' 
+                        });
+                      }
+                    }, 100);
+                  }
+                }} 
+                className="add-btn"
+                title={mostrarFormulario ? "Cancelar" : "Adicionar aviso"}
+              >
                 {mostrarFormulario ? '×' : '+'}
               </button>
             </div>
+
             <div className="card-content">
               <div className="avisos-lista">
                 {mostrarFormulario && (
@@ -807,281 +995,462 @@ const cancelarExclusao = () => {
                 <span className="google-drive-icon"></span>
                 Google Drive
               </h3>
-              <button className="drive-btn" onClick={() => window.open('https://drive.google.com', '_blank')}>
-                Abrir Drive
-              </button>
-            </div>
-            <div className="card-content">
-              <iframe 
-                src="https://drive.google.com/embeddedfolderview?id=1kJ0XDQC8IP6WTvOFAQT4-iXRp308wLhc#list"
-                style={{border: 0, width: '100%', height: '300px'}}
-                frameBorder="0"
-                title="Google Drive"
-              />
-            </div>
-          </div>
-        
-          <div className="card metricas-card">
-            <div className="card powerbi-card">
-              <div className="card-header">
-                <h3>
-                  <img 
-                    src="https://powerbi.microsoft.com/pictures/application-logos/svg/powerbi.svg" 
-                    alt="Power BI" 
-                    style={{width: '20px', height: '20px', marginRight: '8px', verticalAlign: 'middle'}}
-                  />
-                  Power BI
-                </h3>
-                <div className="powerbi-tabs">
-                  <button 
-                    className={`tab-btn ${relatorioAtivo === 'gerencial' ? 'active' : ''}`}
-                    onClick={() => setRelatorioAtivo('gerencial')}
-                  >
-                    Gerencial
-                  </button>
-                  <button 
-                    className={`tab-btn ${relatorioAtivo === 'metas' ? 'active' : ''}`}
-                    onClick={() => setRelatorioAtivo('metas')}
-                  >
-                    Metas 2025
-                  </button>
-                </div>
+              <div className="card-controls">
                 <button 
-                  className="expand-btn"
-                  onClick={() => setShowPowerBIModal(true)}
-                  title="Abrir em tela cheia"
+                  className="drive-btn" 
+                  onClick={() => setMostrarModalDrive(true)}
+                  title="Ver todos os arquivos"
                 >
-                  <MdFullscreen size={20} />
+                  <FaExternalLinkAlt size={14} />
+                </button>
+                <button 
+                  className="drive-btn" 
+                  onClick={() => window.open('https://drive.google.com', '_blank')}
+                  title="Abrir Google Drive"
+                >
+                  Abrir Drive
                 </button>
               </div>
-              <div className="card-content" style={{padding: 0}}>
-                {relatorioAtivo === 'gerencial' ? (
-                  <iframe
-                    title="Gerencial de Gabinete - Preview"
-                    width="100%"
-                    height="100%"
-                    src="https://app.powerbi.com/reportEmbed?reportId=6a74e9aa-0de1-415a-8cc6-5c243b756f73&appId=6556e9bb-d287-4773-9065-6dc5aaae8deb&autoAuth=true&ctid=400b79f8-9f13-47c7-923f-4b1695bf3b29&$filter=Desembargador eq 'ALEXANDRE MORAIS DA ROSA'"
-                    frameBorder="0"
-                    style={{borderRadius: '0 0 12px 12px'}}
-                  />
-                ) : (
-                  <iframe
-                    title="Metas Nacionais 2025 - Preview"
-                    width="100%"
-                    height="100%"
-                    src="https://app.powerbi.com/reportEmbed?reportId=70c60c77-b6fc-4266-ac19-4dc1631f7a4d&autoAuth=true&ctid=400b79f8-9f13-47c7-923f-4b1695bf3b29"
-                    frameBorder="0"
-                    style={{borderRadius: '0 0 12px 12px'}}
-                  />
-                )}
-              </div>
             </div>
-          </div>
 
-      <div className="card notebook-card">
-        <div className="card-header">
-          <h3>
-            <NotebookLM.Combine size={20} style={{marginRight: '8px'}} />
-          </h3>
-          <button onClick={() => setMostrarFormularioNotebook(true)} className="add-btn">
-            +
-          </button>
-        </div>
-        <div className="card-content">
-          {mostrarFormularioNotebook && (
-            <div className="notebook-form">
-              <input
-                type="text"
-                placeholder="Título do notebook"
-                value={novoNotebook.titulo}
-                onChange={(e) => setNovoNotebook({...novoNotebook, titulo: e.target.value})}
-                className="form-input"
-              />
-              <input
-                type="url"
-                placeholder="Link do notebook"
-                value={novoNotebook.link}
-                onChange={(e) => setNovoNotebook({...novoNotebook, link: e.target.value})}
-                className="form-input"
-              />
-              <input
-                type="text"
-                placeholder="Descrição (opcional)"
-                value={novoNotebook.descricao}
-                onChange={(e) => setNovoNotebook({...novoNotebook, descricao: e.target.value})}
-                className="form-input"
-              />
-              <div style={{display: 'flex', gap: '8px'}}>
-                <button onClick={adicionarNotebook} className="form-submit">
-                  {editandoNotebook ? 'Salvar Edição' : 'Adicionar Notebook'}
-                </button>
-                {editandoNotebook && (
-                  <button onClick={cancelarEdicaoNotebook} className="form-cancel">
-                    Cancelar
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
-          {notebooks.map(notebook => (
-            <a 
-              href={notebook.link} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="notebook-item-link"
-              key={notebook.id}
-              onMouseEnter={(e) => {
-                const actions = e.currentTarget.querySelector('.notebook-hover-actions');
-                if (actions) actions.style.opacity = '1';
-              }}
-              onMouseLeave={(e) => {
-                const actions = e.currentTarget.querySelector('.notebook-hover-actions');
-                if (actions) actions.style.opacity = '0';
-              }}
-            >
-              <div className="notebook-item">
-                <div className="notebook-icon-circle">
-                  <NotebookLM size={12} style={{color: 'white'}} />
+            <div className="card-content">
+              {carregandoDrive ? (
+                <div className="loading-drive">
+                  <span>Carregando arquivos...</span>
                 </div>
-                <div className="notebook-content">
-                  <h4 className="notebook-titulo">{notebook.titulo}</h4>
-                  <p className="notebook-descricao">{notebook.descricao}</p>
-                </div>
-                <div className="notebook-hover-actions">
-                  <button 
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      editarNotebook(notebook);
-                    }}
-                    className="edit-btn"
-                    title="Editar notebook"
-                  >
-                  </button>
-                  <button 
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      confirmarExclusao(notebook.id, 'notebook');
-                    }}
-                    className="remove-btn"
-                    title="Excluir notebook"
-                  >
-                  </button>
-                </div>
-              </div>
-            </a>
-          ))}
-        </div>
-      </div>
-      
-      <div className="card tjsc-card">
-        <div className="card-header">
-          <h3>
-            <img 
-              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwjLt4fG-DbafxSalutZqSasYowTPqx8BpExCZhYlV3qudDsO9H28H6l8de5Uw3q1m6RA&usqp=CAU" 
-              alt="TJSC" 
-              style={{width: '20px', height: '20px', marginRight: '8px', verticalAlign: 'middle'}}
-            />
-            TJSC
-          </h3>
-          <div className="card-controls">
-            <button 
-              className="add-btn" 
-              onClick={() => {
-                if (mostrarFormularioTjsc && editandoTjscLink) {
-                  cancelarEdicaoTjscLink();
-                } else {
-                  setMostrarFormularioTjsc(!mostrarFormularioTjsc);
-                }
-              }}
-            >
-              {mostrarFormularioTjsc ? '×' : '+'}
-            </button>
-          </div>
-        </div>
-        <div className="card-content">
-          {mostrarFormularioTjsc && (
-            <div className="tjsc-form">
-              <input
-                type="text"
-                placeholder="Título do link"
-                value={novoTjscLink.titulo}
-                onChange={(e) => setNovoTjscLink({...novoTjscLink, titulo: e.target.value})}
-                className="form-input"
-              />
-              <input
-                type="url"
-                placeholder="Link do TJSC"
-                value={novoTjscLink.link}
-                onChange={(e) => setNovoTjscLink({...novoTjscLink, link: e.target.value})}
-                className="form-input"
-              />
-              <div className="icon-selector">
-                <label>Selecionar Ícone:</label>
-                {Object.entries(categorias).map(([categoria, icones]) => (
-                  <div key={categoria} className="icon-category">
-                    <h4>{categoria}</h4>
-                    <div className="icon-grid">
-                      {icones.map(iconName => (
-                        <div 
-                          key={iconName} 
-                          className={`icon-option ${novoTjscLink.icone === iconName ? 'selected' : ''}`}
-                          onClick={() => setNovoTjscLink({...novoTjscLink, icone: iconName})}
-                        >
-                          {getIconComponent(iconName)}
-                          <span>{iconName.replace(/^(Fa|Md|AiOutline)/, '')}</span>
+              ) : (
+                <div className="arquivos-lista">
+                  {arquivosDrive.cardPrincipal?.map(pasta => (
+                    <div key={pasta.id} className="pasta-container">
+                      <div 
+                        className="pasta-header"
+                        onClick={() => togglePasta(pasta.id)}
+                      >
+                        <div className="pasta-info">
+                          <div className="pasta-icon">
+                            {pastasExpandidas[pasta.id] ? <FaFolderOpen /> : <FaFolder />}
+                          </div>
+                          <h4 className="pasta-nome">{pasta.name}</h4>
                         </div>
-                      ))}
+                        <div className="pasta-toggle">
+                          {pastasExpandidas[pasta.id] ? '▼' : '▶'}
+                        </div>
+                      </div>
+                      
+                      {pastasExpandidas[pasta.id] && pasta.arquivos && (
+                        <div className="pasta-conteudo">
+                          {pasta.arquivos.map(arquivo => (
+                            <div key={arquivo.id} className="arquivo-item-submenu">
+                              <div className="arquivo-icon-small">
+                                {getFileIcon(arquivo.mimeType)}
+                              </div>
+                              <div className="arquivo-info-submenu">
+                                <h5 
+                                  className="arquivo-nome-submenu arquivo-nome-link"
+                                  onClick={() => window.open(arquivo.webViewLink, '_blank')}
+                                >
+                                  {arquivo.name}
+                                </h5>
+                              </div>
+                              <div className="arquivo-actions-submenu">
+                                {arquivo.webContentLink && (
+                                  <button 
+                                    onClick={() => window.open(arquivo.webContentLink, '_blank')}
+                                    className="download-btn-small"
+                                    title="Baixar arquivo"
+                                  >
+                                    <FaDownload size={12} />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )) || []}
+                </div>
+              )}
+                  </div>
+                </div>
+              
+                <div className="card metricas-card">
+                  <div className="card powerbi-card">
+                    <div className="card-header">
+                      <h3>
+                        <img 
+                          src="https://powerbi.microsoft.com/pictures/application-logos/svg/powerbi.svg" 
+                          alt="Power BI" 
+                          style={{width: '20px', height: '20px', marginRight: '8px', verticalAlign: 'middle'}}
+                        />
+                        Power BI
+                      </h3>
+                      <div className="powerbi-tabs">
+                        <button 
+                          className={`tab-btn ${relatorioAtivo === 'gerencial' ? 'active' : ''}`}
+                          onClick={() => setRelatorioAtivo('gerencial')}
+                        >
+                          Gerencial
+                        </button>
+                        <button 
+                          className={`tab-btn ${relatorioAtivo === 'metas' ? 'active' : ''}`}
+                          onClick={() => setRelatorioAtivo('metas')}
+                        >
+                          Metas 2025
+                        </button>
+                      </div>
+                      <button 
+                        className="expand-btn"
+                        onClick={() => setShowPowerBIModal(true)}
+                        title="Abrir em tela cheia"
+                      >
+                        <MdFullscreen size={20} />
+                      </button>
+                    </div>
+                    <div className="card-content" style={{padding: 0}}>
+                      {relatorioAtivo === 'gerencial' ? (
+                        <iframe
+                          title="Gerencial de Gabinete - Preview"
+                          width="100%"
+                          height="100%"
+                          src="https://app.powerbi.com/reportEmbed?reportId=6a74e9aa-0de1-415a-8cc6-5c243b756f73&appId=6556e9bb-d287-4773-9065-6dc5aaae8deb&autoAuth=true&ctid=400b79f8-9f13-47c7-923f-4b1695bf3b29&$filter=Desembargador eq 'ALEXANDRE MORAIS DA ROSA'"
+                          frameBorder="0"
+                          style={{borderRadius: '0 0 12px 12px'}}
+                        />
+                      ) : (
+                        <iframe
+                          title="Metas Nacionais 2025 - Preview"
+                          width="100%"
+                          height="100%"
+                          src="https://app.powerbi.com/reportEmbed?reportId=70c60c77-b6fc-4266-ac19-4dc1631f7a4d&autoAuth=true&ctid=400b79f8-9f13-47c7-923f-4b1695bf3b29"
+                          frameBorder="0"
+                          style={{borderRadius: '0 0 12px 12px'}}
+                        />
+                      )}
                     </div>
                   </div>
-                ))}
-              </div>
-              <div style={{display: 'flex', gap: '8px'}}>
-                <button onClick={adicionarTjscLink} className="form-submit">
-                  {editandoTjscLink ? 'Salvar Edição' : 'Adicionar Link'}
-                </button>
-                {editandoTjscLink && (
-                  <button onClick={cancelarEdicaoTjscLink} className="form-cancel">
-                    Cancelar
-                  </button>
-                )}
+                </div>
+      
+                <div className="card notebook-card">
+                  <div className="card-header">
+                    <h3>
+                      <NotebookLM.Combine size={20} style={{marginRight: '8px'}} />
+                      NotebookLM
+                    </h3>
+                    <button 
+                      onClick={() => {
+                        if (mostrarFormularioNotebook && editandoNotebook) {
+                          cancelarEdicaoNotebook();
+                        } else {
+                          setMostrarFormularioNotebook(!mostrarFormularioNotebook);
+                        }
+                      }} 
+                      className="add-btn"
+                      title={mostrarFormularioNotebook ? "Cancelar" : "Adicionar notebook"}
+                    >
+                      {mostrarFormularioNotebook ? '×' : '+'}
+                    </button>
+                  </div>
+                  <div className="card-content">
+                    {mostrarFormularioNotebook && (
+                      <div className="notebook-form">
+                        <input
+                          type="text"
+                          placeholder="Título do notebook"
+                          value={novoNotebook.titulo}
+                          onChange={(e) => setNovoNotebook({...novoNotebook, titulo: e.target.value})}
+                          className="form-input"
+                        />
+                        <input
+                          type="url"
+                          placeholder="Link do notebook"
+                          value={novoNotebook.link}
+                          onChange={(e) => setNovoNotebook({...novoNotebook, link: e.target.value})}
+                          className="form-input"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Descrição (opcional)"
+                          value={novoNotebook.descricao}
+                          onChange={(e) => setNovoNotebook({...novoNotebook, descricao: e.target.value})}
+                          className="form-input"
+                        />
+                        <div style={{display: 'flex', gap: '8px'}}>
+                          <button onClick={adicionarNotebook} className="form-submit">
+                            {editandoNotebook ? 'Salvar Edição' : 'Adicionar Notebook'}
+                          </button>
+                          {editandoNotebook && (
+                            <button onClick={cancelarEdicaoNotebook} className="form-cancel">
+                              Cancelar
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    {notebooks.map(notebook => (
+                      <a 
+                        href={notebook.link} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="notebook-item-link"
+                        key={notebook.id}
+                        onMouseEnter={(e) => {
+                          const actions = e.currentTarget.querySelector('.notebook-hover-actions');
+                          if (actions) actions.style.opacity = '1';
+                        }}
+                        onMouseLeave={(e) => {
+                          const actions = e.currentTarget.querySelector('.notebook-hover-actions');
+                          if (actions) actions.style.opacity = '0';
+                        }}
+                      >
+                        <div className="notebook-item">
+                          <div className="notebook-icon-circle">
+                            <NotebookLM size={12} style={{color: 'white'}} />
+                          </div>
+                          <div className="notebook-content">
+                            <h4 className="notebook-titulo">{notebook.titulo}</h4>
+                            <p className="notebook-descricao">{notebook.descricao}</p>
+                          </div>
+                          <div className="notebook-hover-actions">
+                            <button 
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                editarNotebook(notebook);
+                              }}
+                              className="edit-btn"
+                              title="Editar notebook"
+                            >
+                            </button>
+                            <button 
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                confirmarExclusao(notebook.id, 'notebook');
+                              }}
+                              className="remove-btn"
+                              title="Excluir notebook"
+                            >
+                            </button>
+                          </div>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="card tjsc-card">
+                  <div className="card-header">
+                    <h3>
+                      <img 
+                        src={require('../assets/images/tjsc-icon.png')} 
+                        alt="TJSC" 
+                        style={{width: '20px', height: '20px', marginRight: '8px', verticalAlign: 'middle'}}
+                      />
+                      TJSC
+                    </h3>
+                    <button 
+                      className="add-btn" 
+                      onClick={() => setMostrarFormularioTjsc(true)}
+                      title="Adicionar link"
+                    >
+                      +
+                    </button>
+                  </div>
+                  <div className="card-content">
+                    {tjscLinks.map(link => (
+                      <div 
+                        key={link.id} 
+                        className="tjsc-item"
+                        onDoubleClick={() => editarTjscLink(link)}
+                        title="Clique duplo para editar"
+                      >
+                        <a 
+                          href={link.link} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="tjsc-link-title"
+                        >
+                          <span className="tjsc-icon">{getIconComponent(link.icone)}</span>
+                          <span className="tjsc-text">{link.titulo}</span>
+                        </a>
+                        <div className="tjsc-hover-actions">
+                          <button 
+                            onClick={() => editarTjscLink(link)}
+                            className="edit-btn"
+                            title="Editar link"
+                          >
+                          </button>
+                          <button onClick={() => confirmarExclusao(link.id, 'tjsc')} className="remove-btn" title="Excluir link">
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
-          )}
-          {tjscLinks.map(link => (
-            <div 
-              key={link.id} 
-              className="tjsc-item"
-              onDoubleClick={() => editarTjscLink(link)}
-              title="Clique duplo para editar"
-            >
-              <a 
-                href={link.link} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="tjsc-link-title"
-              >
-                <span className="tjsc-icon">{getIconComponent(link.icone)}</span>
-                <span className="tjsc-text">{link.titulo}</span>
-              </a>
-              <div className="tjsc-hover-actions">
+
+        {mostrarFormularioTjsc && (
+          <div className="modal-overlay">
+            <div className="modal-content tjsc-form-modal">
+              <div className="modal-header">
+                <h2>
+                  <img 
+                    src={require('../assets/images/tjsc-icon.png')} 
+                    alt="TJSC" 
+                    style={{width: '24px', height: '24px', marginRight: '8px', verticalAlign: 'middle'}}
+                  />
+                  {editandoTjscLink ? 'Editar Link TJSC' : 'Adicionar Link TJSC'}
+                </h2>
                 <button 
-                  onClick={() => editarTjscLink(link)}
-                  className="edit-btn"
-                  title="Editar link"
+                  className="modal-close"
+                  onClick={() => {
+                    setMostrarFormularioTjsc(false);
+                    if (editandoTjscLink) {
+                      cancelarEdicaoTjscLink();
+                    }
+                  }}
+                  title="Fechar"
                 >
-                </button>
-                <button onClick={() => confirmarExclusao(link.id, 'tjsc')} className="remove-btn" title="Excluir link">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
                 </button>
               </div>
+              <div className="modal-body">
+                <div className="tjsc-form">
+                  <input
+                    type="text"
+                    placeholder="Título do link"
+                    value={novoTjscLink.titulo}
+                    onChange={(e) => setNovoTjscLink({...novoTjscLink, titulo: e.target.value})}
+                    className="form-input"
+                  />
+                  <input
+                    type="url"
+                    placeholder="Link do TJSC"
+                    value={novoTjscLink.link}
+                    onChange={(e) => setNovoTjscLink({...novoTjscLink, link: e.target.value})}
+                    className="form-input"
+                  />
+                  <div className="icon-selector">
+                    <label>Selecionar Ícone:</label>
+                    {Object.entries(categorias).map(([categoria, icones]) => (
+                      <div key={categoria} className="icon-category">
+                        <h4>{categoria}</h4>
+                        <div className="icon-grid">
+                          {icones.map(iconName => (
+                            <div 
+                              key={iconName} 
+                              className={`icon-option ${novoTjscLink.icone === iconName ? 'selected' : ''}`}
+                              onClick={() => setNovoTjscLink({...novoTjscLink, icone: iconName})}
+                            >
+                              {getIconComponent(iconName)}
+                              <span>{iconName.replace(/^(Fa|Md|AiOutline)/, '')}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{display: 'flex', gap: '8px', justifyContent: 'flex-end'}}>
+                    <button 
+                      onClick={() => {
+                        setMostrarFormularioTjsc(false);
+                        if (editandoTjscLink) {
+                          cancelarEdicaoTjscLink();
+                        }
+                      }} 
+                      className="form-cancel"
+                    >
+                      Cancelar
+                    </button>
+                    <button onClick={adicionarTjscLink} className="form-submit">
+                      {editandoTjscLink ? 'Salvar Edição' : 'Adicionar Link'}
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
+        )}
+
+      {mostrarModalDrive && (
+        <div className="modal-overlay">
+          <div className="modal-content drive-modal">
+            <div className="modal-header">
+              <h2>
+                <span className="google-drive-icon"></span>
+                Google Drive - Todas as Pastas
+              </h2>
+              <button 
+                className="modal-close"
+                onClick={() => setMostrarModalDrive(false)}
+                title="Fechar"
+              >
+                ×
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="drive-actions">
+                <button 
+                  onClick={carregarArquivosDrive}
+                  className="refresh-btn"
+                  disabled={carregandoDrive}
+                >
+                  {carregandoDrive ? 'Carregando...' : 'Atualizar'}
+                </button>
+                <button 
+                  onClick={() => window.open(`https://drive.google.com/drive/folders/${DRIVE_FOLDER_ID}`, '_blank')}
+                  className="open-folder-btn"
+                >
+                  Abrir Pasta no Drive
+                </button>
+              </div>
+              <div className="arquivos-grid">
+                {arquivosDrive.todasPastas?.map(arquivo => (
+                  <div 
+                    key={arquivo.id} 
+                    className="arquivo-card"
+                    onClick={() => window.open(arquivo.webViewLink, '_blank')}
+                  >
+                    <div className="arquivo-info-card">
+                      <div className="arquivo-title-container">
+                        <div className="arquivo-icon-small">
+                          {getFileIcon(arquivo.mimeType)}
+                        </div>
+                        <h4 
+                          className="arquivo-nome-card"
+                          title={arquivo.name}
+                        >
+                          {arquivo.name}
+                        </h4>
+                      </div>
+                    </div>
+                    <div className="arquivo-actions-card">
+                      {arquivo.webContentLink && (
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(arquivo.webContentLink, '_blank');
+                          }}
+                          className="download-btn"
+                          title="Baixar arquivo"
+                        >
+                          <FaDownload />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )) || []}
+              </div>
+            </div>
           </div>
         </div>
-        
+      )}
+
         {showPowerBIModal && (
           <div className="modal-overlay">
             <div className="modal-content">
@@ -1099,6 +1468,10 @@ const cancelarExclusao = () => {
                   onClick={() => setShowPowerBIModal(false)}
                   title="Fechar"
                 >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
                 </button>
               </div>
               <div className="modal-body" style={{padding: 0}}>
