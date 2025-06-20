@@ -60,7 +60,8 @@ const Dashboard = () => {
   const [mostrarModalDrive, setMostrarModalDrive] = useState(false);
   const [pastasExpandidas, setPastasExpandidas] = useState({});
   const [mostrarMenuUsuario, setMostrarMenuUsuario] = useState(false);
-  const [modoNoturno, setModoNoturno] = useState(false);
+  const [mostrarSubmenuTemas, setMostrarSubmenuTemas] = useState(false);
+  const [tema, setTema] = useState('claro');
 
   useEffect(() => {
     carregarAvisos();
@@ -68,7 +69,8 @@ const Dashboard = () => {
     carregarTjscLinks();
     carregarEventosCalendario();
     carregarArquivosDrive();
-  }, []);
+    document.body.className = `tema-${tema}`;
+  }, [tema]);
   
   useEffect(() => {
     localStorage.setItem('notebooks', JSON.stringify(notebooks));
@@ -113,10 +115,14 @@ const categorias = {
   'Outros': ['FaMapMarkerAlt', 'FaExclamationTriangle', 'FaFolder', 'FaFolderOpen', 'FaLaptop', 'FaIdCard', 'FaHeadset', 'FaTicketAlt', 'FaBug', 'FaLifeRing', 'FaQuestionCircle', 'FaCommentDots', 'FaHandshake', 'MdAssignment', 'MdClass', 'MdGrade', 'MdGroup', 'MdHistory', 'MdLaunch', 'MdList', 'MdLocationOn', 'MdNotifications', 'MdPlace', 'MdPublic', 'MdSupport', 'MdReportProblem', 'MdHelpOutline', 'MdBugReport', 'MdHandyman', 'MdBadge', 'MdCardMembership', 'MdManageAccounts', 'MdWorkOutline', 'AiOutlineFolder', 'AiOutlineSetting', 'AiOutlineGlobal', 'AiOutlineAudit']
 };
 
-const toggleModoNoturno = () => {
-  setModoNoturno(!modoNoturno);
-  document.body.classList.toggle('modo-noturno', !modoNoturno);
+const alterarTema = (novoTema) => {
+  setTema(novoTema);
+  document.body.className = `tema-${novoTema}`;
 };
+
+useEffect(() => {
+  document.body.className = `tema-${tema}`;
+}, [tema]);
 
 const carregarArquivosDrive = async () => {
   if (!GOOGLE_API_KEY) {
@@ -650,12 +656,26 @@ const cancelarExclusao = () => {
           </div>
         </div>
 
-        <div className="user-info" onMouseEnter={() => setMostrarMenuUsuario(true)} onMouseLeave={() => setMostrarMenuUsuario(false)}>
+        <div className="user-info" 
+          onMouseEnter={() => setMostrarMenuUsuario(true)} 
+          onMouseLeave={(e) => {
+            if (!e.relatedTarget || (!e.currentTarget.contains(e.relatedTarget) && !e.relatedTarget.closest('.tema-options'))) {
+              setMostrarMenuUsuario(false);
+            }
+          }}
+        >
           <div className="user-avatar">A</div>
           <span className="user-name">Alexandre</span>
           
           {mostrarMenuUsuario && (
-            <div className="user-menu">
+            <div className="user-menu" 
+              onMouseEnter={() => setMostrarMenuUsuario(true)}
+              onMouseLeave={(e) => {
+                if (!e.relatedTarget || !e.currentTarget.contains(e.relatedTarget)) {
+                  setMostrarMenuUsuario(false);
+                }
+              }}
+            >
               <div className="user-menu-header">
                 <div className="user-avatar-large">A</div>
                 <div className="user-details">
@@ -713,27 +733,37 @@ const cancelarExclusao = () => {
                   </div>
                   <span>Your Ability</span>
                 </div>
-                <div className="user-menu-item" onClick={toggleModoNoturno}>
+                <div className="user-menu-item tema-submenu" 
+                  onMouseEnter={() => setMostrarSubmenuTemas(true)}
+                  onMouseLeave={() => setMostrarSubmenuTemas(false)}
+                >
                   <div className="menu-item-icon">
-                    {modoNoturno ? (
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <circle cx="12" cy="12" r="5"/>
-                        <line x1="12" y1="1" x2="12" y2="3"/>
-                        <line x1="12" y1="21" x2="12" y2="23"/>
-                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-                        <line x1="1" y1="12" x2="3" y2="12"/>
-                        <line x1="21" y1="12" x2="23" y2="12"/>
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-                      </svg>
-                    ) : (
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-                      </svg>
-                    )}
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="3"/>
+                      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V6a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
                   </div>
-                  <span>{modoNoturno ? 'Modo Claro' : 'Modo Noturno'}</span>
+                  <span>Temas</span>
+                  {mostrarSubmenuTemas && (
+                    <div className="tema-options-dropdown">
+                      <div className="tema-option" onClick={() => { alterarTema('claro'); setMostrarSubmenuTemas(false); }}>
+                        <div className="tema-preview tema-claro"></div>
+                        <span>Claro</span>
+                      </div>
+                      <div className="tema-option" onClick={() => { alterarTema('escuro'); setMostrarSubmenuTemas(false); }}>
+                        <div className="tema-preview tema-escuro"></div>
+                        <span>Escuro</span>
+                      </div>
+                      <div className="tema-option" onClick={() => { alterarTema('azul'); setMostrarSubmenuTemas(false); }}>
+                        <div className="tema-preview tema-azul"></div>
+                        <span>Azul</span>
+                      </div>
+                      <div className="tema-option" onClick={() => { alterarTema('verde'); setMostrarSubmenuTemas(false); }}>
+                        <div className="tema-preview tema-verde"></div>
+                        <span>Verde</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div className="user-menu-item logout">
                   <div className="menu-item-icon">
@@ -1135,7 +1165,6 @@ const cancelarExclusao = () => {
                   <div className="card-header">
                     <h3>
                       <NotebookLM.Combine size={20} style={{marginRight: '8px'}} />
-                      NotebookLM
                     </h3>
                     <button 
                       onClick={() => {
