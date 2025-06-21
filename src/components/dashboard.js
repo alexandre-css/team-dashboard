@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './dashboard.css';
 import { supabase } from '../lib/supabase';
 import { MdDashboard, MdFullscreen } from 'react-icons/md';
@@ -65,21 +65,61 @@ const Dashboard = () => {
   const [pastasExpandidas, setPastasExpandidas] = useState({});
   const [mostrarMenuUsuario, setMostrarMenuUsuario] = useState(false);
   const [mostrarSubmenuTemas, setMostrarSubmenuTemas] = useState(false);
+  const [user, setUser] = useState(null);
   const [tema, setTema] = useState(() => {
-    const temaSalvo = localStorage.getItem('tema');
+  const temaSalvo = localStorage.getItem('tema');
     return temaSalvo || 'claro';
   });
+
   
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setUser(data.user));
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => {
+      listener?.subscription.unsubscribe();
+    };
+  }, []);
+  
+const loginGoogle = async () => {
+  await supabase.auth.signInWithOAuth({ provider: 'google' });
+};
+
+const logout = async () => {
+  await supabase.auth.signOut();
+};
+
+const carregarTjscLinks = useCallback(async () => {
+  let linksServidor = []
+  if (user) {
+    let query = supabase.from('tjsc_links').select('*').order('titulo', { ascending: true })
+    query = query.or(`is_default.eq.true,user_id.eq.${user.id}`)
+    const { data, error } = await query
+    if (!error) linksServidor = data || []
+  } else {
+    const { data, error } = await supabase.from('tjsc_links').select('*').eq('is_default', true).order('titulo', { ascending: true })
+    if (!error) linksServidor = data || []
+  }
+  let linksLocal = []
+  if (!user) {
+    const local = localStorage.getItem('tjscLinksLocal')
+    if (local) linksLocal = JSON.parse(local)
+  }
+  setTjscLinks([...linksServidor, ...linksLocal])
+}, [user])
+
+  useEffect(() => {
+    carregarTjscLinks();
+  }, [user, carregarTjscLinks]);
 
   useEffect(() => {
     const temaSalvo = localStorage.getItem('tema');
     if (temaSalvo && temaSalvo !== tema) {
       setTema(temaSalvo);
     }
-    
     carregarAvisos();
     carregarNotebooks();
-    carregarTjscLinks();
     carregarEventosCalendario();
     carregarArquivosDrive();
     document.body.className = `tema-${tema}`;
@@ -258,20 +298,6 @@ const carregarNotebooks = async () => {
   }
 };
 
-const carregarTjscLinks = async () => {
-  try {
-    const { data, error } = await supabase
-      .from('tjsc_links')
-      .select('*')
-      .order('titulo', { ascending: true });
-    
-    if (error) throw error;
-    setTjscLinks(data || []);
-  } catch (error) {
-    console.error('Erro ao carregar links TJSC:', error);
-  }
-};
-
 const carregarAvisos = async () => {
   try {
     const { data, error } = await supabase
@@ -301,7 +327,6 @@ const adicionarAviso = async () => {
     await salvarEdicao();
     return;
   }
-  
   if (novoAviso.titulo.trim()) {
     try {
       const { error } = await supabase
@@ -310,11 +335,10 @@ const adicionarAviso = async () => {
           titulo: novoAviso.titulo,
           descricao: removerDirecaoUnicode(novoAviso.descricao),
           tipo: novoAviso.tipo,
-          imagens: JSON.stringify(novoAviso.imagens)
+          imagens: JSON.stringify(novoAviso.imagens),
+          user_id: user.id
         }]);
-      
       if (error) throw error;
-      
       await carregarAvisos();
       setNovoAviso({ titulo: '', descricao: '', tipo: 'warning', imagens: [] });
       setMostrarFormulario(false);
@@ -322,7 +346,7 @@ const adicionarAviso = async () => {
       console.error('Erro ao adicionar aviso:', error);
     }
   }
-};
+}
 
 const editarAviso = (aviso) => {
   setEditandoAviso(aviso);
@@ -547,66 +571,95 @@ const removerNotebook = async (id) => {
   }
 };
 
+const ADMIN_EMAIL = process.env.REACT_APP_ADMIN_EMAIL;
+
 const adicionarTjscLink = async () => {
   if (editandoTjscLink) {
-    await salvarEdicaoTjscLink();
-    return;
+    await salvarEdicaoTjscLink()
+    return
   }
-  
   if (novoTjscLink.titulo.trim() && novoTjscLink.link.trim()) {
-    try {
+    if (user && user.email === ADMIN_EMAIL) {
       const { error } = await supabase
         .from('tjsc_links')
         .insert([{
           titulo: novoTjscLink.titulo,
           link: novoTjscLink.link,
-          icone: novoTjscLink.icone
-        }]);
-      
-      if (error) throw error;
-      
-      await carregarTjscLinks();
-      setNovoTjscLink({ titulo: '', link: '', icone: 'FaGavel' });
-      setMostrarFormularioTjsc(false);
-    } catch (error) {
-      console.error('Erro ao adicionar link TJSC:', error);
+          icone: novoTjscLink.icone,
+          user_id: user.id,
+          is_default: true
+        }])
+      if (error) return
+      await carregarTjscLinks()
+    } else {
+      const local = localStorage.getItem('tjscLinksLocal')
+      const linksLocal = local ? JSON.parse(local) : []
+      const novoLink = {
+        id: Date.now(),
+        titulo: novoTjscLink.titulo,
+        link: novoTjscLink.link,
+        icone: novoTjscLink.icone,
+        is_default: false
+      }
+      localStorage.setItem('tjscLinksLocal', JSON.stringify([...linksLocal, novoLink]))
+      setTjscLinks(prev => [...prev, novoLink])
     }
+    setNovoTjscLink({ titulo: '', link: '', icone: 'FaGavel' })
+    setMostrarFormularioTjsc(false)
+    setEditandoTjscLink(null)
   }
-};
+}
 
 const editarTjscLink = (link) => {
-  setEditandoTjscLink(link);
+  setEditandoTjscLink(link)
   setNovoTjscLink({
     titulo: link.titulo,
     link: link.link,
     icone: link.icone || 'FaGavel'
-  });
-  setMostrarFormularioTjsc(true);
-};
+  })
+  setMostrarFormularioTjsc(true)
+}
+
 
 const salvarEdicaoTjscLink = async () => {
   if (novoTjscLink.titulo.trim() && novoTjscLink.link.trim()) {
-    try {
-      const { error } = await supabase
-        .from('tjsc_links')
-        .update({
-          titulo: novoTjscLink.titulo,
-          link: novoTjscLink.link,
-          icone: novoTjscLink.icone
-        })
-        .eq('id', editandoTjscLink.id);
-      
-      if (error) throw error;
-      
-      await carregarTjscLinks();
-      setNovoTjscLink({ titulo: '', link: '', icone: 'FaGavel' });
-      setMostrarFormularioTjsc(false);
-      setEditandoTjscLink(null);
-    } catch (error) {
-      console.error('Erro ao editar link TJSC:', error);
+    if (user && user.email === ADMIN_EMAIL && editandoTjscLink.is_default) {
+      try {
+        const { error } = await supabase
+          .from('tjsc_links')
+          .update({
+            titulo: novoTjscLink.titulo,
+            link: novoTjscLink.link,
+            icone: novoTjscLink.icone
+          })
+          .eq('id', editandoTjscLink.id)
+        if (error) throw error
+        await carregarTjscLinks()
+      } catch (error) {
+        console.error('Erro ao editar link TJSC:', error)
+      }
+    } else {
+      const local = localStorage.getItem('tjscLinksLocal')
+      let linksLocal = local ? JSON.parse(local) : []
+      linksLocal = linksLocal.map(l =>
+        l.id === editandoTjscLink.id
+          ? { ...l, titulo: novoTjscLink.titulo, link: novoTjscLink.link, icone: novoTjscLink.icone }
+          : l
+      )
+      localStorage.setItem('tjscLinksLocal', JSON.stringify(linksLocal))
+      setTjscLinks(prev =>
+        prev.map(l =>
+          l.id === editandoTjscLink.id
+            ? { ...l, titulo: novoTjscLink.titulo, link: novoTjscLink.link, icone: novoTjscLink.icone }
+            : l
+        )
+      )
     }
+    setNovoTjscLink({ titulo: '', link: '', icone: 'FaGavel' })
+    setMostrarFormularioTjsc(false)
+    setEditandoTjscLink(null)
   }
-};
+}
 
 const cancelarEdicaoTjscLink = () => {
   setEditandoTjscLink(null);
@@ -615,18 +668,26 @@ const cancelarEdicaoTjscLink = () => {
 };
 
 const removerTjscLink = async (id) => {
-  try {
-    const { error } = await supabase
-      .from('tjsc_links')
-      .delete()
-      .eq('id', id);
-    
-    if (error) throw error;
-    await carregarTjscLinks();
-  } catch (error) {
-    console.error('Erro ao remover link TJSC:', error);
+  const link = tjscLinks.find(l => l.id === id)
+  if (user && user.email === ADMIN_EMAIL && link.is_default) {
+    try {
+      const { error } = await supabase
+        .from('tjsc_links')
+        .delete()
+        .eq('id', id)
+      if (error) throw error
+      await carregarTjscLinks()
+    } catch (error) {
+      console.error('Erro ao remover link TJSC:', error)
+    }
+  } else {
+    const local = localStorage.getItem('tjscLinksLocal')
+    let linksLocal = local ? JSON.parse(local) : []
+    linksLocal = linksLocal.filter(l => l.id !== id)
+    localStorage.setItem('tjscLinksLocal', JSON.stringify(linksLocal))
+    setTjscLinks(prev => prev.filter(l => l.id !== id))
   }
-};
+}
 
 const confirmarExclusao = (id, tipo) => {
   setItemParaExcluir(id);
@@ -668,25 +729,29 @@ const cancelarExclusao = () => {
           </div>
         </div>
 
-        <div className="user-info" 
-          onMouseEnter={() => setMostrarMenuUsuario(true)} 
-          onMouseLeave={(e) => {
-            if (!e.relatedTarget || (!e.currentTarget.contains(e.relatedTarget) && !e.relatedTarget.closest('.tema-options'))) {
-              setMostrarMenuUsuario(false);
-            }
-          }}
+        <div className="user-info"
+          onMouseEnter={() => setMostrarMenuUsuario(true)}
+          onMouseLeave={() => setMostrarMenuUsuario(false)}
         >
-          <div className="user-avatar"><TbLetterA /></div>
-          <span className="user-name">Alexandre</span>
-          
+          {user ? (
+            <>
+              <div className="user-avatar">
+                {user.user_metadata?.avatar_url ? (
+                  <img src={user.user_metadata.avatar_url} alt="avatar" style={{ width: 32, height: 32, borderRadius: '50%' }} />
+                ) : (
+                  <TbLetterA />
+                )}
+              </div>
+              <span className="user-name">{user.user_metadata?.name || user.email}</span>
+            </>
+          ) : (
+            <button className="login-btn" onClick={loginGoogle}>Entrar com Google</button>
+          )}
+        
           {mostrarMenuUsuario && (
-            <div className="user-menu" 
+            <div className="user-menu"
               onMouseEnter={() => setMostrarMenuUsuario(true)}
-              onMouseLeave={(e) => {
-                if (!e.relatedTarget || !e.currentTarget.contains(e.relatedTarget)) {
-                  setMostrarMenuUsuario(false);
-                }
-              }}
+              onMouseLeave={() => { setMostrarMenuUsuario(false); setMostrarSubmenuTemas(false); }}
             >
               <div className="user-menu-header">
                 <div className="user-avatar-large"><FaUserGear /></div>
@@ -745,9 +810,9 @@ const cancelarExclusao = () => {
                   </div>
                   <span>Your Ability</span>
                 </div>
-                <div className="user-menu-item tema-submenu" 
+                <div className="user-menu-item tema-submenu"
                   onMouseEnter={() => setMostrarSubmenuTemas(true)}
-                  onMouseLeave={() => setMostrarSubmenuTemas(false)}
+                  
                 >
                   <div className="menu-item-icon">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -785,16 +850,21 @@ const cancelarExclusao = () => {
                     </div>
                   )}
                 </div>
-                <div className="user-menu-item logout">
-                  <div className="menu-item-icon">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                      <polyline points="16,17 21,12 16,7"/>
-                      <line x1="21" y1="12" x2="9" y2="12"/>
-                    </svg>
+                {user && (
+                  <div className="user-menu-item logout" onClick={logout}
+                  onMouseEnter={() => setMostrarMenuUsuario(true)}
+                  onMouseLeave={() => setMostrarMenuUsuario(false)}
+                  >
+                    <div className="menu-item-icon">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16,17 21,12 16,7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                      </svg>
+                    </div>
+                    <span>Logout</span>
                   </div>
-                  <span>Logout</span>
-                </div>
+                )}
               </div>
             </div>
           )}
