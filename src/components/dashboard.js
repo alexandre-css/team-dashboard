@@ -3,6 +3,8 @@ import './dashboard.css';
 import { supabase } from '../lib/supabase';
 import { MdDashboard, MdFullscreen } from 'react-icons/md';
 import { SiImessage } from "react-icons/si";
+import { FaUserGear } from "react-icons/fa6";
+import { TbLetterA } from "react-icons/tb";
 import { FaGavel, FaBalanceScale, FaFileAlt, FaBook, FaUsers, FaBuilding, FaClipboardList, FaSearch, FaCalendarAlt, FaCog, FaLaptop, FaHome, FaPhone, FaEnvelope, FaMapMarkerAlt, FaInfoCircle, FaExclamationTriangle, FaCheckCircle, FaTimesCircle, FaClock, FaEye, FaFolder, FaFolderOpen, FaDatabase, FaServer, FaCloud, FaLock, FaUnlock, FaKey, FaShieldAlt, FaUser, FaUserTie, FaIdCard, FaTools, FaWrench, FaCogs, FaHeadset, FaTicketAlt, FaBug, FaLifeRing, FaQuestionCircle, FaCommentDots, FaUserFriends, FaUserCheck, FaUserPlus, FaUserCog, FaHandshake, FaClipboard, FaUserMd, FaUserShield, FaDownload, FaExternalLinkAlt } from 'react-icons/fa';
 import { MdGavel, MdAccountBalance, MdDescription, MdLibraryBooks, MdPeople, MdBusiness, MdAssignment, MdEvent, MdHome, MdWork, MdSchool, MdLocalLibrary, MdAccountBalanceWallet, MdAssignmentInd, MdClass, MdContactMail, MdContactPhone, MdGrade, MdGroup, MdHistory, MdInfo, MdLaunch, MdList, MdLocationOn, MdMail, MdNotifications, MdPerson, MdPhone, MdPlace, MdPublic, MdSchedule, MdSecurity, MdSupervisorAccount, MdVerifiedUser, MdVisibility, MdBuild, MdSupport, MdReportProblem, MdHelpOutline, MdBugReport, MdHandyman, MdPersonAdd, MdGroupAdd, MdBadge, MdCardMembership, MdManageAccounts, MdWorkOutline } from 'react-icons/md';
 import { AiOutlineBank, AiOutlineHome, AiOutlinePhone, AiOutlineMail, AiOutlineUser, AiOutlineTeam, AiOutlineFileText, AiOutlineFolder, AiOutlineSafety, AiOutlineSchedule, AiOutlineSetting, AiOutlineSearch, AiOutlineBook, AiOutlineGlobal, AiOutlineAudit, AiOutlineProject, AiOutlineDatabase } from 'react-icons/ai';
@@ -672,7 +674,7 @@ const cancelarExclusao = () => {
             }
           }}
         >
-          <div className="user-avatar">A</div>
+          <div className="user-avatar"><TbLetterA /></div>
           <span className="user-name">Alexandre</span>
           
           {mostrarMenuUsuario && (
@@ -685,9 +687,9 @@ const cancelarExclusao = () => {
               }}
             >
               <div className="user-menu-header">
-                <div className="user-avatar-large">A</div>
+                <div className="user-avatar-large"><FaUserGear /></div>
                 <div className="user-details">
-                  <h4>Alexandre</h4>
+                  <h4>Configurações</h4>
                 </div>
               </div>
               <div className="user-menu-items">
@@ -756,19 +758,23 @@ const cancelarExclusao = () => {
                     <div className="tema-options-dropdown">
                       <div className="tema-option" onClick={() => { alterarTema('claro'); setMostrarSubmenuTemas(false); }}>
                         <div className="tema-preview tema-claro"></div>
-                        <span>Claro</span>
+                        <span>Padrão</span>
                       </div>
                       <div className="tema-option" onClick={() => { alterarTema('escuro'); setMostrarSubmenuTemas(false); }}>
                         <div className="tema-preview tema-escuro"></div>
                         <span>Escuro</span>
                       </div>
-                      <div className="tema-option" onClick={() => { alterarTema('azul'); setMostrarSubmenuTemas(false); }}>
-                        <div className="tema-preview tema-azul"></div>
-                        <span>Azul</span>
+                      <div className="tema-option" onClick={() => { alterarTema('vermelho'); setMostrarSubmenuTemas(false); }}>
+                        <div className="tema-preview tema-vermelho"></div>
+                        <span>Vermelho</span>
                       </div>
                       <div className="tema-option" onClick={() => { alterarTema('verde'); setMostrarSubmenuTemas(false); }}>
                         <div className="tema-preview tema-verde"></div>
                         <span>Verde</span>
+                      </div>
+                      <div className="tema-option" onClick={() => { alterarTema('rosa'); setMostrarSubmenuTemas(false); }}>
+                        <div className="tema-preview tema-rosa"></div>
+                        <span>Rosa</span>
                       </div>
                     </div>
                   )}
@@ -910,7 +916,7 @@ const cancelarExclusao = () => {
                         {editandoAviso ? 'Salvar Edição' : 'Adicionar Aviso'}
                       </button>
                       {!novoAviso.titulo.trim() && mostrarFormulario && (
-                        <div style={{color: '#dc2626', fontSize: '0.95em', marginTop: '4px'}}>
+                        <div style={{color: '#dc2626', fontSize: '0.95em', marginTop: '22px'}}>
                           O título do aviso é obrigatório.
                         </div>
                       )}
