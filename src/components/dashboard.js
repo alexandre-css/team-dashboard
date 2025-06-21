@@ -5,6 +5,8 @@ import { MdDashboard, MdFullscreen } from 'react-icons/md';
 import { SiImessage } from "react-icons/si";
 import { FaUserGear } from "react-icons/fa6";
 import { TbLetterA } from "react-icons/tb";
+import { AiFillRightCircle } from "react-icons/ai";
+import { AiFillLeftCircle } from "react-icons/ai";
 import { FaGavel, FaBalanceScale, FaFileAlt, FaBook, FaUsers, FaBuilding, FaClipboardList, FaSearch, FaCalendarAlt, FaCog, FaLaptop, FaHome, FaPhone, FaEnvelope, FaMapMarkerAlt, FaInfoCircle, FaExclamationTriangle, FaCheckCircle, FaTimesCircle, FaClock, FaEye, FaFolder, FaFolderOpen, FaDatabase, FaServer, FaCloud, FaLock, FaUnlock, FaKey, FaShieldAlt, FaUser, FaUserTie, FaIdCard, FaTools, FaWrench, FaCogs, FaHeadset, FaTicketAlt, FaBug, FaLifeRing, FaQuestionCircle, FaCommentDots, FaUserFriends, FaUserCheck, FaUserPlus, FaUserCog, FaHandshake, FaClipboard, FaUserMd, FaUserShield, FaDownload, FaExternalLinkAlt } from 'react-icons/fa';
 import { MdGavel, MdAccountBalance, MdDescription, MdLibraryBooks, MdPeople, MdBusiness, MdAssignment, MdEvent, MdHome, MdWork, MdSchool, MdLocalLibrary, MdAccountBalanceWallet, MdAssignmentInd, MdClass, MdContactMail, MdContactPhone, MdGrade, MdGroup, MdHistory, MdInfo, MdLaunch, MdList, MdLocationOn, MdMail, MdNotifications, MdPerson, MdPhone, MdPlace, MdPublic, MdSchedule, MdSecurity, MdSupervisorAccount, MdVerifiedUser, MdVisibility, MdBuild, MdSupport, MdReportProblem, MdHelpOutline, MdBugReport, MdHandyman, MdPersonAdd, MdGroupAdd, MdBadge, MdCardMembership, MdManageAccounts, MdWorkOutline } from 'react-icons/md';
 import { AiOutlineBank, AiOutlineHome, AiOutlinePhone, AiOutlineMail, AiOutlineUser, AiOutlineTeam, AiOutlineFileText, AiOutlineFolder, AiOutlineSafety, AiOutlineSchedule, AiOutlineSetting, AiOutlineSearch, AiOutlineBook, AiOutlineGlobal, AiOutlineAudit, AiOutlineProject, AiOutlineDatabase } from 'react-icons/ai';
@@ -657,7 +659,7 @@ const cancelarExclusao = () => {
       <div className="header-section">
         <div className="header-left">
           <h1 className="main-title">
-            <MdDashboard size={24} />
+            <MdDashboard size={26} />
             TeamDash
           </h1>
           <div className="subtitle-container">
@@ -775,6 +777,10 @@ const cancelarExclusao = () => {
                       <div className="tema-option" onClick={() => { alterarTema('rosa'); setMostrarSubmenuTemas(false); }}>
                         <div className="tema-preview tema-rosa"></div>
                         <span>Rosa</span>
+                      </div>
+                      <div className="tema-option" onClick={() => { alterarTema('tjsc'); setMostrarSubmenuTemas(false); }}>
+                        <div className="tema-preview tema-tjsc"></div>
+                        <span>TJSC</span>
                       </div>
                     </div>
                   )}
@@ -1573,14 +1579,14 @@ const cancelarExclusao = () => {
                       onClick={imagemAnterior}
                       disabled={imagemAtual === 0}
                     >
-                      ‹
+                      <AiFillLeftCircle size={32} />
                     </button>
                     <button 
                       className="galeria-nav next" 
                       onClick={proximaImagem}
                       disabled={imagemAtual === imagensGaleria.length - 1}
                     >
-                      ›
+                      <AiFillRightCircle size={32} />
                     </button>
                     <div className="galeria-counter">
                       {imagemAtual + 1} / {imagensGaleria.length}
