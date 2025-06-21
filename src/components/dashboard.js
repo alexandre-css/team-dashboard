@@ -61,9 +61,18 @@ const Dashboard = () => {
   const [pastasExpandidas, setPastasExpandidas] = useState({});
   const [mostrarMenuUsuario, setMostrarMenuUsuario] = useState(false);
   const [mostrarSubmenuTemas, setMostrarSubmenuTemas] = useState(false);
-  const [tema, setTema] = useState('claro');
+  const [tema, setTema] = useState(() => {
+    const temaSalvo = localStorage.getItem('tema');
+    return temaSalvo || 'claro';
+  });
+  
 
   useEffect(() => {
+    const temaSalvo = localStorage.getItem('tema');
+    if (temaSalvo && temaSalvo !== tema) {
+      setTema(temaSalvo);
+    }
+    
     carregarAvisos();
     carregarNotebooks();
     carregarTjscLinks();
@@ -117,12 +126,8 @@ const categorias = {
 
 const alterarTema = (novoTema) => {
   setTema(novoTema);
-  document.body.className = `tema-${novoTema}`;
+  localStorage.setItem('tema', novoTema);
 };
-
-useEffect(() => {
-  document.body.className = `tema-${tema}`;
-}, [tema]);
 
 const carregarArquivosDrive = async () => {
   if (!GOOGLE_API_KEY) {
@@ -283,6 +288,10 @@ const carregarAvisos = async () => {
   }
 };
 
+const removerDirecaoUnicode = (texto) => {
+  return texto.replace(/[\u202A-\u202E\u200E\u200F\u2066-\u2069]/g, '');
+};
+
 const adicionarAviso = async () => {
   if (editandoAviso) {
     await salvarEdicao();
@@ -295,7 +304,7 @@ const adicionarAviso = async () => {
         .from('avisos')
         .insert([{
           titulo: novoAviso.titulo,
-          descricao: novoAviso.descricao,
+          descricao: removerDirecaoUnicode(novoAviso.descricao),
           tipo: novoAviso.tipo,
           imagens: JSON.stringify(novoAviso.imagens)
         }]);
@@ -315,12 +324,11 @@ const editarAviso = (aviso) => {
   setEditandoAviso(aviso);
   setNovoAviso({
     titulo: aviso.titulo,
-    descricao: aviso.descricao,
+    descricao: removerDirecaoUnicode(aviso.descricao),
     tipo: aviso.tipo,
     imagens: aviso.imagens || []
   });
   setMostrarFormulario(true);
-  
   setTimeout(() => {
     const formulario = document.querySelector('.aviso-form');
     if (formulario) {
@@ -339,14 +347,14 @@ const salvarEdicao = async () => {
         .from('avisos')
         .update({
           titulo: novoAviso.titulo,
-          descricao: novoAviso.descricao,
+          descricao: removerDirecaoUnicode(novoAviso.descricao),
           tipo: novoAviso.tipo,
           imagens: JSON.stringify(novoAviso.imagens)
         })
         .eq('id', editandoAviso.id);
-      
+
       if (error) throw error;
-      
+
       await carregarAvisos();
       setNovoAviso({ titulo: '', descricao: '', tipo: 'warning', imagens: [] });
       setMostrarFormulario(false);
@@ -852,10 +860,19 @@ const cancelarExclusao = () => {
                       <div
                         contentEditable
                         className="rich-textarea"
-                        onInput={(e) => setNovoAviso({...novoAviso, descricao: e.target.innerHTML})}
-                        dangerouslySetInnerHTML={{__html: novoAviso.descricao}}
+                        dir="ltr"
+                        onBlur={e => {
+                          let textoLimpo = removerDirecaoUnicode(e.target.innerHTML);
+                          if (textoLimpo === '<br>' || textoLimpo === '&nbsp;' || textoLimpo.trim() === '') {
+                            textoLimpo = '';
+                            e.target.innerHTML = '';
+                          }
+                          setNovoAviso({...novoAviso, descricao: textoLimpo});
+                        }}
                         suppressContentEditableWarning={true}
-                      />
+                      >
+                        {novoAviso.descricao}
+                      </div>
                     </div>
                     <div className="image-upload">
                       <label>Anexar imagens (máximo 3):</label>
@@ -892,6 +909,11 @@ const cancelarExclusao = () => {
                       <button onClick={adicionarAviso} className="form-submit">
                         {editandoAviso ? 'Salvar Edição' : 'Adicionar Aviso'}
                       </button>
+                      {!novoAviso.titulo.trim() && mostrarFormulario && (
+                        <div style={{color: '#dc2626', fontSize: '0.95em', marginTop: '4px'}}>
+                          O título do aviso é obrigatório.
+                        </div>
+                      )}
                       {editandoAviso && (
                         <button onClick={cancelarEdicao} className="form-cancel">
                           Cancelar
@@ -1531,7 +1553,7 @@ const cancelarExclusao = () => {
         {mostrarGaleria && (
           <div className="modal-overlay" onClick={fecharGaleria}>
             <div className="galeria-modal" onClick={(e) => e.stopPropagation()}>
-              <button className="modal-close" onClick={fecharGaleria}></button>
+              <button className="modal-close" onClick={fecharGaleria}>×</button>
               <div className="galeria-content">
                 <img 
                   src={imagensGaleria[imagemAtual]} 
