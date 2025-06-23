@@ -328,6 +328,7 @@ const removerDirecaoUnicode = (texto) => {
 };
 
 const adicionarAviso = async () => {
+  if (!user) return;
   if (editandoAviso) {
     await salvarEdicao();
     return;
@@ -352,7 +353,6 @@ const adicionarAviso = async () => {
     }
   }
 }
-
 const editarAviso = (aviso) => {
   setEditandoAviso(aviso);
   setNovoAviso({
@@ -961,9 +961,8 @@ const cancelarExclusao = () => {
                           setNovoAviso({...novoAviso, descricao: textoLimpo});
                         }}
                         suppressContentEditableWarning={true}
-                      >
-                        {novoAviso.descricao}
-                      </div>
+                        dangerouslySetInnerHTML={{__html: novoAviso.descricao}}
+                      ></div>
                     </div>
                     <div className="image-upload">
                       <label>Anexar imagens (máximo 3):</label>
