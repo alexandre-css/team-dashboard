@@ -4,7 +4,6 @@ import { supabase } from '../lib/supabase';
 import { MdFullscreen } from 'react-icons/md';
 import { SiImessage } from "react-icons/si";
 import { FaUserGear } from "react-icons/fa6";
-import { TbLetterA } from "react-icons/tb";
 import { AiFillRightCircle } from "react-icons/ai";
 import { AiFillLeftCircle } from "react-icons/ai";
 import { FaGavel, FaBalanceScale, FaFileAlt, FaBook, FaUsers, FaBuilding, FaClipboardList, FaSearch, FaCalendarAlt, FaCog, FaLaptop, FaHome, FaPhone, FaEnvelope, FaMapMarkerAlt, FaInfoCircle, FaExclamationTriangle, FaCheckCircle, FaTimesCircle, FaClock, FaEye, FaFolder, FaFolderOpen, FaDatabase, FaServer, FaCloud, FaLock, FaUnlock, FaKey, FaShieldAlt, FaUser, FaUserTie, FaIdCard, FaTools, FaWrench, FaCogs, FaHeadset, FaTicketAlt, FaBug, FaLifeRing, FaQuestionCircle, FaCommentDots, FaUserFriends, FaUserCheck, FaUserPlus, FaUserCog, FaHandshake, FaClipboard, FaUserMd, FaUserShield, FaDownload, FaExternalLinkAlt } from 'react-icons/fa';
@@ -718,16 +717,13 @@ const cancelarExclusao = () => {
           {user ? (
             <>
               <div className="user-avatar">
-                {user.user_metadata?.avatar_url ? (
+                {user.user_metadata?.avatar_url && (
                   <img src={user.user_metadata.avatar_url} alt="avatar" style={{ width: 32, height: 32, borderRadius: '50%' }} />
-                ) : (
-                  <TbLetterA />
                 )}
               </div>
               <span className="user-name">{user.user_metadata?.name || user.email}</span>
             </>
           ) : (
-
             <button className="gsi-material-button" onClick={loginGoogle}>
               <div className="gsi-material-button-state"></div>
               <div className="gsi-material-button-content-wrapper">
