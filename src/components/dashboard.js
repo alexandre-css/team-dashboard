@@ -93,21 +93,27 @@ const logout = async () => {
 const carregarTjscLinks = useCallback(async () => {
   let linksServidor = []
   if (user) {
-    let query = supabase.from('tjsc_links').select('*').order('titulo', { ascending: true })
-    query = query.or(`is_default.eq.true,user_id.eq.${user.id}`)
-    const { data, error } = await query
+    const { data, error } = await supabase
+      .from('tjsc_links')
+      .select('*')
+      .or(`is_default.eq.true,user_id.eq.${user.id}`)
+      .order('titulo', { ascending: true })
     if (!error) linksServidor = data || []
+    setTjscLinks(linksServidor)
   } else {
-    const { data, error } = await supabase.from('tjsc_links').select('*').eq('is_default', true).order('titulo', { ascending: true })
+    const { data, error } = await supabase
+      .from('tjsc_links')
+      .select('*')
+      .eq('is_default', true)
+      .order('titulo', { ascending: true })
     if (!error) linksServidor = data || []
+    setTjscLinks(linksServidor)
   }
-  let linksLocal = []
-  if (!user) {
-    const local = localStorage.getItem('tjscLinksLocal')
-    if (local) linksLocal = JSON.parse(local)
-  }
-  setTjscLinks([...linksServidor, ...linksLocal])
 }, [user])
+
+useEffect(() => {
+  localStorage.removeItem('tjscLinksLocal')
+}, [])
 
   useEffect(() => {
     carregarTjscLinks();
@@ -579,30 +585,22 @@ const adicionarTjscLink = async () => {
     return
   }
   if (novoTjscLink.titulo.trim() && novoTjscLink.link.trim()) {
-    if (user && user.email === ADMIN_EMAIL) {
-      const { error } = await supabase
+    if (user) {
+      const { data, error } = await supabase
         .from('tjsc_links')
         .insert([{
           titulo: novoTjscLink.titulo,
           link: novoTjscLink.link,
           icone: novoTjscLink.icone,
           user_id: user.id,
-          is_default: true
+          is_default: user.email === ADMIN_EMAIL ? true : false
         }])
-      if (error) return
-      await carregarTjscLinks()
-    } else {
-      const local = localStorage.getItem('tjscLinksLocal')
-      const linksLocal = local ? JSON.parse(local) : []
-      const novoLink = {
-        id: Date.now(),
-        titulo: novoTjscLink.titulo,
-        link: novoTjscLink.link,
-        icone: novoTjscLink.icone,
-        is_default: false
+      if (error) {
+        console.error(error)
+      } else {
+        console.log('Insert realizado com sucesso:', data)
       }
-      localStorage.setItem('tjscLinksLocal', JSON.stringify([...linksLocal, novoLink]))
-      setTjscLinks(prev => [...prev, novoLink])
+      await carregarTjscLinks()
     }
     setNovoTjscLink({ titulo: '', link: '', icone: 'FaGavel' })
     setMostrarFormularioTjsc(false)
@@ -620,10 +618,9 @@ const editarTjscLink = (link) => {
   setMostrarFormularioTjsc(true)
 }
 
-
 const salvarEdicaoTjscLink = async () => {
   if (novoTjscLink.titulo.trim() && novoTjscLink.link.trim()) {
-    if (user && user.email === ADMIN_EMAIL && editandoTjscLink.is_default) {
+    if (user) {
       try {
         const { error } = await supabase
           .from('tjsc_links')
@@ -638,22 +635,6 @@ const salvarEdicaoTjscLink = async () => {
       } catch (error) {
         console.error('Erro ao editar link TJSC:', error)
       }
-    } else {
-      const local = localStorage.getItem('tjscLinksLocal')
-      let linksLocal = local ? JSON.parse(local) : []
-      linksLocal = linksLocal.map(l =>
-        l.id === editandoTjscLink.id
-          ? { ...l, titulo: novoTjscLink.titulo, link: novoTjscLink.link, icone: novoTjscLink.icone }
-          : l
-      )
-      localStorage.setItem('tjscLinksLocal', JSON.stringify(linksLocal))
-      setTjscLinks(prev =>
-        prev.map(l =>
-          l.id === editandoTjscLink.id
-            ? { ...l, titulo: novoTjscLink.titulo, link: novoTjscLink.link, icone: novoTjscLink.icone }
-            : l
-        )
-      )
     }
     setNovoTjscLink({ titulo: '', link: '', icone: 'FaGavel' })
     setMostrarFormularioTjsc(false)
@@ -668,8 +649,7 @@ const cancelarEdicaoTjscLink = () => {
 };
 
 const removerTjscLink = async (id) => {
-  const link = tjscLinks.find(l => l.id === id)
-  if (user && user.email === ADMIN_EMAIL && link.is_default) {
+  if (user) {
     try {
       const { error } = await supabase
         .from('tjsc_links')
@@ -680,12 +660,6 @@ const removerTjscLink = async (id) => {
     } catch (error) {
       console.error('Erro ao remover link TJSC:', error)
     }
-  } else {
-    const local = localStorage.getItem('tjscLinksLocal')
-    let linksLocal = local ? JSON.parse(local) : []
-    linksLocal = linksLocal.filter(l => l.id !== id)
-    localStorage.setItem('tjscLinksLocal', JSON.stringify(linksLocal))
-    setTjscLinks(prev => prev.filter(l => l.id !== id))
   }
 }
 
