@@ -119,18 +119,6 @@ useEffect(() => {
   }, [user, carregarTjscLinks]);
 
   useEffect(() => {
-    const temaSalvo = localStorage.getItem('tema');
-    if (temaSalvo && temaSalvo !== tema) {
-      setTema(temaSalvo);
-    }
-    carregarAvisos();
-    carregarNotebooks();
-    carregarEventosCalendario();
-    carregarArquivosDrive();
-    document.body.className = `tema-${tema}`;
-  }, [tema]);
-  
-  useEffect(() => {
     localStorage.setItem('notebooks', JSON.stringify(notebooks));
   }, [notebooks]);
 
@@ -289,18 +277,147 @@ const carregarEventosCalendario = async () => {
   setCarregandoCalendario(false);
 };
 
-const carregarNotebooks = async () => {
-  try {
+const carregarNotebooks = useCallback(async () => {
+  let notebooksServidor = []
+  if (user) {
     const { data, error } = await supabase
       .from('notebooks')
       .select('*')
-      .order('created_at', { ascending: false });
-    
-    if (error) throw error;
-    setNotebooks(data || []);
-  } catch (error) {
-    console.error('Erro ao carregar notebooks:', error);
+      .or(`is_default.eq.true,user_id.eq.${user.id}`)
+      .order('titulo', { ascending: true })
+    if (!error) notebooksServidor = data || []
+    setNotebooks(notebooksServidor)
+  } else {
+    const { data, error } = await supabase
+      .from('notebooks')
+      .select('*')
+      .eq('is_default', true)
+      .order('titulo', { ascending: true })
+    if (!error) notebooksServidor = data || []
+    setNotebooks(notebooksServidor)
   }
+}, [user])
+
+  useEffect(() => {
+    const temaSalvo = localStorage.getItem('tema');
+    if (temaSalvo && temaSalvo !== tema) {
+      setTema(temaSalvo);
+    }
+    carregarAvisos();
+    carregarNotebooks();
+    carregarEventosCalendario();
+    carregarArquivosDrive();
+    document.body.className = `tema-${tema}`;
+  }, [carregarNotebooks, tema]);
+  
+  useEffect(() => {
+  carregarNotebooks()
+}, [user, carregarNotebooks])
+
+const adicionarNotebook = async () => {
+  if (editandoNotebook) {
+    await salvarEdicaoNotebook();
+    return;
+  }
+  if (novoNotebook.titulo.trim() && novoNotebook.link.trim()) {
+    try {
+      if (user) {
+        const { error } = await supabase
+          .from('notebooks')
+          .insert([{
+            titulo: novoNotebook.titulo,
+            link: novoNotebook.link,
+            descricao: novoNotebook.descricao,
+            user_id: user.id,
+            is_default: user.email === ADMIN_EMAIL ? true : false
+          }]);
+        if (error) throw error;
+        await carregarNotebooks();
+      }
+      setNovoNotebook({ titulo: '', link: '', descricao: '' });
+      setMostrarFormularioNotebook(false);
+    } catch (error) {
+      console.error('Erro ao adicionar notebook:', error);
+    }
+  }
+};
+
+const salvarEdicaoNotebook = async () => {
+  if (novoNotebook.titulo.trim() && novoNotebook.link.trim()) {
+    try {
+      if (user) {
+        const { error } = await supabase
+          .from('notebooks')
+          .update({
+            titulo: novoNotebook.titulo,
+            link: novoNotebook.link,
+            descricao: novoNotebook.descricao,
+            user_id: user.id,
+            is_default: user.email === ADMIN_EMAIL ? true : false
+          })
+          .eq('id', editandoNotebook.id)
+        if (error) throw error
+        await carregarNotebooks()
+      }
+      setNovoNotebook({ titulo: '', link: '', descricao: '' })
+      setMostrarFormularioNotebook(false)
+      setEditandoNotebook(null)
+    } catch (error) {
+      console.error('Erro ao editar notebook:', error)
+    }
+  }
+}
+
+const removerNotebook = async (id) => {
+  if (user) {
+    try {
+      const { data, error } = await supabase
+        .from('notebooks')
+        .select('user_id, is_default')
+        .eq('id', id)
+        .single()
+      if (error) throw error
+      if (
+        (data.user_id && data.user_id === user.id) ||
+        (data.is_default && user.email === ADMIN_EMAIL)
+      ) {
+        const { error: deleteError } = await supabase
+          .from('notebooks')
+          .delete()
+          .eq('id', id)
+        if (deleteError) throw deleteError
+        await carregarNotebooks()
+      }
+    } catch (error) {
+      console.error('Erro ao remover notebook:', error)
+    }
+  }
+}
+
+const cancelarEdicaoNotebook = () => {
+  setEditandoNotebook(null);
+  setNovoNotebook({ titulo: '', link: '', descricao: '' });
+  setMostrarFormularioNotebook(false);
+};
+
+const editarNotebook = (notebook) => {
+  setEditandoNotebook(notebook);
+  setNovoNotebook({
+    titulo: notebook.titulo,
+    link: notebook.link,
+    descricao: notebook.descricao
+  });
+  setMostrarFormularioNotebook(true);
+  
+  setTimeout(() => {
+    const formulario = document.querySelector('.notebook-form');
+    if (formulario) {
+      formulario.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+    }
+  }, 100);
 };
 
 const carregarAvisos = async () => {
@@ -482,97 +599,6 @@ const removerAviso = async (id) => {
     await carregarAvisos();
   } catch (error) {
     console.error('Erro ao remover aviso:', error);
-  }
-};
-
-const adicionarNotebook = async () => {
-  if (editandoNotebook) {
-    await salvarEdicaoNotebook();
-    return;
-  }
-  
-  if (novoNotebook.titulo.trim() && novoNotebook.link.trim()) {
-    try {
-      const { error } = await supabase
-        .from('notebooks')
-        .insert([{
-          titulo: novoNotebook.titulo,
-          link: novoNotebook.link,
-          descricao: novoNotebook.descricao
-        }]);
-      
-      if (error) throw error;
-      
-      await carregarNotebooks();
-      setNovoNotebook({ titulo: '', link: '', descricao: '' });
-      setMostrarFormularioNotebook(false);
-    } catch (error) {
-      console.error('Erro ao adicionar notebook:', error);
-    }
-  }
-};
-
-const editarNotebook = (notebook) => {
-  setEditandoNotebook(notebook);
-  setNovoNotebook({
-    titulo: notebook.titulo,
-    link: notebook.link,
-    descricao: notebook.descricao
-  });
-  setMostrarFormularioNotebook(true);
-  
-  setTimeout(() => {
-    const formulario = document.querySelector('.notebook-form');
-    if (formulario) {
-      formulario.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'start' 
-      });
-    }
-  }, 100);
-};
-
-const salvarEdicaoNotebook = async () => {
-  if (novoNotebook.titulo.trim() && novoNotebook.link.trim()) {
-    try {
-      const { error } = await supabase
-        .from('notebooks')
-        .update({
-          titulo: novoNotebook.titulo,
-          link: novoNotebook.link,
-          descricao: novoNotebook.descricao
-        })
-        .eq('id', editandoNotebook.id);
-      
-      if (error) throw error;
-      
-      await carregarNotebooks();
-      setNovoNotebook({ titulo: '', link: '', descricao: '' });
-      setMostrarFormularioNotebook(false);
-      setEditandoNotebook(null);
-    } catch (error) {
-      console.error('Erro ao editar notebook:', error);
-    }
-  }
-};
-
-const cancelarEdicaoNotebook = () => {
-  setEditandoNotebook(null);
-  setNovoNotebook({ titulo: '', link: '', descricao: '' });
-  setMostrarFormularioNotebook(false);
-};
-
-const removerNotebook = async (id) => {
-  try {
-    const { error } = await supabase
-      .from('notebooks')
-      .delete()
-      .eq('id', id);
-    
-    if (error) throw error;
-    await carregarNotebooks();
-  } catch (error) {
-    console.error('Erro ao remover notebook:', error);
   }
 };
 
