@@ -650,14 +650,27 @@ const cancelarEdicaoTjscLink = () => {
 const removerTjscLink = async (id) => {
   if (user) {
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('tjsc_links')
-        .delete()
+        .select('user_id, is_default')
         .eq('id', id)
-      if (error) throw error
-      await carregarTjscLinks()
+        .single();
+
+      if (error) throw error;
+
+      if (
+        (data.user_id && data.user_id === user.id) ||
+        (data.is_default && user.email === ADMIN_EMAIL)
+      ) {
+        const { error: deleteError } = await supabase
+          .from('tjsc_links')
+          .delete()
+          .eq('id', id);
+        if (deleteError) throw deleteError;
+        await carregarTjscLinks();
+      }
     } catch (error) {
-      console.error('Erro ao remover link TJSC:', error)
+      console.error('Erro ao remover link TJSC:', error);
     }
   }
 }
