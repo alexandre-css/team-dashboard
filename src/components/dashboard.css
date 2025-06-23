@@ -322,6 +322,7 @@ body {
 
 .add-btn:hover, .drive-btn:hover {
   transform: translateY(-1px);
+  background: #3e48a3
 }
 
 @keyframes fadeIn {
@@ -485,7 +486,7 @@ body {
 }
 
 .format-btn:hover {
-  background: rgba(59, 130, 246, 0.1);
+  background: #3e48a3;
 }
 
 .rich-textarea {
@@ -821,7 +822,7 @@ body {
 }
 
 .edit-btn:hover {
-  background: #1e2563;
+  background: #3e48a3;
   transform: translateY(-1px);
 }
 
@@ -943,7 +944,7 @@ body {
 }
 
 .tab-btn:hover {
-  background: rgba(45, 54, 136, 0.1);
+  background: #f0f4f8;
   border-color: rgba(45, 54, 136, 0.3);
   color: #2d3688;
 }
@@ -1127,14 +1128,13 @@ body {
 }
 
 .notebook-hover-actions .edit-btn:hover {
-  background: #1e2563;
+  background: #3e48a3;
   transform: translateY(-1px);
 }
 
 .notebook-hover-actions .remove-btn:hover {
   background: #ef4444;
   transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3);
 }
 
 .notebook-hover-actions .edit-btn::before {
@@ -1305,7 +1305,7 @@ body {
 }
 
 .tjsc-hover-actions .edit-btn:hover {
-  background: #1e2563;
+  background: #3e48a3;
   transform: translateY(-1px);
 }
 
@@ -1405,7 +1405,7 @@ body {
 }
 
 .tjsc-actions .edit-btn:hover {
-  background: rgba(59, 130, 246, 0.05);
+  background: #3e48a3;
 }
 
 .tjsc-actions .remove-btn:hover {
@@ -2558,9 +2558,8 @@ body.modo-noturno .icon-option span {
 }
 
 .view-btn:hover {
-  background: #1e2563;
+  background: #3e48a3;
   transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(45, 54, 136, 0.3);
 }
 
 .download-btn {
@@ -2610,10 +2609,9 @@ body.modo-noturno .icon-option span {
 }
 
 .ver-mais-btn:hover {
-  background: #2d3688;
+  background: #3e48a3;
   color: white;
   border-color: #2d3688;
-  box-shadow: 0 2px 4px rgba(45, 54, 136, 0.2);
 }
 
 .drive-modal .modal-body {
@@ -2794,7 +2792,7 @@ body.modo-noturno .icon-option span {
 }
 
 .arquivo-actions-card .view-btn:hover {
-  background: #1e2563;
+  background: #3e48a3;
   transform: translateY(-1px);
   box-shadow: 0 2px 6px rgba(45, 54, 136, 0.3);
 }
@@ -3762,12 +3760,14 @@ body.tema-escuro .add-btn,
 body.tema-escuro .drive-btn {
   background: #60a5fa;
   color: #1e293b;
+  border: 1px solid rgba(51, 65, 85, 0.5);
 }
 
 body.tema-escuro .add-btn:hover,
 body.tema-escuro .drive-btn:hover {
   background: #3b82f6;
   color: #1e293b;
+  border: 1px solid rgba(51, 65, 85, 0.5);
 }
 
 body.tema-escuro .form-submit {
@@ -5560,7 +5560,7 @@ body.tema-black {
 }
 
 body.tema-black .dashboard {
-  background: #b1b1b5;
+  background: #d5d5e3;
 }
 
 body.tema-black .main-title {
@@ -5936,3 +5936,38 @@ body.tema-black .login-btn {
 body.tema-black .login-btn:hover {
   background: #27272a;
 }
+
+.teamdash-logo-svg .tdash-rect1 { fill: #2d3688; }
+.teamdash-logo-svg .tdash-rect2 { fill: #464b61; }
+.teamdash-logo-svg .tdash-rect3 { fill: #6b7cff; }
+.teamdash-logo-svg .tdash-rect4 { fill: #3e4ba8; }
+
+body.tema-escuro .teamdash-logo-svg .tdash-rect1 { fill: #60a5fa; }
+body.tema-escuro .teamdash-logo-svg .tdash-rect2 { fill: #334155; }
+body.tema-escuro .teamdash-logo-svg .tdash-rect3 { fill: #2563eb; }
+body.tema-escuro .teamdash-logo-svg .tdash-rect4 { fill: #273347; }
+
+body.tema-verde .teamdash-logo-svg .tdash-rect1 { fill: #10b981; }
+body.tema-verde .teamdash-logo-svg .tdash-rect2 { fill: #047857; }
+body.tema-verde .teamdash-logo-svg .tdash-rect3 { fill: #34d399; }
+body.tema-verde .teamdash-logo-svg .tdash-rect4 { fill: #065f46; }
+
+body.tema-vermelho .teamdash-logo-svg .tdash-rect1 { fill: #ef4444; }
+body.tema-vermelho .teamdash-logo-svg .tdash-rect2 { fill: #991b1b; }
+body.tema-vermelho .teamdash-logo-svg .tdash-rect3 { fill: #f87171; }
+body.tema-vermelho .teamdash-logo-svg .tdash-rect4 { fill: #b91c1c; }
+
+body.tema-rosa .teamdash-logo-svg .tdash-rect1 { fill: #ec4899; }
+body.tema-rosa .teamdash-logo-svg .tdash-rect2 { fill: #a21caf; }
+body.tema-rosa .teamdash-logo-svg .tdash-rect3 { fill: #f472b6; }
+body.tema-rosa .teamdash-logo-svg .tdash-rect4 { fill: #db2777; }
+
+body.tema-tjsc .teamdash-logo-svg .tdash-rect1 { fill: #556b2f; }
+body.tema-tjsc .teamdash-logo-svg .tdash-rect2 { fill: #425622; }
+body.tema-tjsc .teamdash-logo-svg .tdash-rect3 { fill: #7a8b4a; }
+body.tema-tjsc .teamdash-logo-svg .tdash-rect4 { fill: #b6c36a; }
+
+body.tema-black .teamdash-logo-svg .tdash-rect1 { fill: #d5d5e3; }
+body.tema-black .teamdash-logo-svg .tdash-rect2 { fill: #a1a1aa; }
+body.tema-black .teamdash-logo-svg .tdash-rect3 { fill: #27272a; }
+body.tema-black .teamdash-logo-svg .tdash-rect4 { fill: #18181b; }

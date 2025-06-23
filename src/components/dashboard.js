@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './dashboard.css';
 import { supabase } from '../lib/supabase';
-import { MdDashboard, MdFullscreen } from 'react-icons/md';
+import { MdFullscreen } from 'react-icons/md';
 import { SiImessage } from "react-icons/si";
 import { FaUserGear } from "react-icons/fa6";
 import { TbLetterA } from "react-icons/tb";
@@ -694,7 +694,14 @@ const cancelarExclusao = () => {
       <div className="header-section">
         <div className="header-left">
           <h1 className="main-title">
-            <MdDashboard size={26} />
+            <span className="teamdash-logo-svg" style={{ width: 26, height: 26, marginRight: 8, display: 'inline-block', verticalAlign: 'middle' }}>
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none">
+                <rect x="3" y="3" width="8" height="10" rx="1.2" className="tdash-rect1"/>
+                <rect x="3" y="14" width="8" height="7" rx="1.2" className="tdash-rect2"/>
+                <rect x="13" y="10" width="8" height="11" rx="1.2" className="tdash-rect3"/>
+                <rect x="13" y="3" width="8" height="6" rx="1.2" className="tdash-rect4"/>
+              </svg>
+            </span>
             <span style={{ position: 'relative', top: '-2px' }}>TeamDash</span>
           </h1>
           <div className="subtitle-container">
