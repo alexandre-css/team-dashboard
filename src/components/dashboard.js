@@ -721,7 +721,7 @@ const cancelarExclusao = () => {
         <div className="header-left">
           <h1 className="main-title">
             <MdDashboard size={26} />
-            TeamDash
+            <span style={{ position: 'relative', top: '-2px' }}>TeamDash</span>
           </h1>
           <div className="subtitle-container">
             <span className="gabinete-label">Gabinete</span>
@@ -895,7 +895,7 @@ const cancelarExclusao = () => {
           <div className="card avisos-card">
             <div className="card-header">
               <h3>
-                <SiImessage size={25} style={{marginRight: '8px'}} />
+                <SiImessage size={20} style={{marginRight: '8px'}} />
                 Avisos
               </h3>
               <button 
@@ -1227,7 +1227,6 @@ const cancelarExclusao = () => {
                   </div>
                 </div>
               
-                <div className="card metricas-card">
                   <div className="card powerbi-card">
                     <div className="card-header">
                       <h3>
@@ -1282,12 +1281,23 @@ const cancelarExclusao = () => {
                       )}
                     </div>
                   </div>
-                </div>
       
                 <div className="card notebook-card">
                   <div className="card-header">
-                    <h3>
-                      <NotebookLM.Combine size={20} style={{marginRight: '8px'}} />
+                    <h3 style={{ display: 'flex', alignItems: 'center' }}>
+                      <span style={{ width: 20, height: 20, marginRight: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <NotebookLM
+                          size={20}
+                          style={{
+                            color: tema === 'escuro' ? '#fff' : 'black',
+                            width: 20,
+                            height: 20
+                          }}
+                        />
+                      </span>
+                      <span style={{ fontWeight: 500, fontSize: '1.3rem', lineHeight: '24px' }}>
+                        NotebookLM
+                      </span>
                     </h3>
                     <button 
                       onClick={() => {

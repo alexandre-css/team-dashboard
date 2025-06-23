@@ -1,9 +1,66 @@
-.dashboard {
+html, body {
+  height: 100%;
+  min-height: 100%;
+  width: 100%;
+  overflow: auto;
+}
+
+body {
+  min-height: 100vh;
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+}
+
+#root {
+  min-height: 100vh;
+  height: 100%;
+  width: 100%;
   display: flex;
   flex-direction: column;
-  height: 100vh;
+}
+
+.dashboard {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   background: #f0f4f8;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 200px;
+  gap: 24px;
+  min-height: 600px;
+  height: calc(100vh - 140px);
+  overflow: hidden;
+}
+
+.dashboard,
+.main-content,
+.dashboard-grid {
+  height: 100vh;
+  min-height: 0;
+  overflow: hidden;
+}
+.card {
+  max-height: 100%;
+}
+.card-content {
+  overflow: auto;
+  max-height: calc(100vh - 64px - 40px); /* ajuste conforme header/footer */
 }
 
 .header-section {
@@ -47,20 +104,25 @@
   font-weight: 700;
   color: #232946;
   letter-spacing: -1px;
-  gap: 12px;
+  gap: 6px;
   border-left: 4px solid #2d3688;
-  padding-left: 18px;
+  padding-left: 16px;
   background: none;
   box-shadow: none;
   text-shadow: 0 2px 8px rgba(35,41,70,0.06);
   font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
   line-height: 1.1;
   border-radius: 0 8px 8px 0;
+  height: 40px;
 }
+
 .main-title svg {
   opacity: 0.85;
   font-size: 2.2rem;
-  margin-right: 2px;
+  margin-right: 0;
+  margin-bottom: 0;
+  align-self: center;
+  display: flex;
 }
 
 .subtitle {
@@ -75,24 +137,6 @@
   align-items: center;
   gap: 8px;
   margin-top: 2px;
-}
-
-.main-content {
-  flex: 1;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  padding: 24px;
-}
-
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
-  grid-template-rows: 1fr 1fr 200px;
-  gap: 24px;
-  height: calc(100vh - 140px);
-  overflow: hidden;
-  min-height: 600px;
 }
 
 .avisos-card {
@@ -170,26 +214,61 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 20px;
+  padding: 8px 16px;
   border-bottom: 1px solid rgba(226, 232, 240, 0.5);
-  background: rgba(248, 250, 252, 0.5);
+  background: rgba(233, 236, 240, 0.5);
+  min-height: 40px;
+  height: 40px;
 }
 
 .card-header h3 {
-  margin: 0;
-  color: #1e293b;
-  font-size: 1.3rem;
-  font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  font-size: 1.3rem;
+  font-weight: 500;
+  margin: 0;
+  line-height: 1.2;
 }
 
-.card-content {
-  padding: 20px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+.card-header h3 .google-calendar-icon,
+.card-header h3 .google-drive-icon,
+.card-header h3 .powerbi-icon {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 0;
+  margin-bottom: 0;
+  width: 22px;
+  height: 22px;
+  align-self: center;
+}
+
+.card-header h3 svg {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 0;
+  margin-bottom: 0;
+  align-self: center;
+  shape-rendering: geometricPrecision;
+  text-rendering: geometricPrecision;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: pixelated;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+.notebooklm-icon {
+  display: inline-block;
+  height: 22px;
+  margin-right: 12px;
+  vertical-align: middle;
+}
+
+.notebooklm-icon svg {
+  height: 100%;
+  display: block;
+  width: auto;
+  max-width: 100%;
 }
 
 .aviso-item:last-child {
@@ -213,33 +292,36 @@
   white-space: nowrap;
 }
 
-.add-btn, .drive-btn {
-  background:#2d3688;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-}
-
 .add-btn {
+  background: #2d3688;
+  color: white;
+  border: 1px solid rgba(226, 232, 240, 0.5);
   width: 32px;
   height: 32px;
   border-radius: 50%;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
   padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+}
+
+.drive-btn {
+  background: #2d3688;
+  color: white;
+  border: 1px solid rgba(226, 232, 240, 0.5);
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
 }
 
 .add-btn:hover, .drive-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
 }
 
 @keyframes fadeIn {
@@ -675,22 +757,6 @@
   text-align: center;
 }
 
-.image-icon {
-  background: #2d3688;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 6px 10px;
-  cursor: pointer;
-  font-size: 14px;
-  margin-right: 8px;
-  margin-top: 8px;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  transition: all 0.2s ease;
-}
-
 .form-submit {
   background: #1e2563;
   color: white;
@@ -752,13 +818,11 @@
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(45, 54, 136, 0.2);
 }
 
 .edit-btn:hover {
   background: #1e2563;
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(45, 54, 136, 0.3);
 }
 
 .edit-btn::before {
@@ -844,15 +908,6 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-}
-
-.powerbi-card .card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 16px 20px;
-  min-height: 60px;
 }
 
 .powerbi-card .card-content {
@@ -989,7 +1044,7 @@
 
 .notebook-titulo {
   margin: 0;
-  font-size: 0.85rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #1f2937;
   cursor: pointer;
@@ -1009,12 +1064,13 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-align: center;
+  word-break: break-all;
 }
 
 .notebook-icon-circle {
   width: 16px;
   height: 16px;
-  background-color: #1a1a1a;
+  background-color: #2d3688;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -1053,7 +1109,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 1px 3px rgba(102, 126, 234, 0.2);
 }
 
 .notebook-titulo-link {
@@ -1074,7 +1129,6 @@
 .notebook-hover-actions .edit-btn:hover {
   background: #1e2563;
   transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(45, 54, 136, 0.3);
 }
 
 .notebook-hover-actions .remove-btn:hover {
@@ -1237,7 +1291,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 1px 3px rgba(102, 126, 234, 0.2);
 }
 
 .tjsc-hover-actions .remove-btn {
@@ -1254,7 +1307,6 @@
 .tjsc-hover-actions .edit-btn:hover {
   background: #1e2563;
   transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(45, 54, 136, 0.3);
 }
 
 .tjsc-hover-actions .remove-btn::before {
@@ -1278,6 +1330,7 @@
 }
 
 .tjsc-card .card-content {
+  padding: 20px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 14px;
@@ -1612,11 +1665,39 @@ body.modo-noturno .icon-option span {
 
 @media (max-width: 768px) {
   .dashboard-grid {
-    grid-template-columns: 1fr;
-    grid-template-rows: repeat(6, auto);
-    gap: 16px;
-    padding: 0 16px 20px;
+    min-height: unset;
+    height: auto;
+    overflow: visible;
   }
+}
+
+
+@media (max-width: 700px) {
+  .dashboard-grid {
+    min-height: unset;
+    height: auto;
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+
+@media (max-width: 480px) {
+  .dashboard-grid {
+    min-height: unset;
+    height: auto;
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0 2px 12px;
+  }
+  .main-content {
+    overflow-y: visible;
+    padding: 4px;
+  }
+}
   
   .avisos-card {
     height: 350px;
@@ -1710,13 +1791,6 @@ body.modo-noturno .icon-option span {
     box-sizing: border-box;
   }
 
-  .card-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-    padding: 12px;
-  }
-
   .card-header h3 {
     font-size: 1.05rem;
   }
@@ -1801,10 +1875,14 @@ body.modo-noturno .icon-option span {
   }
 
   .card-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-    padding: 10px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+    background: rgba(248, 250, 252, 0.5);
+    min-height: 64px;
+    height: 64px;
   }
 
   .card-header h3 {
@@ -1879,6 +1957,47 @@ body.modo-noturno .icon-option span {
     left: 0 !important;
     right: 0 !important;
     top: 100% !important;
+  }
+}
+
+@media (max-width: 700px) {
+  .dashboard-grid {
+    align-items: stretch;
+  }
+  .card {
+    flex: 1 1 auto;
+    min-height: 220px;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .card-content {
+    flex: 1 1 auto;
+    min-height: 120px;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-grid {
+    align-items: stretch;
+  }
+  .card {
+    flex: 1 1 auto;
+    min-height: 180px;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card-content {
+    flex: 1 1 auto;
+    min-height: 100px;
+    height: auto;
+    display: flex;
+    flex-direction: column;
   }
 }
 
@@ -2727,7 +2846,7 @@ body.modo-noturno .icon-option span {
 
 .pasta-nome {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #1f2937;
 }
@@ -3643,14 +3762,12 @@ body.tema-escuro .add-btn,
 body.tema-escuro .drive-btn {
   background: #60a5fa;
   color: #1e293b;
-  box-shadow: 0 4px 12px rgba(96, 165, 250, 0.3);
 }
 
 body.tema-escuro .add-btn:hover,
 body.tema-escuro .drive-btn:hover {
   background: #3b82f6;
   color: #1e293b;
-  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
 }
 
 body.tema-escuro .form-submit {
@@ -3668,13 +3785,11 @@ body.tema-escuro .form-submit:hover {
 body.tema-escuro .edit-btn {
   background: #60a5fa;
   color: #1e293b;
-  box-shadow: 0 2px 4px rgba(96, 165, 250, 0.2);
 }
 
 body.tema-escuro .edit-btn:hover {
   background: #3b82f6;
   color: #1e293b;
-  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
 }
 
 body.tema-escuro .view-btn,
@@ -4014,20 +4129,17 @@ body.tema-verde .add-btn,
 body.tema-verde .drive-btn {
   background: #10b981;
   color: white;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
 body.tema-verde .add-btn:hover,
 body.tema-verde .drive-btn:hover {
   background: #059669;
-  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
 }
 
 body.tema-verde .edit-btn,
 body.tema-verde .view-btn {
   background: #10b981;
   color: white;
-  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
 }
 
 body.tema-verde .edit-btn:hover,
@@ -4056,7 +4168,6 @@ body.tema-verde .notebook-hover-actions .edit-btn,
 body.tema-verde .notebook-hover-actions .remove-btn {
   background: linear-gradient(135deg, #10b981, #064e3b);
   color: white;
-  box-shadow: 0 1px 3px rgba(16, 185, 129, 0.2);
 }
 
 body.tema-verde .notebook-hover-actions .edit-btn:hover {
@@ -4193,19 +4304,6 @@ body.tema-verde .tjsc-icon svg {
   color: #10b981;
 }
 
-body.tema-verde .add-btn,
-body.tema-verde .drive-btn {
-  background: #10b981;
-  color: white;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-}
-
-body.tema-verde .add-btn:hover,
-body.tema-verde .drive-btn:hover {
-  background: #059669;
-  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
-}
-
 body.tema-verde .form-submit {
   background: #10b981;
   color: white;
@@ -4267,7 +4365,6 @@ body.tema-verde .aviso-dot.info {
 body.tema-verde .aviso-actions .add-btn {
   background: #10b981;
   color: #fff;
-  box-shadow: 0 4px 12px rgba(16,185,129,0.3);
 }
 
 body.tema-verde .aviso-actions .add-btn:hover {
@@ -4397,13 +4494,11 @@ body.tema-vermelho .add-btn,
 body.tema-vermelho .drive-btn {
   background: #ef4444;
   color: white;
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
 body.tema-vermelho .add-btn:hover,
 body.tema-vermelho .drive-btn:hover {
   background: #991b1b;
-  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
 }
 
 body.tema-vermelho .edit-btn,
@@ -4439,7 +4534,6 @@ body.tema-vermelho .notebook-hover-actions .edit-btn,
 body.tema-vermelho .notebook-hover-actions .remove-btn {
   background: linear-gradient(135deg, #ef4444, #991b1b);
   color: white;
-  box-shadow: 0 1px 3px rgba(239, 68, 68, 0.2);
 }
 
 body.tema-vermelho .notebook-hover-actions .edit-btn:hover {
@@ -4576,19 +4670,6 @@ body.tema-vermelho .tjsc-icon svg {
   color: #ef4444;
 }
 
-body.tema-vermelho .add-btn,
-body.tema-vermelho .drive-btn {
-  background: #ef4444;
-  color: white;
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-}
-
-body.tema-vermelho .add-btn:hover,
-body.tema-vermelho .drive-btn:hover {
-  background: #991b1b;
-  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
-}
-
 body.tema-vermelho .form-submit {
   background: #ef4444;
   color: white;
@@ -4650,7 +4731,6 @@ body.tema-vermelho .aviso-dot.info {
 body.tema-vermelho .aviso-actions .add-btn {
   background: #ef4444;
   color: #fff;
-  box-shadow: 0 4px 12px rgba(239,68,68,0.3);
 }
 
 body.tema-vermelho .aviso-actions .add-btn:hover {
@@ -4775,20 +4855,17 @@ body.tema-rosa .add-btn,
 body.tema-rosa .drive-btn {
   background: #ec4899;
   color: white;
-  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
 }
 
 body.tema-rosa .add-btn:hover,
 body.tema-rosa .drive-btn:hover {
   background: #a21caf;
-  box-shadow: 0 6px 16px rgba(236, 72, 153, 0.4);
 }
 
 body.tema-rosa .edit-btn,
 body.tema-rosa .view-btn {
   background: #ec4899;
   color: white;
-  box-shadow: 0 2px 4px rgba(236, 72, 153, 0.2);
 }
 
 body.tema-rosa .edit-btn:hover,
@@ -4817,7 +4894,6 @@ body.tema-rosa .notebook-hover-actions .edit-btn,
 body.tema-rosa .notebook-hover-actions .remove-btn {
   background: linear-gradient(135deg, #ec4899, #a21caf);
   color: white;
-  box-shadow: 0 1px 3px rgba(236, 72, 153, 0.2);
 }
 
 body.tema-rosa .notebook-hover-actions .edit-btn:hover {
@@ -4958,13 +5034,6 @@ body.tema-rosa .add-btn,
 body.tema-rosa .drive-btn {
   background: #ec4899;
   color: white;
-  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
-}
-
-body.tema-rosa .add-btn:hover,
-body.tema-rosa .drive-btn:hover {
-  background: #a21caf;
-  box-shadow: 0 6px 16px rgba(236, 72, 153, 0.4);
 }
 
 body.tema-rosa .form-submit {
@@ -5028,7 +5097,6 @@ body.tema-rosa .aviso-dot.info {
 body.tema-rosa .aviso-actions .add-btn {
   background: #ec4899;
   color: #fff;
-  box-shadow: 0 4px 12px rgba(236,72,153,0.3);
 }
 
 body.tema-rosa .aviso-actions .add-btn:hover {
@@ -5156,20 +5224,17 @@ body.tema-tjsc .add-btn,
 body.tema-tjsc .drive-btn {
   background: #556b2f;
   color: white;
-  box-shadow: 0 4px 12px rgba(85, 107, 47, 0.3);
 }
 
 body.tema-tjsc .add-btn:hover,
 body.tema-tjsc .drive-btn:hover {
   background: #425622;
-  box-shadow: 0 6px 16px rgba(85, 107, 47, 0.4);
 }
 
 body.tema-tjsc .edit-btn,
 body.tema-tjsc .view-btn {
   background: #556b2f;
   color: white;
-  box-shadow: 0 2px 4px rgba(85, 107, 47, 0.2);
 }
 
 body.tema-tjsc .edit-btn:hover,
@@ -5198,7 +5263,6 @@ body.tema-tjsc .notebook-hover-actions .edit-btn,
 body.tema-tjsc .notebook-hover-actions .remove-btn {
   background: linear-gradient(135deg, #556b2f, #7a8b4a);
   color: white;
-  box-shadow: 0 1px 3px rgba(85, 107, 47, 0.2);
 }
 
 body.tema-tjsc .notebook-hover-actions .edit-btn:hover {
@@ -5339,13 +5403,6 @@ body.tema-tjsc .add-btn,
 body.tema-tjsc .drive-btn {
   background: #556b2f;
   color: white;
-  box-shadow: 0 4px 12px rgba(85, 107, 47, 0.3);
-}
-
-body.tema-tjsc .add-btn:hover,
-body.tema-tjsc .drive-btn:hover {
-  background: #425622;
-  box-shadow: 0 6px 16px rgba(85, 107, 47, 0.4);
 }
 
 body.tema-tjsc .form-submit {
@@ -5503,7 +5560,7 @@ body.tema-black {
 }
 
 body.tema-black .dashboard {
-  background: #808087;
+  background: #b1b1b5;
 }
 
 body.tema-black .main-title {
@@ -5516,24 +5573,10 @@ body.tema-black .main-title svg {
   color: #232946;
 }
 
-body.tema-black .add-btn,
-body.tema-black .drive-btn {
-  background: #18181b;
-  color: #f4f4f5;
-  box-shadow: 0 4px 12px rgba(24, 24, 27, 0.3);
-}
-
-body.tema-black .add-btn:hover,
-body.tema-black .drive-btn:hover {
-  background: #27272a;
-  box-shadow: 0 6px 16px rgba(24, 24, 27, 0.4);
-}
-
 body.tema-black .edit-btn,
 body.tema-black .view-btn {
   background: #18181b;
   color: #f4f4f5;
-  box-shadow: 0 2px 4px rgba(24, 24, 27, 0.2);
 }
 
 body.tema-black .edit-btn:hover,
@@ -5562,7 +5605,6 @@ body.tema-black .notebook-hover-actions .edit-btn,
 body.tema-black .notebook-hover-actions .remove-btn {
   background: linear-gradient(135deg, #18181b, #27272a);
   color: #f4f4f5;
-  box-shadow: 0 1px 3px rgba(24, 24, 27, 0.2);
 }
 
 body.tema-black .notebook-hover-actions .edit-btn:hover {
@@ -5703,13 +5745,11 @@ body.tema-black .add-btn,
 body.tema-black .drive-btn {
   background: #18181b;
   color: #f4f4f5;
-  box-shadow: 0 4px 12px rgba(24, 24, 27, 0.3);
 }
 
 body.tema-black .add-btn:hover,
 body.tema-black .drive-btn:hover {
   background: #27272a;
-  box-shadow: 0 6px 16px rgba(24, 24, 27, 0.4);
 }
 
 body.tema-black .form-submit {
@@ -5773,7 +5813,6 @@ body.tema-black .aviso-dot.info {
 body.tema-black .aviso-actions .add-btn {
   background: #18181b;
   color: #f4f4f5;
-  box-shadow: 0 4px 12px rgba(24,24,27,0.3);
 }
 
 body.tema-black .aviso-actions .add-btn:hover {
