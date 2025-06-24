@@ -1466,16 +1466,18 @@ const cancelarExclusao = () => {
                           <span className="tjsc-icon">{getIconComponent(link.icone)}</span>
                           <span className="tjsc-text">{link.titulo}</span>
                         </a>
-                        <div className="tjsc-hover-actions">
-                          <button 
-                            onClick={() => editarTjscLink(link)}
-                            className="edit-btn"
-                            title="Editar link"
-                          >
-                          </button>
-                          <button onClick={() => confirmarExclusao(link.id, 'tjsc')} className="remove-btn" title="Excluir link">
-                          </button>
-                        </div>
+                        {((link.user_id && user && link.user_id === user.id) || (link.is_default && user && user.email === ADMIN_EMAIL)) && (
+                          <div className="tjsc-hover-actions">
+                            <button 
+                              onClick={() => editarTjscLink(link)}
+                              className="edit-btn"
+                              title="Editar link"
+                            >
+                            </button>
+                            <button onClick={() => confirmarExclusao(link.id, 'tjsc')} className="remove-btn" title="Excluir link">
+                            </button>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
