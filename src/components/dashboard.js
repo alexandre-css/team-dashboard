@@ -603,6 +603,7 @@ const removerAviso = async (id) => {
 };
 
 const ADMIN_EMAIL = process.env.REACT_APP_ADMIN_EMAIL;
+const canEditAvisos = user && user.email === ADMIN_EMAIL;
 
 const adicionarTjscLink = async () => {
   if (editandoTjscLink) {
@@ -914,32 +915,34 @@ const cancelarExclusao = () => {
                 <SiImessage size={20} style={{marginRight: '8px'}} />
                 Avisos
               </h3>
-              <button 
-                onClick={() => {
-                  if (mostrarFormulario) {
-                    setMostrarFormulario(false);
-                    setNovoAviso({ titulo: '', descricao: '', tipo: 'warning', imagens: [] });
-                    if (editandoAviso) {
-                      setEditandoAviso(null);
-                    }
-                  } else {
-                    setMostrarFormulario(true);
-                    setTimeout(() => {
-                      const formulario = document.querySelector('.aviso-form');
-                      if (formulario) {
-                        formulario.scrollIntoView({ 
-                          behavior: 'smooth', 
-                          block: 'start' 
-                        });
+              {canEditAvisos && (
+                <button 
+                  onClick={() => {
+                    if (mostrarFormulario) {
+                      setMostrarFormulario(false);
+                      setNovoAviso({ titulo: '', descricao: '', tipo: 'warning', imagens: [] });
+                      if (editandoAviso) {
+                        setEditandoAviso(null);
                       }
-                    }, 100);
-                  }
-                }} 
-                className="add-btn"
-                title={mostrarFormulario ? "Cancelar" : "Adicionar aviso"}
-              >
-                {mostrarFormulario ? '×' : '+'}
-              </button>
+                    } else {
+                      setMostrarFormulario(true);
+                      setTimeout(() => {
+                        const formulario = document.querySelector('.aviso-form');
+                        if (formulario) {
+                          formulario.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'start' 
+                          });
+                        }
+                      }, 100);
+                    }
+                  }} 
+                  className="add-btn"
+                  title={mostrarFormulario ? "Cancelar" : "Adicionar aviso"}
+                >
+                  {mostrarFormulario ? '×' : '+'}
+                </button>
+              )}
             </div>
 
             <div className="card-content">
@@ -1062,20 +1065,22 @@ const cancelarExclusao = () => {
                         {new Date(aviso.created_at).toLocaleString('pt-BR')}
                       </span>
                     </div>
-                    <div className="aviso-actions">
-                      <button 
-                        onClick={() => editarAviso(aviso)}
-                        className="edit-btn"
-                        title="Editar aviso"
-                      >
-                      </button>
-                      <button 
-                        onClick={() => confirmarExclusao(aviso.id, 'aviso')}
-                        className="remove-btn"
-                        title="Excluir aviso"
-                      >
-                      </button>
-                    </div>
+                    {canEditAvisos && (
+                      <div className="aviso-actions">
+                        <button 
+                          onClick={() => editarAviso(aviso)}
+                          className="edit-btn"
+                          title="Editar aviso"
+                        >
+                        </button>
+                        <button 
+                          onClick={() => confirmarExclusao(aviso.id, 'aviso')}
+                          className="remove-btn"
+                          title="Excluir aviso"
+                        >
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -1101,14 +1106,17 @@ const cancelarExclusao = () => {
                 ) : (
                   <div className="eventos-lista">
                     {eventos.length > 0 ? (
+                      // Substitua o bloco que renderiza cada evento do calendário dentro de eventos.map(evento => { ... }):
+                      
                       eventos.map(evento => {
                         const eventDate = new Date(evento.start.dateTime || evento.start.date + 'T00:00:00');
                         const isUrgent = evento.summary.toLowerCase().includes('limite');
+                        const isBirthday = evento.summary.toLowerCase().includes('aniversário');
                         const hasTime = evento.start.dateTime;
                         const hasLocation = evento.location;
-                        
+                      
                         return (
-                          <div key={evento.id} className="evento-item">
+                          <div key={evento.id} className={`evento-item${isBirthday ? ' aniversario' : ''}`}>
                             <div className="evento-date-section">
                               <div className="evento-weekday">
                                 {eventDate.toLocaleDateString('pt-BR', { weekday: 'short' })}
@@ -1120,30 +1128,37 @@ const cancelarExclusao = () => {
                                 {eventDate.toLocaleDateString('pt-BR', { month: 'short' })}
                               </div>
                             </div>
-                            
                             <div className="evento-info">
-                              {hasTime && (
-                                <div className="evento-time-badge">
-                                  {new Date(evento.start.dateTime).toLocaleTimeString('pt-BR', { 
-                                    hour: '2-digit', 
-                                    minute: '2-digit' 
-                                  })} - {new Date(evento.end.dateTime).toLocaleTimeString('pt-BR', { 
-                                    hour: '2-digit', 
-                                    minute: '2-digit' 
-                                  })}
+                              <div className="evento-info-conteudo">
+                                {isBirthday && (
+                                  <img src="/birthday.png" alt="Ícone aniversário" className="evento-birthday-img" />
+                                )}
+                                <div className="evento-info-centro">
+                                  {hasTime && (
+                                    <div className="evento-time-badge">
+                                      {new Date(evento.start.dateTime).toLocaleTimeString('pt-BR', { 
+                                        hour: '2-digit', 
+                                        minute: '2-digit' 
+                                      })} - {new Date(evento.end.dateTime).toLocaleTimeString('pt-BR', { 
+                                        hour: '2-digit', 
+                                        minute: '2-digit' 
+                                      })}
+                                    </div>
+                                  )}
+                                  <h4 className="evento-title">{evento.summary}</h4>
+                                  {hasLocation && (
+                                    <div className="evento-location">
+                                      {evento.location}
+                                    </div>
+                                  )}
                                 </div>
-                              )}
-                              
-                              <h4 className="evento-title">{evento.summary}</h4>
-                              
-                              {hasLocation && (
-                                <div className="evento-location">
-                                  {evento.location}
-                                </div>
-                              )}
+                                {isBirthday ? (
+                                  <img src="/balloon.svg" alt="Aniversário" className="evento-status aniversario" />
+                                ) : (
+                                  <div className={`evento-status ${isUrgent ? 'urgent' : ''}`}></div>
+                                )}
+                              </div>
                             </div>
-                            
-                            <div className={`evento-status ${isUrgent ? 'urgent' : ''}`}></div>
                           </div>
                         );
                       })
