@@ -1,3 +1,73 @@
+body.tema-rosa .evento-item:hover {
+    background: rgba(236, 72, 153, 0.05);
+}
+body.tema-verde .pasta-header:hover {
+    background: rgba(16, 185, 129, 0.1);
+}
+body.tema-verde .drive-btn:hover {
+    background: #bbf7d0;
+    color: #166534;
+    box-shadow: 0 2px 8px rgba(34,197,94,0.08);
+}
+body.tema-verde .notebook-item:hover {
+    background: #bbf7d0;
+    color: #166534;
+    box-shadow: 0 2px 8px rgba(34,197,94,0.08);
+}
+
+body.tema-verde .evento-item:hover {
+    background: rgba(16, 185, 129, 0.1);
+    color: #166534;
+    box-shadow: 0 2px 8px rgba(34,197,94,0.08);
+}
+body.tema-verde .notebook-item-link:hover .notebook-item {
+    background: #bbf7d0;
+    color: #166534;
+    box-shadow: 0 2px 8px rgba(34,197,94,0.08);
+}
+
+body.tema-verde .aviso-dot.warning {
+    background: #22c55e !important;
+}
+body.tema-verde .pasta-icon {
+    color: #22c55e !important;
+    transition: color 0.2s;
+}
+body.tema-verde .pasta-header.open .pasta-icon {
+    color: #166534 !important;
+}
+body.tema-verde .tema-option:hover .tema-preview {
+    box-shadow: 0 0 0 2px #22c55e;
+    border-color: #22c55e;
+    background: #e6fbe8;
+}
+body.tema-black .edit-btn {
+    background: #f4f4f5;
+    color: #18181b;
+    border-radius: 8px;
+    font-family: "Roboto", arial, sans-serif;
+    font-size: 14px;
+    height: 40px;
+    min-width: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(24,24,27,0.08);
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+body.tema-black .edit-btn:hover {
+    background: #18181b;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(24,24,27,0.10);
+    transform: translateY(-1px);
+}
+body.tema-black .notebook-item:hover {
+    background: #000000;
+    color: #18181b;
+    box-shadow: 0 2px 8px rgba(24,24,27,0.08);
+}
 body.tema-verde .dashboard-grid {
     background: #f6fef9;
 }
@@ -23,8 +93,13 @@ body.tema-verde .avisos-card h3 svg {
 }
 body.tema-verde .aviso-dot-warning {
     background: #facc15;
-    box-shadow: 0 0 0 2px #e6fbe8;
+    box-shadow: 0 0 0 2px #22c55e;
     border-radius: 50%;
+    width: 12px;
+    height: 12px;
+    border: 2px solid #fff;
+    display: inline-block;
+    vertical-align: middle;
 }
 body.tema-verde .user-avatar-large {
     background: #22c55e;
@@ -107,14 +182,16 @@ body.tema-verde .user-menu-item {
 }
 
 body.tema-verde .user-menu-item:hover {
-    background: rgba(34,197,94,0.08);
+    background: #bbf7d0;
     border-left: 3px solid #22c55e;
     color: #166534;
+    box-shadow: 0 2px 8px rgba(34,197,94,0.08);
 }
 body.tema-verde .user-menu-item.logout:hover {
     background: #bbf7d0;
     border-left: 3px solid #22c55e;
     color: #22c55e;
+    box-shadow: 0 2px 8px rgba(34,197,94,0.08);
 }
 body.tema-verde .tema-options {
     background: #e6fbe8;
@@ -154,6 +231,7 @@ body.tema-verde .tema-option {
 body.tema-verde .tema-option:hover {
     background: #bbf7d0;
     color: #166534;
+    box-shadow: 0 2px 8px rgba(34,197,94,0.08);
 }
 body.tema-verde .tema-option.active {
     background: #22c55e;
@@ -728,9 +806,9 @@ body.tema-black .tema-submenu:hover .tema-options {
     transform: translateY(0);
 }
 body.tema-black .tema-option:hover {
-    background: rgba(24, 24, 27, 0.1);
+    background: rgba(219, 219, 224, 0.1);
     box-shadow: 0 4px 12px rgba(24, 24, 27, 0.15);
-    color: #18181b;
+    color: #ffffff;
 }
 body.tema-black .tema-option.active {
     background: #18181b;
@@ -759,7 +837,9 @@ body.tema-black .user-menu-header {
     align-items: center;
     gap: 12px;
     border-radius: 12px 12px 0 0;
+    -webkit-text-fill-color: #ffffff;
 }
+
 body.tema-black .user-menu-item {
     color: #fff;
     transition: all 0.15s ease;
@@ -906,15 +986,15 @@ body.tema-black .avisos-card h3 svg {
 
 body.tema-black .aviso-actions .edit-btn,
 body.tema-black .aviso-actions .remove-btn {
-    background: #23232b !important;
+    background: #18181b !important;
     color: #fff !important;
     border-radius: 8px;
     transition: background 0.2s, color 0.2s;
 }
 body.tema-black .aviso-actions .edit-btn:hover,
 body.tema-black .aviso-actions .remove-btn:hover {
-    background: #fff !important;
-    color: #18181b !important;
+    background: #27272a !important;
+    color: #fff !important;
 }
 body.tema-black .avisos-card {
     border-left: 4px solid #fff !important;
@@ -935,13 +1015,11 @@ body.tema-black .aviso-actions .remove-btn:hover {
 body.tema-black .evento-item:hover {
     background: #f3f4f6 !important;
     box-shadow: 0 2px 8px rgba(24,24,27,0.10);
-
     color: #18181b !important;
 }
 body.tema-black .evento-item {
     background: #fff !important;
     color: #18181b !important;
-    border-left: 4px solid #18181b !important;
 }
 
 body.tema-black .evento-title:hover {
@@ -968,14 +1046,12 @@ body.tema-black .download-btn:hover {
 
 body.tema-black .pasta-header {
     background: #fff !important;
-    border-left: 4px solid #18181b !important;
     color: #18181b !important;
     transition: background 0.2s, color 0.2s, border 0.2s;
 }
 body.tema-black .pasta-header:hover {
     background: rgba(24, 24, 27, 0.1) !important;
     box-shadow: 0 4px 12px rgba(24, 24, 27, 0.15);
-    border-left: 4px solid #18181b !important;
     color: #18181b !important;
 }
 body.tema-black .pasta-header.open {
@@ -1040,17 +1116,14 @@ body.tema-black .drive-btn {
 }
 body.tema-black .add-btn:hover,
 body.tema-black .drive-btn:hover {
-    background: #23232b;
-    color: #fff;
+    background: none;
+    color: #000000;
     border-color: #fff;
     box-shadow: 0 2px 8px rgba(255,255,255,0.12);
 }
-body.tema-black .edit-btn,
 body.tema-black .view-btn {
-    background: #18181b;
-    color: #fff;
-    border: 1.5px solid #fff;
-    border-radius: 20px;
+    background: none;
+    color: #000000;
     font-family: "Roboto", arial, sans-serif;
     font-size: 14px;
     height: 40px;
@@ -1061,11 +1134,9 @@ body.tema-black .view-btn {
     box-shadow: 0 1px 3px rgba(255,255,255,0.08);
     transition: background-color 0.218s, border-color 0.218s, box-shadow 0.218s;
 }
-body.tema-black .edit-btn:hover,
 body.tema-black .view-btn:hover {
-    background: #23232b;
-    color: #fff;
-    border-color: #fff;
+    background: none;
+    color: #000000;
     box-shadow: 0 2px 8px rgba(255,255,255,0.12);
 }
 body.tema-black .tab-btn.active {
@@ -1089,17 +1160,22 @@ body.tema-black .tjsc-icon svg {
 }
 body.tema-black .notebook-hover-actions .edit-btn,
 body.tema-black .notebook-hover-actions .remove-btn {
-    background: linear-gradient(135deg, #18181b, #23232b);
-    color: white;
+    color: #fff;
+}
+body.tema-black .notebook-hover-actions .edit-btn {
+    background: #18181b;
+    border-radius: 8px;
+    transition: background 0.2s, color 0.2s;
 }
 body.tema-black .notebook-hover-actions .edit-btn:hover {
-    background: #23232b;
+    background: #27272a;
+    color: #fff;
 }
 body.tema-black .notebook-hover-actions .remove-btn {
     background: #6b7280;
 }
 body.tema-black .notebook-hover-actions .remove-btn:hover {
-    background: #10b981;
+    background: #d30707;
 }
 body.tema-black .notebook-titulo-link:hover .notebook-titulo {
     color: #18181b;
@@ -1644,7 +1720,6 @@ body.tema-tjsc .aviso-dot.warning {
 .aviso-item.urgent:hover,
 .aviso-item.success:hover,
 .aviso-item.warning:hover {
-    border-left-color: #2d3688;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }
 
@@ -2070,8 +2145,8 @@ body.tema-tjsc .aviso-dot.warning {
 }
 
 .edit-btn {
-    background: #2d3688;
-    color: white;
+
+    color: rgb(0, 0, 0);
     border: none;
     width: 28px;
     height: 28px;
@@ -2085,7 +2160,7 @@ body.tema-tjsc .aviso-dot.warning {
 }
 
 .edit-btn:hover {
-    background: #3e48a3;
+    background: #7981c9;
     transform: translateY(-1px);
 }
 
@@ -2354,7 +2429,7 @@ body.tema-tjsc .aviso-dot.warning {
     opacity: 0;
     visibility: hidden;
     transition: all 0.2s ease;
-    background: rgba(59, 130, 246, 0.1);
+
     border-radius: 6px;
     padding: 2px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -2363,8 +2438,6 @@ body.tema-tjsc .aviso-dot.warning {
 
 .notebook-hover-actions .edit-btn,
 .notebook-hover-actions .remove-btn {
-    background: linear-gradient(135deg, #667eea, #0a1368);
-    color: white;
     border: none;
     padding: 4px;
     border-radius: 4px;
@@ -2394,7 +2467,7 @@ body.tema-tjsc .aviso-dot.warning {
 }
 
 .notebook-hover-actions .edit-btn:hover {
-    background: #3e48a3;
+    background: #838cdb;
     transform: translateY(-1px);
 }
 
@@ -5216,8 +5289,14 @@ body.tema-verde .drive-btn {
     color: white;
 }
 body.tema-verde .add-btn:hover,
-body.tema-verde .drive-btn:hover {
-    background: #065f46;
+body.tema-verde .drive-btn:hover,
+body.tema-verde .add-btn:hover,
+body.tema-verde .edit-btn:hover,
+body.tema-verde .view-btn:hover,
+body.tema-verde .login-btn:hover {
+    background: #bbf7d0;
+    color: #166534;
+    box-shadow: 0 2px 8px rgba(34,197,94,0.08);
 }
 body.tema-verde .edit-btn,
 body.tema-verde .view-btn {
@@ -5236,13 +5315,14 @@ body.tema-verde .tab-btn.active {
 body.tema-verde .tjsc-link-title:hover,
 body.tema-verde .tjsc-link-title:visited,
 body.tema-verde .tjsc-link-title:visited:hover {
-    background: rgba(16, 185, 129, 0.05);
+    background: rgba(16, 185, 129, 0.1);
     color: #065f46;
 }
+
 body.tema-verde .tjsc-link-title,
 body.tema-verde .tjsc-link-title:visited {
     color: #10b981;
-    background: none;
+    background: rgba(16, 185, 129, 0.1);
 }
 body.tema-verde .tjsc-icon svg {
     color: #10b981;
@@ -5292,7 +5372,6 @@ body.tema-verde .download-btn:hover {
 
 body.tema-vermelho .card {
     background: #fdf3f3;
-    border-color: #ef4444;
 }
 
 body.tema-vermelho .main-title {
@@ -5374,7 +5453,7 @@ body.tema-vermelho .notebook-titulo-link:hover .notebook-titulo {
 }
 
 body.tema-vermelho .notebook-item-link:hover .notebook-item {
-    background: rgba(239, 68, 68, 0.1);
+    background: rgba(239, 68, 68, 0.05);
     box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
 }
 
@@ -5388,7 +5467,7 @@ body.tema-vermelho .notebook-icon-circle {
 }
 
 body.tema-vermelho .tab-btn:hover {
-    background: rgba(239, 68, 68, 0.1);
+    background: rgba(239, 68, 68, 0.05);
     border-color: rgba(239, 68, 68, 0.3);
     color: #ef4444;
 }
@@ -5550,7 +5629,6 @@ body.tema-vermelho .aviso-item.info:hover,
 body.tema-vermelho .aviso-item.urgent:hover,
 body.tema-vermelho .aviso-item.success:hover,
 body.tema-vermelho .aviso-item.warning:hover {
-    border-left-color: #ef4444;
     box-shadow: 0 4px 16px rgba(239, 68, 68, 0.15);
 }
 
@@ -5724,7 +5802,7 @@ body.tema-rosa .tab-btn.active {
 body.tema-rosa .tjsc-link-title:hover,
 body.tema-rosa .tjsc-link-title:visited,
 body.tema-rosa .tjsc-link-title:visited:hover {
-    background: rgba(236, 72, 153, 0.05);
+    background: rgba(239, 68, 68, 0.05);
     color: #a21caf;
 }
 
@@ -5761,7 +5839,7 @@ body.tema-rosa .notebook-titulo-link:hover .notebook-titulo {
 }
 
 body.tema-rosa .notebook-item-link:hover .notebook-item {
-    background: rgba(236, 72, 153, 0.1);
+    background: rgba(236, 72, 153, 0.05);
     box-shadow: 0 4px 12px rgba(236, 72, 153, 0.15);
 }
 
@@ -5934,7 +6012,6 @@ body.tema-rosa .aviso-item.info:hover,
 body.tema-rosa .aviso-item.urgent:hover,
 body.tema-rosa .aviso-item.success:hover,
 body.tema-rosa .aviso-item.warning:hover {
-    border-left-color: #ec4899;
     box-shadow: 0 4px 16px rgba(236, 72, 153, 0.15);
 }
 
