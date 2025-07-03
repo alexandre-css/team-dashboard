@@ -14,6 +14,7 @@
 				"./"
 			]
 		],
-		"liveServer.settings.multiRootWorkspaceName": "team-dashboard"
+		"liveServer.settings.multiRootWorkspaceName": "team-dashboard",
+		"npm-scripts.showStartNotification": false
 	}
 }
