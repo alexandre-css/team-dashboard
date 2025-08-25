@@ -17,18 +17,30 @@ body.tema-vermelho .main-content,
 body.tema-vermelho .dashboard-grid {
     background: #fdf3f3;
 }
-.dashboard,
-.main-content,
-.dashboard-grid {
-    min-height: 0;
-    height: auto;
-    overflow: visible;
-    background: #eaeef3;
-}
 body.tema-escuro .dashboard,
 body.tema-escuro .main-content,
 body.tema-escuro .dashboard-grid {
     background: #0f172a;
+}
+body.tema-verde .dashboard,
+body.tema-verde .main-content,
+body.tema-verde .dashboard-grid {
+    background: #f6fef9;
+}
+body.tema-rosa .dashboard,
+body.tema-rosa .main-content,
+body.tema-rosa .dashboard-grid {
+    background: #fef7f7;
+}
+body.tema-black .dashboard,
+body.tema-black .main-content,
+body.tema-black .dashboard-grid {
+    background: #f8f8f8;
+}
+body.tema-tjsc .dashboard,
+body.tema-tjsc .main-content,
+body.tema-tjsc .dashboard-grid {
+    background: #f3fdf7;
 }
 /* Correção de hover para notebook-item no tema-escuro */
 /* Removidas duplicatas do tema-escuro. Mantido apenas o CSS funcional e específico. */
@@ -235,15 +247,6 @@ body.tema-black .notebook-item:hover {
     background: #000000;
     color: #18181b;
     box-shadow: 0 2px 8px rgba(24, 24, 27, 0.08);
-}
-body.tema-verde .dashboard-grid {
-    background: #f6fef9;
-}
-body.tema-black .dashboard-grid {
-    background: #d6d6d6;
-}
-body.tema-tjsc .dashboard-grid {
-    background: #f3fdf7;
 }
 body.tema-verde .image-icon:hover {
     background: #065f46;
@@ -567,7 +570,7 @@ body.tema-tjsc .user-menu-item:hover {
     border-left-color: #006837;
 }
 body.tema-tjsc .user-info.capsula-google {
-    background-color: #fff;
+    background-color: #f3fdf7;
     border: 1.5px solid #006837;
     border-radius: 20px;
     padding: 0 12px;
@@ -862,7 +865,7 @@ body.tema-rosa .user-menu-item:hover {
     border-left-color: #ec4899;
 }
 body.tema-rosa .user-info.capsula-google {
-    background-color: #fff;
+    background-color: #fef7f7;
     border: 1.5px solid #ec4899;
     border-radius: 20px;
     padding: 0 12px;
@@ -1098,6 +1101,9 @@ body.tema-black .user-info.capsula-google {
     box-sizing: border-box;
     transition: background-color 0.218s, border-color 0.218s, box-shadow 0.218s;
 }
+body.tema-black .user-info.capsula-google .user-name {
+    color: #ffffff;
+}
 body.tema-black .gsi-material-button {
     background-color: #23232b;
     border: 1.5px solid #fff;
@@ -1259,13 +1265,16 @@ body.tema-black .aviso-actions .remove-btn:hover {
     box-shadow: 0 2px 8px rgba(189, 164, 164, 0.1);
 }
 body.tema-black .evento-item:hover {
-    background: #f3f4f6 !important;
+    background: #18181b1a !important;
     box-shadow: 0 2px 8px rgba(24, 24, 27, 0.1);
     color: #18181b !important;
 }
 body.tema-black .evento-item {
     background: #fff !important;
     color: #18181b !important;
+}
+body.tema-black .tjsc-item:hover {
+    background: #18181b1a !important;
 }
 
 body.tema-black .evento-title:hover {
@@ -5977,7 +5986,7 @@ body.tema-vermelho .gsi-material-button {
 }
 
 body.tema-vermelho .user-info.capsula-google {
-    background-color: #fff;
+    background-color: #fdf3f3;
     border: 1.5px solid #ef4444;
 }
 
