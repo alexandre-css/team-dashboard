@@ -162,6 +162,9 @@ body.tema-escuro .tjsc-item:hover .tjsc-link-title {
     background: #334155 !important;
     text-decoration: underline !important;
 }
+body.tema-escuro .tjsc-icon svg {
+    color: #60a5fa;
+}
 body.tema-rosa .evento-item:hover {
     background: rgba(236, 72, 153, 0.05);
 }
@@ -2628,7 +2631,7 @@ body.tema-escuro .tab-btn.active {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: 6px;
     padding: 8px;
     margin-bottom: 4px;
     background: white;
@@ -2656,9 +2659,10 @@ body.tema-escuro .tab-btn.active {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 1px;
     padding-right: 25px;
+    padding-top: 4px;
 }
 
 .notebook-titulo {
@@ -2695,6 +2699,7 @@ body.tema-escuro .tab-btn.active {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    margin-top: 6px;
 }
 body.tema-escuro .notebook-icon-circle {
     background-color: #60a5fa;
@@ -4525,6 +4530,14 @@ body.tema-escuro .notebook-titulo-link:hover .notebook-titulo {
     }
 }
 
+.arquivo-item-submenu {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    margin-bottom: 4px;
+}
+
 .arquivo-item-submenu:last-child {
     margin-bottom: 0;
 }
@@ -4533,11 +4546,16 @@ body.tema-escuro .notebook-titulo-link:hover .notebook-titulo {
     color: #6b7280;
     font-size: 14px;
     flex-shrink: 0;
+    margin: 0;
+    padding: 0;
+    width: 16px;
+    text-align: center;
 }
 
 .arquivo-info-submenu {
-    flex: 1;
     min-width: 0;
+    margin: 0;
+    padding: 0;
 }
 
 .arquivo-nome-submenu {
@@ -4548,6 +4566,7 @@ body.tema-escuro .notebook-titulo-link:hover .notebook-titulo {
     cursor: pointer;
     transition: all 0.2s ease;
     word-break: break-word;
+    text-align: left;
 }
 
 .arquivo-nome-submenu:hover {
